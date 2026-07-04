@@ -1,0 +1,19 @@
+- generic [ref=f3e2]:
+  - status [ref=f3e29]: Berhasil masuk!
+  - generic [ref=f3e5]:
+    - generic [ref=f3e6]:
+      - img "Heart-warming volunteer" [ref=f3e7]
+      - generic [ref=f3e9]:
+        - heading "NutriShare" [level=1] [ref=f3e10]
+        - paragraph [ref=f3e11]: Menghubungkan surplus pangan dengan mereka yang paling membutuhkan melalui teknologi cerdas dan kepedulian bersama.
+    - generic [ref=f3e13]:
+      - heading "Selamat Datang" [level=2] [ref=f3e14]
+      - paragraph [ref=f3e15]: Masuk ke akun NutriShare Anda untuk melanjutkan kebaikan hari ini.
+      - generic [ref=f3e16]:
+        - generic [ref=f3e17]:
+          - generic [ref=f3e18]: Email
+          - textbox [ref=f3e19]: donor@nutrishare.id
+        - generic [ref=f3e20]:
+          - generic [ref=f3e21]: Password
+          - textbox [ref=f3e22]: dinir123
+        - button "Masuk ke Sistem" [ref=f3e23]

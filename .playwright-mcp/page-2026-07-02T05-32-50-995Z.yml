@@ -1,0 +1,23 @@
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - img "Heart-warming volunteer" [ref=e5]
+    - generic [ref=e7]:
+      - heading "NutriShare" [level=1] [ref=e8]
+      - paragraph [ref=e9]: Menghubungkan surplus pangan dengan mereka yang paling membutuhkan melalui teknologi cerdas dan kepedulian bersama.
+  - generic [ref=e11]:
+    - heading "Selamat Datang" [level=2] [ref=e12]
+    - paragraph [ref=e13]: Masuk ke akun NutriShare Anda untuk melanjutkan kebaikan hari ini.
+    - generic [ref=e14]:
+      - generic [ref=e15]:
+        - generic [ref=e16]: Email
+        - textbox [ref=e17]: admin@nutrishare.id
+      - generic [ref=e18]:
+        - generic [ref=e19]: Password
+        - textbox [ref=e20]: password
+      - button "Masuk ke Sistem" [ref=e21]
+    - generic [ref=e22]:
+      - paragraph [ref=e23]: "Demo Akun (Pilih salah satu):"
+      - generic [ref=e24]:
+        - button "admin@nutrishare.id" [ref=e25]
+        - button "hotel@malioboro.com" [ref=e26]
+        - button "panti@kasihibu.org" [ref=e27]

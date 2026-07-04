@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NUTRI-SHARE — Distribusi Pangan Berbasis Gizi</title>
+    <meta name="description" content="Platform distribusi surplus pangan HoReKa berbasis Hybrid Entropy-TOPSIS untuk menentukan penerima prioritas berdasarkan kebutuhan gizi." />
+    <meta name="keywords" content="food waste, donasi pangan, distribusi pangan, TOPSIS, nutrisi, Indonesia, Yogyakarta" />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Open Graph / Social Media -->
+    <meta property="og:title" content="NUTRI-SHARE — Distribusi Pangan Berbasis Gizi" />
+    <meta property="og:description" content="Platform distribusi surplus pangan berbasis Hybrid Entropy-TOPSIS untuk alokasi yang adil dan tepat sasaran." />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="id_ID" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="NUTRI-SHARE" />
+    <meta name="twitter:description" content="Distribusi pangan surplus cerdas berbasis kebutuhan gizi." />
+
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍱</text></svg>" />
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍱</text></svg>" />
+
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#2D7A4F" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="NutriShare" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker.register("/sw.js");
+        });
+      }
+    </script>
+  </body>
+</html>
