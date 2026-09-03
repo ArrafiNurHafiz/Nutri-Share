@@ -1,0 +1,51 @@
+# Files and directories excluded from Vercel serverless function bundle
+# Keep the bundle small for faster cold starts
+
+# Frontend (deployed separately)
+frontend/
+
+# Tests
+backend/tests/
+tests/
+
+# Dev tooling
+.venv/
+node_modules/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+
+# Docs and plans
+docs/
+*.md
+!README.md
+
+# Data and seeds
+data/
+seed_*.py
+
+# Playwright
+.playwright-mcp/
+playwright.config.ts
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+
+# Environment (Vercel sets env vars via dashboard)
+.env
+.env.*
+
+# Output
+dist/
+build/
+*.egg-info/
+
+# Misc
+coverage/
+htmlcov/

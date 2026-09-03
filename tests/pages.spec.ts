@@ -1,7 +1,9 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("Halaman Landing", () => {
-  test("menampilkan hero, fitur, cara kerja, dampak, footer", async ({ page }) => {
+  test("menampilkan hero, fitur, cara kerja, dampak, footer", async ({
+    page,
+  }) => {
     await page.goto("/");
     await expect(page.locator("h1")).toContainText("Makanan Bergizi");
     await expect(page.locator("text=Smart Allocation")).toBeVisible();
@@ -42,9 +44,15 @@ test.describe("Halaman Cara Kerja", () => {
   test("menampilkan 3 langkah dan flowchart", async ({ page }) => {
     await page.goto("/cara-kerja");
     await expect(page.locator("h1")).toContainText("Cara Kerjanya");
-    await expect(page.locator("text=Donor Publikasi Surplus Pangan")).toBeVisible();
-    await expect(page.locator("text=Hybrid Entropy-TOPSIS Alokasi Cerdas")).toBeVisible();
-    await expect(page.locator("text=Kurir Antar & Verifikasi Serah Terima")).toBeVisible();
+    await expect(
+      page.locator("text=Donor Publikasi Surplus Pangan"),
+    ).toBeVisible();
+    await expect(
+      page.locator("text=Hybrid Entropy-TOPSIS Alokasi Cerdas"),
+    ).toBeVisible();
+    await expect(
+      page.locator("text=Kurir Antar & Verifikasi Serah Terima"),
+    ).toBeVisible();
     await expect(page.locator("text=Registrasi & Verifikasi")).toBeVisible();
   });
 });
@@ -54,7 +62,9 @@ test.describe("Halaman Dampak", () => {
     await page.goto("/dampak");
     await expect(page.locator("h1")).toContainText("Dampak");
     // Angka statistik dari animated counter
-    await expect(page.locator("text=Kg Food Waste Terselamatkan")).toBeVisible();
+    await expect(
+      page.locator("text=Kg Food Waste Terselamatkan"),
+    ).toBeVisible();
     await expect(page.locator("text=Anak & Lansia Terbantu")).toBeVisible();
     await expect(page.locator("text=Mitra HoReKa")).toBeVisible();
     // SDG section ada setelah scroll
@@ -71,7 +81,9 @@ test.describe("Halaman Pahlawan", () => {
     // Tunggu data loading
     await page.waitForTimeout(2000);
     // Cek stats atau setidaknya hero muncul
-    await expect(page.locator("text=Setiap Donor Adalah Pahlawan")).toBeVisible();
+    await expect(
+      page.locator("text=Setiap Donor Adalah Pahlawan"),
+    ).toBeVisible();
   });
 });
 

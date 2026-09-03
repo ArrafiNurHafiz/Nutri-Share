@@ -12,6 +12,7 @@ bash tools/scope_loader.sh target.com
 ```
 
 Automatically:
+
 - Parses in-scope / out-of-scope targets
 - Sets scope allowlist for safe hunting
 - Checks for wildcard scope

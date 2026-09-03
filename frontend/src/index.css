@@ -1,0 +1,371 @@
+/* ═══════════════════════════════════════════
+   NutriShare Design System — Nutritional Vitality System
+   DESIGN.md spec v1
+
+   Brand: Corporate Modern with Tactile twist
+   Typography: Plus Jakarta Sans (headings) / Work Sans (body)
+   Primary: Lush Green (#10b981)
+   Secondary: Energetic Orange (#ff5e00)
+   Tertiary: Golden (#e9c400)
+   ═══════════════════════════════════════════ */
+
+@import "tailwindcss";
+
+/* ─── Theme tokens — DESIGN.md spec ─── */
+@theme {
+  --font-sans: "Work Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --color-surface: #f4fafd;
+  --color-surface-dim: #d4dbdd;
+  --color-surface-bright: #f4fafd;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #eef5f7;
+  --color-surface-container: #e8eff1;
+  --color-surface-container-high: #e2e9ec;
+  --color-surface-container-highest: #dde4e6;
+
+  --color-on-surface: #161d1f;
+  --color-on-surface-variant: #5b4137;
+  --color-outline: #8f7065;
+  --color-outline-variant: #e4bfb1;
+  --color-surface-tint: #047857;
+
+  /* ── Primary — Lush Green ── */
+  --color-primary: #047857;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #10b981;
+  --color-on-primary-container: #064e3b;
+  --color-primary-fixed: #d1fae5;
+  --color-primary-fixed-dim: #6ee7b7;
+  --color-on-primary-fixed: #022c22;
+  --color-on-primary-fixed-variant: #065f46;
+  --color-inverse-primary: #6ee7b7;
+
+  /* ── Secondary — Energetic Orange ── */
+  --color-secondary: #a63b00;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #ff5e00;
+  --color-on-secondary-container: #531900;
+  --color-secondary-fixed: #ffdbce;
+  --color-secondary-fixed-dim: #ffb599;
+  --color-on-secondary-fixed: #370e00;
+  --color-on-secondary-fixed-variant: #7f2b00;
+
+  /* ── Tertiary — Golden Accent ── */
+  --color-tertiary: #705d00;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #e9c400;
+  --color-on-tertiary-container: #4c3e00;
+  --color-tertiary-fixed: #ffe16d;
+  --color-tertiary-fixed-dim: #e9c400;
+  --color-on-tertiary-fixed: #221b00;
+  --color-on-tertiary-fixed-variant: #544600;
+
+  /* ── Legacy aliases (for backward compat) ── */
+  --color-brand-dark: #0e3d30;
+  --color-brand-medium: #10b981;
+  --color-brand-light: #69fd5d;
+  --color-brand-accent: #065f46;
+  --color-brand: #047857;
+  --color-brand-hover: #065f46;
+  --color-primary-orange: #10b981;
+  --color-primary-orange-dark: #047857;
+  --color-primary-orange-light: #34d399;
+  --color-primary-orange-bg: #ecfdf5;
+  --color-accent: #e9c400;
+  --color-accent-light: #ffe16d;
+  --color-danger: #ba1a1a;
+  --color-danger-light: #ffdad6;
+  --color-success: #10b981;
+  --color-success-light: #d1fae5;
+}
+
+/* ─── CSS Variable overrides ─── */
+:root {
+  --bg-primary: #f4fafd;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #eef5f7;
+  --text-primary: #161d1f;
+  --text-secondary: #5b4137;
+  --text-tertiary: #8f7065;
+  --border-primary: #dde4e6;
+  --border-secondary: #e4bfb1;
+}
+
+[data-theme="dark"] {
+  --bg-primary: #0c0a09;
+  --bg-secondary: #1c1917;
+  --bg-tertiary: #292524;
+  --text-primary: #ebf2f4;
+  --text-secondary: #a8a29e;
+  --text-tertiary: #78716c;
+  --border-primary: #292524;
+  --border-secondary: #44403c;
+}
+
+/* ─── Base ─── */
+body {
+  font-family: var(--font-sans);
+  background-color: #f4fafd;
+  color: #161d1f;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
+}
+
+/* ─── Gradient text (green) ─── */
+.gradient-text {
+  background: linear-gradient(135deg, #047857, #10b981);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── Gradient text (green to orange variant) ─── */
+.gradient-orange-green {
+  background: linear-gradient(135deg, #10b981, #ff5e00);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── Focus ring ─── */
+.focus-ring {
+  outline: none;
+}
+.focus-ring:focus-visible {
+  outline: 2px solid #10b981;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* ─── Green ambient shadow ─── */
+.shadow-orange {
+  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.12);
+}
+.shadow-orange-lg {
+  box-shadow: 0 8px 30px rgba(16, 185, 129, 0.15);
+}
+
+/* ─── Green ambient shadow ─── */
+.shadow-green {
+  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.12);
+}
+
+/* ─── Card styles ─── */
+.card-impact {
+  background: #ffffff;
+  border-radius: 1rem;
+  border: 1px solid #dde4e6;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.card-impact:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(4, 120, 87, 0.06);
+}
+
+/* ─── Pulse dot ─── */
+.live-pulse {
+  animation: pulse-dot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* ─── Branded loading spinner ─── */
+/* Outer ring rotates clockwise; inner counter-clockwise for an orbital depth. */
+.loader-ring-outer {
+  border: 2px solid color-mix(in srgb, var(--color-primary) 18%, transparent);
+  border-top-color: var(--color-primary);
+  animation: loader-spin 1s linear infinite;
+}
+.loader-ring-inner {
+  border: 2px solid
+    color-mix(in srgb, var(--color-primary-fixed-dim) 35%, transparent);
+  border-bottom-color: var(--color-primary-fixed-dim);
+  animation: loader-spin-rev 0.85s linear infinite;
+}
+@keyframes loader-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes loader-spin-rev {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+/* Soft breathing core dot behind the rings. */
+.loader-core {
+  animation: loader-breathe 1.4s ease-in-out infinite;
+}
+@keyframes loader-breathe {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Loading dots following the label text. */
+.loader-dots::after {
+  content: "";
+  animation: loader-dots 1.2s steps(4, end) infinite;
+}
+@keyframes loader-dots {
+  0% {
+    content: "";
+  }
+  25% {
+    content: ".";
+  }
+  50% {
+    content: "..";
+  }
+  75% {
+    content: "...";
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loader-ring-outer,
+  .loader-ring-inner,
+  .loader-core,
+  .loader-dots::after {
+    animation: none;
+  }
+  .loader-ring-outer {
+    border-top-color: var(--color-primary);
+  }
+  .loader-ring-inner {
+    border-bottom-color: var(--color-primary-fixed-dim);
+  }
+}
+
+/* ─── Skeleton ─── */
+.skeleton-shimmer {
+  background: linear-gradient(90deg, #eef5f7 25%, #e0e0e0 50%, #eef5f7 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ─── Testimonial marquee ─── */
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee-scroll 40s linear infinite;
+}
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+@keyframes marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+    overflow-x: auto;
+    padding-bottom: 8px;
+  }
+}
+
+/* ─── Speech bubble ─── */
+.speech-bubble::after {
+  content: "";
+  position: absolute;
+  bottom: -10px;
+  left: 30px;
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 10px solid #eef5f7;
+}
+
+/* ─── Reveal animation ─── */
+.reveal-hidden {
+  opacity: 0;
+  transform: translateY(30px);
+  transition:
+    opacity 0.8s ease-out,
+    transform 0.8s ease-out;
+}
+.reveal-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ─── Float animation ─── */
+.float {
+  animation: float 6s ease-in-out infinite;
+}
+.float-delayed {
+  animation: float 6s ease-in-out 2s infinite;
+}
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+/* ─── Glass ─── */
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+}
+.glass-deep {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* ─── Custom scrollbar ─── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #dde4e6;
+  border-radius: 3px;
+}

@@ -1,0 +1,38 @@
+# Files excluded from Vercel frontend deployment
+
+# Backend (deployed separately)
+api/
+backend/
+
+# Dev tooling
+.venv/
+node_modules/
+
+# Tests
+tests/
+src/**/*.test.*
+src/**/*.spec.*
+
+# Docs
+docs/
+*.md
+
+# Environment
+.env
+.env.*
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+
+# Playwright
+.playwright-mcp/
+playwright.config.ts
+
+# Root configs that aren't needed for frontend
+vercel.json
+pyproject.toml

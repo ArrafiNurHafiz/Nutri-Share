@@ -9,6 +9,7 @@ Generate submission-ready bug bounty report.
 Run `/validate` first. All 4 gates must pass.
 
 Generates:
+
 1. Title: `[Bug Class] in [Endpoint] allows [actor] to [impact]`
 2. Summary (impact-first)
 3. CVSS 3.1 score + vector

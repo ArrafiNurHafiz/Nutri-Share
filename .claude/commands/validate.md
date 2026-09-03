@@ -9,6 +9,7 @@ Validate findings before report submission.
 Run the 7-Question Gate and 4 pre-submission gates on the current finding.
 
 ## 7-Question Gate
+
 1. Is this DoS-only? → trivially reproducible? rate-limited?
 2. What preconditions are required? Does victim need auth? do they need to visit a page? do they need to be on the same network?
 3. Is the impact quantified? Which specific data type, how many records, what action?
@@ -18,6 +19,7 @@ Run the 7-Question Gate and 4 pre-submission gates on the current finding.
 7. Is the fix path clear?
 
 ## 4 Pre-Submission Gates
+
 1. Is request copy-pasteable?
 2. Cannot reproduce with victim's token/IP?
 3. Severity matches impact?

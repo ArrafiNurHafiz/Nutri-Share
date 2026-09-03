@@ -12,24 +12,29 @@ async function compressImages() {
   }
 
   const files = fs.readdirSync(INPUT_DIR);
-  const imageFiles = files.filter(f => /\.(jpg|jpeg|png)$/i.test(f));
+  const imageFiles = files.filter((f) => /\.(jpg|jpeg|png)$/i.test(f));
 
   console.log(`Found ${imageFiles.length} images to compress`);
 
   for (const file of imageFiles) {
     const inputPath = path.join(INPUT_DIR, file);
-    const outputPath = path.join(OUTPUT_DIR, file.replace(/\.(jpg|jpeg|png)$/i, ".webp"));
+    const outputPath = path.join(
+      OUTPUT_DIR,
+      file.replace(/\.(jpg|jpeg|png)$/i, ".webp"),
+    );
 
     try {
-      await sharp(inputPath)
-        .webp({ quality: 80 })
-        .toFile(outputPath);
+      await sharp(inputPath).webp({ quality: 80 }).toFile(outputPath);
 
       const originalSize = fs.statSync(inputPath).size;
       const newSize = fs.statSync(outputPath).size;
-      const savings = ((originalSize - newSize) / originalSize * 100).toFixed(1);
+      const savings = (((originalSize - newSize) / originalSize) * 100).toFixed(
+        1,
+      );
 
-      console.log(`✓ ${file} → ${path.basename(outputPath)} (${savings}% smaller)`);
+      console.log(
+        `✓ ${file} → ${path.basename(outputPath)} (${savings}% smaller)`,
+      );
 
       // Remove original file
       fs.unlinkSync(inputPath);

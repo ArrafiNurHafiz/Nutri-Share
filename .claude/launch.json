@@ -2,11 +2,25 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "nutrishare",
+      "name": "nutrishare-backend",
+      "runtimeExecutable": ".venv/bin/uvicorn",
+      "runtimeArgs": [
+        "backend.main:app",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "3000",
+        "--reload"
+      ],
+      "port": 3000
+    },
+    {
+      "name": "nutrishare-frontend",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
-      "port": 3000,
-      "autoPort": true
+      "port": 5173,
+      "autoPort": true,
+      "cwd": "frontend"
     }
   ]
 }

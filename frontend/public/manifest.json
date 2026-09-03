@@ -1,0 +1,63 @@
+{
+  "name": "NutriShare - Platform Donasi Makanan",
+  "short_name": "NutriShare",
+  "description": "Platform donasi makanan untuk mengurangi food waste dan membantu yang membutuhkan",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F7F4EE",
+  "theme_color": "#2D7A4F",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "id",
+  "categories": ["food", "charity", "social"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/desktop.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "NutriShare Dashboard"
+    },
+    {
+      "src": "/screenshots/mobile.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "NutriShare Mobile"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "url": "/donor",
+      "icons": [{ "src": "/icons/dashboard.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Donasi Baru",
+      "short_name": "Donasi",
+      "url": "/donor?tab=new",
+      "icons": [{ "src": "/icons/donate.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Notifikasi",
+      "short_name": "Notifikasi",
+      "url": "/notifications",
+      "icons": [{ "src": "/icons/notifications.png", "sizes": "96x96" }]
+    }
+  ]
+}
