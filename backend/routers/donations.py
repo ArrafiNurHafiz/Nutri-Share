@@ -369,12 +369,14 @@ async def claim_donation(
         raise HTTPException(status_code=404, detail="Donation not found")
 
     t = await session.execute(
-        select(TopsisResult).where(
+        select(TopsisResult)
+        .where(
             TopsisResult.donation_id == donation_id,
             TopsisResult.recipient_id == current_user.id,
         )
+        .order_by(TopsisResult.id.desc())
     )
-    topsis = t.scalar_one_or_none()
+    topsis = t.scalars().first()
     rank = topsis.rank_position if topsis else 99
 
     claim = Claim(
