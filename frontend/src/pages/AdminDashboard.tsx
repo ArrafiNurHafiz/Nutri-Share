@@ -116,6 +116,7 @@ export function AdminDashboard() {
   }, [authLoading, currentUser]);
 
   const loadData = useCallback(async () => {
+    if (!currentUser || currentUser.role !== "admin") return;
     try {
       const [usr, clm, st, tr, logs] = await Promise.all([
         api.fetchJSON("/api/admin/users"),
@@ -133,10 +134,10 @@ export function AdminDashboard() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [currentUser]);
 
   useEffect(() => {
-    loadData();
+    if (currentUser && currentUser.role === "admin") loadData();
   }, [loadData]);
 
   // Global search with debounce
@@ -162,6 +163,7 @@ export function AdminDashboard() {
 
   // Auto-refresh
   useEffect(() => {
+    if (!currentUser || currentUser.role !== "admin") return;
     const timer = setInterval(loadData, AUTO_REFRESH_MS);
     return () => clearInterval(timer);
   }, [loadData]);
