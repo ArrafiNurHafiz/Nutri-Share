@@ -101,7 +101,7 @@ export function DonorDashboard() {
     poll();
     const timer = setInterval(poll, 30000);
     return () => clearInterval(timer);
-  }, [user.id]);
+  }, [user?.id]);
 
   if (authLoading || !user) return null;
 
