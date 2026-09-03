@@ -40,20 +40,32 @@ async def create_donation(
         raise HTTPException(status_code=403, detail="Access denied")
 
     now = datetime.now(UTC)
-    valid_until = now + timedelta(hours=int(body.hours_valid))
+
+    # Safe conversion helpers (handle empty strings)
+    def to_int(val, default=0):
+        if val is None or val == "":
+            return default
+        return int(val)
+
+    def to_float(val, default=0.0):
+        if val is None or val == "":
+            return default
+        return float(val)
+
+    valid_until = now + timedelta(hours=to_int(body.hours_valid, 24))
 
     donation = Donation(
         donor_id=current_user.id,
         food_name=body.food_name,
         food_type=body.food_type,
-        portion_count=int(body.portion_count),
-        protein_per_portion=float(body.protein_per_portion),
-        calorie_per_portion=float(body.calorie_per_portion),
-        iron_mg=float(body.iron_mg) if body.iron_mg else None,
-        vitamin_c_mg=float(body.vitamin_c_mg) if body.vitamin_c_mg else None,
+        portion_count=to_int(body.portion_count),
+        protein_per_portion=to_float(body.protein_per_portion),
+        calorie_per_portion=to_float(body.calorie_per_portion),
+        iron_mg=to_float(body.iron_mg) if body.iron_mg else None,
+        vitamin_c_mg=to_float(body.vitamin_c_mg) if body.vitamin_c_mg else None,
         valid_until=valid_until.isoformat(),
-        pickup_latitude=float(body.pickup_latitude),
-        pickup_longitude=float(body.pickup_longitude),
+        pickup_latitude=to_float(body.pickup_latitude),
+        pickup_longitude=to_float(body.pickup_longitude),
         notes=body.notes or "",
         created_at=now.isoformat(),
     )

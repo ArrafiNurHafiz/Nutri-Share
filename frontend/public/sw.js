@@ -1,6 +1,6 @@
-const CACHE_NAME = "nutrishare-v4";
-const STATIC_CACHE = "nutrishare-static-v4";
-const API_CACHE = "nutrishare-api-v4";
+const CACHE_NAME = "nutrishare-v5";
+const STATIC_CACHE = "nutrishare-static-v5";
+const API_CACHE = "nutrishare-api-v5";
 
 const STATIC_ASSETS = [
   "/",
@@ -68,21 +68,31 @@ self.addEventListener("fetch", (event) => {
     caches.match(request).then((cachedResponse) => {
       if (cachedResponse) {
         // Return cached version and update in background
-        fetch(request).then((response) => {
-          caches.open(STATIC_CACHE).then((cache) => {
-            cache.put(request, response);
-          });
-        });
+        fetch(request)
+          .then((response) => {
+            caches.open(STATIC_CACHE).then((cache) => {
+              cache.put(request, response);
+            });
+          })
+          .catch(() => {/* ignore network errors */});
         return cachedResponse;
       }
 
-      return fetch(request).then((response) => {
-        const responseToCache = response.clone();
-        caches.open(STATIC_CACHE).then((cache) => {
-          cache.put(request, responseToCache);
+      return fetch(request)
+        .then((response) => {
+          const responseToCache = response.clone();
+          caches.open(STATIC_CACHE).then((cache) => {
+            cache.put(request, responseToCache);
+          });
+          return response;
+        })
+        .catch(() => {
+          // Return offline fallback for navigation requests
+          if (request.mode === "navigate") {
+            return caches.match("/index.html");
+          }
+          return new Response("Offline", { status: 503 });
         });
-        return response;
-      });
     }),
   );
 });
