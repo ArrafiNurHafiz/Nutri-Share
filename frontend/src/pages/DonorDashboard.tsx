@@ -202,6 +202,8 @@ export function DonorDashboard() {
     },
   ];
 
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   if (loading) return <LoadingSpinner size={36} label="Loading dashboard..." />;
 
   return (
@@ -211,9 +213,14 @@ export function DonorDashboard() {
       className="flex min-h-screen bg-[#f8f9ff]"
     >
       <SEO title="Donor Dashboard | NutriShare" />
-      <DonorSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <DonorSidebar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        mobileOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
 
-      <main className="ml-64 flex-1 p-6 lg:p-8 max-w-7xl mx-auto w-full">
+      <main className="lg:ml-64 flex-1 p-4 lg:p-8 max-w-7xl mx-auto w-full">
         <DonorHeader
           user={user}
           profile={profile}
@@ -229,6 +236,7 @@ export function DonorDashboard() {
             setFormStep(1);
             setShowCatalog(!showForm ? false : showCatalog);
           }}
+          onMenuClick={() => setSidebarOpen(true)}
         />
 
         {activeTab === "dashboard" && (

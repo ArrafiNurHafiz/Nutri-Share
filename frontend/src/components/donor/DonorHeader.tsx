@@ -1,4 +1,4 @@
-import { Bell, User, LogOut, Plus } from "lucide-react";
+import { Bell, User, LogOut, Plus, Menu } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { motion, AnimatePresence } from "motion/react";
 import { useState } from "react";
@@ -11,6 +11,7 @@ interface Props {
   onShowProfile: () => void;
   onLogout: () => void;
   onAddDonation: () => void;
+  onMenuClick?: () => void;
 }
 
 export function DonorHeader({
@@ -21,6 +22,7 @@ export function DonorHeader({
   onShowProfile,
   onLogout,
   onAddDonation,
+  onMenuClick,
 }: Props) {
   const [showNotif, setShowNotif] = useState(false);
   const avgRating = "4.9";
@@ -29,6 +31,13 @@ export function DonorHeader({
     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
       <div>
         <div className="flex items-center gap-3 flex-wrap">
+          <button
+            onClick={onMenuClick}
+            className="lg:hidden p-2 text-brand-dark hover:bg-gray-100 rounded-lg"
+            aria-label="Open menu"
+          >
+            <Menu size={24} />
+          </button>
           <h1 className="text-2xl md:text-3xl font-bold text-brand-dark">
             Donor Dashboard
           </h1>

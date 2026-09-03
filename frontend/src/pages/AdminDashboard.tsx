@@ -100,6 +100,7 @@ export function AdminDashboard() {
   } | null>(null);
   const [activityLogs, setActivityLogs] = useState<any[]>([]);
   const [searching, setSearching] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const nav = useNavigate();
   const {
     user: currentUser,
@@ -419,8 +420,20 @@ export function AdminDashboard() {
       <SEO title="Admin Dashboard | NutriShare" />
 
       <div className="flex h-screen overflow-hidden">
+        {/* Mobile overlay */}
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+
         {/* ===== SIDEBAR ===== */}
-        <aside className="flex flex-col h-screen p-4 gap-4 bg-surface-gray border-r border-[#e7e5e4] w-64 shrink-0">
+        <aside
+          className={`flex flex-col h-screen p-4 gap-4 bg-surface-gray border-r border-[#e7e5e4] w-64 shrink-0 transform transition-transform duration-300 ${
+            sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          } lg:translate-x-0 fixed lg:relative z-50`}
+        >
           <div className="mb-6">
             <h1 className="text-3xl font-bold text-brand-dark font-heading">
               NutriShare
@@ -471,8 +484,15 @@ export function AdminDashboard() {
         {/* ===== MAIN CONTENT ===== */}
         <main className="flex-1 overflow-y-auto bg-surface-gray">
           {/* Top Bar */}
-          <header className="h-16 flex items-center justify-between px-8 sticky top-0 bg-[#faf8f4]/80 backdrop-blur-md z-10 border-b border-[#e7e5e4]/50">
+          <header className="h-16 flex items-center justify-between px-4 lg:px-8 sticky top-0 bg-[#faf8f4]/80 backdrop-blur-md z-10 border-b border-[#e7e5e4]/50">
             <div className="flex items-center gap-3">
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="lg:hidden p-2 text-brand-dark hover:bg-gray-100 rounded-lg"
+                aria-label="Open menu"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+              </button>
               <h2 className="text-xl font-bold text-brand-dark font-heading">
                 Dashboard Overview
               </h2>

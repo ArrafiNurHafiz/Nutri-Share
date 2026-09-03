@@ -41,6 +41,7 @@ export function RecipientDashboard() {
   const [selectedReviewDonation, setSelectedReviewDonation] =
     useState<any>(null);
   const [activeTab, setActiveTab] = useState("dashboard");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const nav = useNavigate();
   const { user, profile, loading: authLoading, logout, refresh } = useAuth();
@@ -223,15 +224,22 @@ export function RecipientDashboard() {
       className="flex min-h-screen bg-[#f8f9ff]"
     >
       <SEO title="Recipient Dashboard | NutriShare" />
-      <RecipientSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <RecipientSidebar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        mobileOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
 
-      <main className="ml-64 flex-1 p-6 lg:p-8 max-w-7xl mx-auto w-full">
+      <main className="lg:ml-64 flex-1 p-4 lg:p-8 max-w-7xl mx-auto w-full">
         <RecipientHeader
           user={user}
           profile={profile}
           emergency={emergency}
           onEmergencyToggle={handleEmergencyToggle}
           onDownloadReport={downloadReport}
+          onMenuClick={() => setSidebarOpen(true)}
+        />
           onShowProfile={() => setShowProfile(true)}
           onLogout={async () => {
             await logout();
