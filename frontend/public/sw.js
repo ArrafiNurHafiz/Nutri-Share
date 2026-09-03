@@ -1,6 +1,6 @@
-const CACHE_NAME = "nutrishare-v5";
-const STATIC_CACHE = "nutrishare-static-v5";
-const API_CACHE = "nutrishare-api-v5";
+const CACHE_NAME = "nutrishare-v6";
+const STATIC_CACHE = "nutrishare-static-v6";
+const API_CACHE = "nutrishare-api-v6";
 
 const STATIC_ASSETS = [
   "/",
