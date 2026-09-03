@@ -239,7 +239,6 @@ export function RecipientDashboard() {
           onEmergencyToggle={handleEmergencyToggle}
           onDownloadReport={downloadReport}
           onMenuClick={() => setSidebarOpen(true)}
-        />
           onShowProfile={() => setShowProfile(true)}
           onLogout={async () => {
             await logout();
