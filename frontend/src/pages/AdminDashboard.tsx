@@ -419,7 +419,7 @@ export function AdminDashboard() {
     <div className="h-screen overflow-hidden bg-surface-gray text-on-surface font-sans">
       <SEO title="Admin Dashboard | NutriShare" />
 
-      <div className="flex h-screen overflow-hidden">
+      <div className="flex h-screen overflow-x-hidden overflow-y-auto lg:overflow-hidden">
         {/* Mobile overlay */}
         {sidebarOpen && (
           <div
@@ -521,7 +521,7 @@ export function AdminDashboard() {
             </div>
           </header>
 
-          <div className="p-8 space-y-6 max-w-[1280px] mx-auto">
+          <div className="p-4 lg:p-8 space-y-6 max-w-[1280px] mx-auto">
             {/* ===== OVERVIEW TAB ===== */}
             {activeTab === "overview" && (
               <AnimatePresence mode="wait">
@@ -644,7 +644,7 @@ export function AdminDashboard() {
 
                   {/* Trend Stats */}
                   {trends && trends.weekly.some((d) => d.count > 0) && (
-                    <div className="grid grid-cols-3 gap-5 mt-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mt-6">
                       <div className="bg-white p-5 rounded-xl border border-[#e7e5e4]/50 text-center">
                         <div className="text-2xl font-bold text-primary-orange">
                           {trends.totalPortions}
