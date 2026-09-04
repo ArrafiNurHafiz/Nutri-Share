@@ -15,6 +15,19 @@ interface State {
 // Use a workaround for TypeScript strict class field checks.
 export class ErrorBoundary extends Component<Props, State> {
   static getDerivedStateFromError(error: Error): State {
+    if (
+      error?.message &&
+      (error.message.includes("dynamically imported module") ||
+        error.message.includes("Failed to fetch dynamically imported module") ||
+        error.message.includes("Importing a module script failed"))
+    ) {
+      const refreshedKey = "error_boundary_chunk_reload";
+      const attempts = Number(sessionStorage.getItem(refreshedKey) || 0);
+      if (attempts < 2) {
+        sessionStorage.setItem(refreshedKey, String(attempts + 1));
+        window.location.reload();
+      }
+    }
     return { hasError: true, error };
   }
 

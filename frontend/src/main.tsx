@@ -9,32 +9,60 @@ import { AnimatePresence, motion } from "motion/react";
 import InstallPrompt from "./components/InstallPrompt";
 import "./index.css";
 
-const Home = lazy(() => import("./pages/Home"));
-const Login = lazy(() =>
-  import("./pages/Auth").then((m) => ({ default: m.Login })),
+// Handle Vite dynamic import chunk loading errors (e.g. after a new deployment)
+window.addEventListener("vite:preloadError", (event) => {
+  event.preventDefault();
+  const refreshedKey = "vite_preload_error_reload";
+  const attempts = Number(sessionStorage.getItem(refreshedKey) || 0);
+  if (attempts < 2) {
+    sessionStorage.setItem(refreshedKey, String(attempts + 1));
+    window.location.reload();
+  }
+});
+
+function safeLazy<T extends React.ComponentType<any>>(
+  factory: () => Promise<{ default: T } | T>,
+) {
+  return lazy(async () => {
+    try {
+      const res = await factory();
+      sessionStorage.removeItem("vite_preload_error_reload");
+      return "default" in res ? res : { default: res as T };
+    } catch (error: any) {
+      const refreshedKey = "vite_preload_error_reload";
+      const attempts = Number(sessionStorage.getItem(refreshedKey) || 0);
+      if (attempts < 2) {
+        sessionStorage.setItem(refreshedKey, String(attempts + 1));
+        window.location.reload();
+        return new Promise(() => {}) as any;
+      }
+      throw error;
+    }
+  });
+}
+
+const Home = safeLazy(() => import("./pages/Home"));
+const Login = safeLazy(() =>
+  import("./pages/Auth").then((m) => m.Login),
 );
-const RegisterDonor = lazy(() =>
-  import("./pages/RegisterDonor").then((m) => ({ default: m.RegisterDonor })),
+const RegisterDonor = safeLazy(() =>
+  import("./pages/RegisterDonor").then((m) => m.RegisterDonor),
 );
-const RegisterRecipient = lazy(() =>
-  import("./pages/RegisterRecipient").then((m) => ({
-    default: m.RegisterRecipient,
-  })),
+const RegisterRecipient = safeLazy(() =>
+  import("./pages/RegisterRecipient").then((m) => m.RegisterRecipient),
 );
-const DonorDashboard = lazy(() =>
-  import("./pages/DonorDashboard").then((m) => ({ default: m.DonorDashboard })),
+const DonorDashboard = safeLazy(() =>
+  import("./pages/DonorDashboard").then((m) => m.DonorDashboard),
 );
-const RecipientDashboard = lazy(() =>
-  import("./pages/RecipientDashboard").then((m) => ({
-    default: m.RecipientDashboard,
-  })),
+const RecipientDashboard = safeLazy(() =>
+  import("./pages/RecipientDashboard").then((m) => m.RecipientDashboard),
 );
-const AdminDashboard = lazy(() =>
-  import("./pages/AdminDashboard").then((m) => ({ default: m.AdminDashboard })),
+const AdminDashboard = safeLazy(() =>
+  import("./pages/AdminDashboard").then((m) => m.AdminDashboard),
 );
-const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
-const ResetPassword = lazy(() => import("./pages/ResetPassword"));
-const NotFound = lazy(() => import("./pages/NotFound"));
+const ForgotPassword = safeLazy(() => import("./pages/ForgotPassword"));
+const ResetPassword = safeLazy(() => import("./pages/ResetPassword"));
+const NotFound = safeLazy(() => import("./pages/NotFound"));
 
 const Loading = () => (
   <div className="min-h-[100dvh] bg-[var(--bg-primary)] flex items-center justify-center">
