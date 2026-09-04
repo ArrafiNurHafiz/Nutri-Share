@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { Activity, Truck, TrendingUp } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { api } from "../lib/api";
 import { useAuth } from "../contexts/AuthContext";
@@ -221,7 +222,7 @@ export function RecipientDashboard() {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="flex min-h-screen bg-[#f8f9ff]"
+      className="flex min-h-[100dvh] bg-gradient-to-br from-surface to-surface-container-low text-on-surface"
     >
       <SEO title="Recipient Dashboard | NutriShare" />
       <RecipientSidebar
@@ -231,7 +232,7 @@ export function RecipientDashboard() {
         onClose={() => setSidebarOpen(false)}
       />
 
-      <main className="lg:ml-64 flex-1 p-4 lg:p-8 max-w-7xl mx-auto w-full">
+      <main className="lg:ml-64 flex-1 p-4 lg:p-8 w-full">
         <RecipientHeader
           user={user}
           profile={profile}
@@ -263,8 +264,8 @@ export function RecipientDashboard() {
                   activeDonations={activeDonations}
                 />
               </div>
-              <div className="lg:col-span-5 flex flex-col gap-4">
-                <div className="flex-1">
+              <div className="lg:col-span-5 flex flex-col gap-4 lg:h-[450px]">
+                <div className="flex-1 min-h-0">
                   <DonationList
                     donations={activeDonations}
                     profile={profile}
@@ -318,50 +319,90 @@ export function RecipientDashboard() {
         )}
 
         {activeTab === "claims" && (
-          <div className="mt-6 max-w-2xl">
-            <DonationList
-              donations={activeDonations}
-              profile={profile}
-              onClaim={handleClaim}
-              onTopsis={loadTopsis}
-              user={user}
-            />
+          <div className="mt-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="lg:col-span-8 flex flex-col gap-6">
+              <DonationList
+                donations={activeDonations}
+                profile={profile}
+                onClaim={handleClaim}
+                onTopsis={loadTopsis}
+                user={user}
+              />
+            </div>
+            <div className="lg:col-span-4 flex flex-col gap-6">
+              <div className="glass p-6 rounded-3xl border border-white/50 shadow-sm bg-gradient-to-br from-brand-medium/10 to-transparent">
+                <h3 className="font-bold text-brand-dark mb-2 flex items-center gap-2">
+                  <Activity size={18} className="text-brand-medium"/> Claims Tips
+                </h3>
+                <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                  Make sure to arrive on time when claiming a donation. Donors will appreciate your punctuality!
+                  <br/><br/>
+                  Our AI TOPSIS algorithm prioritizes claims based on urgency and nutritional match.
+                </p>
+              </div>
+            </div>
           </div>
         )}
 
         {activeTab === "logistics" && (
-          <div className="mt-6 max-w-2xl">
-            <TransitSection
-              transitDonations={transitDonations}
-              onArrived={handleArrived}
-            />
-            {transitDonations.length === 0 && (
-              <EmptyState
-                icon={
-                  <svg
-                    className="w-10 h-10"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10l2-1m0 0l2 1m-2-1v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                    />
-                  </svg>
-                }
-                title="No Logistics"
-                description="No donations in transit."
+          <div className="mt-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="lg:col-span-8 flex flex-col gap-6">
+              <TransitSection
+                transitDonations={transitDonations}
+                onArrived={handleArrived}
               />
-            )}
+              {transitDonations.length === 0 && (
+                <EmptyState
+                  icon={
+                    <svg
+                      className="w-10 h-10"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10l2-1m0 0l2 1m-2-1v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                      />
+                    </svg>
+                  }
+                  title="No Logistics"
+                  description="No donations in transit."
+                />
+              )}
+            </div>
+            <div className="lg:col-span-4 flex flex-col gap-6">
+               <div className="glass p-6 rounded-3xl border border-white/50 shadow-sm bg-gradient-to-br from-brand-accent/10 to-transparent">
+                 <h3 className="font-bold text-brand-dark mb-2 flex items-center gap-2">
+                   <Truck size={18} className="text-brand-accent"/> Logistics Tracking
+                 </h3>
+                 <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                   Track your inbound donations here. Once the courier arrives, mark the donation as received to update the donor!
+                 </p>
+               </div>
+            </div>
           </div>
         )}
 
         {activeTab === "nutrition" && (
-          <div className="mt-6 max-w-3xl">
-            <NutritionTracker akg={akg} />
+          <div className="mt-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="lg:col-span-8 flex flex-col gap-6">
+              <NutritionTracker akg={akg} />
+            </div>
+            <div className="lg:col-span-4 flex flex-col gap-6">
+               <div className="glass p-6 rounded-3xl border border-white/50 shadow-sm bg-gradient-to-br from-primary-orange/10 to-transparent">
+                 <h3 className="font-bold text-brand-dark mb-2 flex items-center gap-2">
+                   <TrendingUp size={18} className="text-primary-orange"/> AKG Goals
+                 </h3>
+                 <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                   Your nutritional needs are calculated automatically based on the demographics you provided in your profile.
+                   <br/><br/>
+                   Try to balance your claims across different food types to reach 100% of your daily goals!
+                 </p>
+               </div>
+            </div>
           </div>
         )}
       </main>

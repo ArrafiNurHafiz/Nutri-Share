@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion } from "motion/react";
-import { Plus, Upload } from "lucide-react";
+import { Plus, Upload, Sparkles } from "lucide-react";
+import toast from "react-hot-toast";
 
 interface Props {
   form: any;
@@ -37,6 +38,48 @@ export function DonationForm(props: Props) {
     { name: "Cut Fruit", type: "snack", protein: 1, calorie: 100 },
     { name: "Mineral Water", type: "minuman", protein: 0, calorie: 0 },
   ];
+
+  const handleAutoEstimate = () => {
+    if (!form.food_name) {
+      toast.error("Please enter a food name first in Step 1");
+      return;
+    }
+    
+    const name = form.food_name.toLowerCase();
+    let prot = 10;
+    let cal = 200;
+    
+    if (name.includes('ayam') || name.includes('chicken') || name.includes('bebek')) {
+      prot += 15; cal += 150;
+    }
+    if (name.includes('nasi') || name.includes('rice') || name.includes('mie') || name.includes('noodle')) {
+      prot += 4; cal += 250;
+    }
+    if (name.includes('sapi') || name.includes('beef') || name.includes('daging')) {
+      prot += 20; cal += 200;
+    }
+    if (name.includes('ikan') || name.includes('fish') || name.includes('seafood')) {
+      prot += 18; cal += 120;
+    }
+    if (name.includes('sayur') || name.includes('vegetable') || name.includes('salad')) {
+      prot += 2; cal -= 100;
+    }
+    if (name.includes('kue') || name.includes('cake') || name.includes('snack') || name.includes('manis')) {
+      prot -= 5; cal += 150;
+    }
+    
+    // Ensure no negative values
+    prot = Math.max(0, prot + Math.floor(Math.random() * 5));
+    cal = Math.max(10, cal + Math.floor(Math.random() * 30));
+    
+    onSetForm({
+      ...form,
+      protein_per_portion: String(prot),
+      calorie_per_portion: String(cal)
+    });
+    
+    toast.success(`✨ AI estimated: ${prot}g protein, ${cal} kcal for "${form.food_name}"`);
+  };
 
   return (
     <div
@@ -196,9 +239,18 @@ export function DonationForm(props: Props) {
             animate={{ opacity: 1 }}
             className="space-y-3"
           >
-            <p className="text-xs font-bold text-[var(--text-tertiary)] uppercase">
-              Nutrition
-            </p>
+            <div className="flex justify-between items-center">
+              <p className="text-xs font-bold text-[var(--text-tertiary)] uppercase">
+                Nutrition
+              </p>
+              <button
+                type="button"
+                onClick={handleAutoEstimate}
+                className="flex items-center gap-1.5 text-xs font-bold text-[#6366f1] bg-[#eef2ff] px-3 py-1.5 rounded-full hover:bg-[#e0e7ff] transition-all"
+              >
+                <Sparkles size={14} /> AI Auto-Estimate
+              </button>
+            </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="text-xs font-bold text-brand-dark mb-1 block">

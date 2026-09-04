@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { Package, Activity, TrendingUp } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { api } from "../lib/api";
 import { useAuth } from "../contexts/AuthContext";
@@ -34,6 +35,7 @@ export function DonorDashboard() {
   const [uploading, setUploading] = useState(false);
   const [trackingData, setTrackingData] = useState<any>(null);
   const [showProfile, setShowProfile] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const nav = useNavigate();
   const { user, profile, loading: authLoading, logout, refresh } = useAuth();
@@ -202,15 +204,13 @@ export function DonorDashboard() {
     },
   ];
 
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
   if (loading) return <LoadingSpinner size={36} label="Loading dashboard..." />;
 
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="flex min-h-screen bg-[#f8f9ff]"
+      className="flex min-h-[100dvh] bg-gradient-to-br from-surface to-surface-container-low text-on-surface"
     >
       <SEO title="Donor Dashboard | NutriShare" />
       <DonorSidebar
@@ -220,7 +220,7 @@ export function DonorDashboard() {
         onClose={() => setSidebarOpen(false)}
       />
 
-      <main className="lg:ml-64 flex-1 p-4 lg:p-8 max-w-7xl mx-auto w-full">
+      <main className="lg:ml-64 flex-1 p-4 lg:p-8 w-full">
         <DonorHeader
           user={user}
           profile={profile}
@@ -333,20 +333,44 @@ export function DonorDashboard() {
         )}
 
         {activeTab === "donations" && (
-          <div className="mt-6 max-w-4xl">
-            <DonationList
-              donations={donations}
-              filterTab={filterTab}
-              onFilterChange={setFilterTab}
-              onTrack={setTrackingData}
-              onComplete={handleComplete}
-            />
+          <div className="mt-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="lg:col-span-8 flex flex-col gap-6">
+              <DonationList
+                donations={donations}
+                filterTab={filterTab}
+                onFilterChange={setFilterTab}
+                onTrack={setTrackingData}
+                onComplete={handleComplete}
+              />
+            </div>
+            <div className="lg:col-span-4 flex flex-col gap-6">
+               <div className="glass p-6 rounded-3xl border border-white/50 shadow-sm bg-gradient-to-br from-brand-medium/10 to-transparent">
+                 <h3 className="font-bold text-brand-dark mb-2 flex items-center gap-2">
+                   <Package size={18} className="text-brand-medium"/> My Donations
+                 </h3>
+                 <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                   Thank you for your generous contributions! Ensure that your food is packed securely before the courier arrives.
+                 </p>
+               </div>
+            </div>
           </div>
         )}
 
         {activeTab === "analytics" && (
-          <div className="mt-6 max-w-4xl">
-            <ImpactBadges badges={badges} />
+          <div className="mt-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="lg:col-span-8 flex flex-col gap-6">
+              <ImpactBadges badges={badges} />
+            </div>
+            <div className="lg:col-span-4 flex flex-col gap-6">
+               <div className="glass p-6 rounded-3xl border border-white/50 shadow-sm bg-gradient-to-br from-primary-orange/10 to-transparent">
+                 <h3 className="font-bold text-brand-dark mb-2 flex items-center gap-2">
+                   <Activity size={18} className="text-primary-orange"/> Impact Tracker
+                 </h3>
+                 <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                   Every portion you donate makes a huge difference in someone's life. Keep up the great work!
+                 </p>
+               </div>
+            </div>
           </div>
         )}
       </main>
@@ -373,31 +397,6 @@ export function DonorDashboard() {
   );
 }
 
-// Inline icons for stats
-function Package(props: any) {
-  return (
-    <svg {...props} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="2"
-        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
-      />
-    </svg>
-  );
-}
-function TrendingUp(props: any) {
-  return (
-    <svg {...props} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="2"
-        d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
-      />
-    </svg>
-  );
-}
 function Star(props: any) {
   return (
     <svg {...props} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -406,18 +405,6 @@ function Star(props: any) {
         strokeLinejoin="round"
         strokeWidth="2"
         d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
-      />
-    </svg>
-  );
-}
-function Activity(props: any) {
-  return (
-    <svg {...props} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="2"
-        d="M13 10V3L4 14h7v7l9-11h-7z"
       />
     </svg>
   );

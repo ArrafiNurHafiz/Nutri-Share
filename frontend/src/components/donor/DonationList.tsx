@@ -89,7 +89,7 @@ export function DonationList({
       </div>
 
       {/* Cards */}
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-3 max-h-[600px] overflow-y-auto pr-2">
         {filtered.length === 0 ? (
           <div className="text-center py-12 text-[var(--text-tertiary)]">
             <Package size={32} className="mx-auto mb-2 opacity-50" />
@@ -102,7 +102,7 @@ export function DonationList({
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.03 }}
-              className="bg-white p-5 rounded-2xl border border-[var(--border-primary)] shadow-sm flex flex-col sm:flex-row justify-between sm:items-center gap-4"
+              className="glass p-5 rounded-3xl border border-white/50 shadow-orange flex flex-col sm:flex-row justify-between sm:items-center gap-4 hover:-translate-y-1 hover:shadow-orange-lg transition-all duration-300"
             >
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-3 mb-1 flex-wrap">

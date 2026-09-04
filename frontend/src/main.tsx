@@ -37,7 +37,7 @@ const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const Loading = () => (
-  <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center">
+  <div className="min-h-[100dvh] bg-[var(--bg-primary)] flex items-center justify-center">
     <LoadingSpinner size={32} label="Memuat halaman..." />
   </div>
 );

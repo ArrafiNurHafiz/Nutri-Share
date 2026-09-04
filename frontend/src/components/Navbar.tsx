@@ -18,15 +18,32 @@ export function Navbar({ onLoginClick }: { onLoginClick?: () => void }) {
   const location = useLocation();
 
   const handleNav = (path: string) => {
-    if (path.startsWith("#")) {
-      if (location.pathname !== "/") {
-        window.location.href = path;
-        return;
+    if (path === "/") {
+      if (location.pathname === "/") {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } else {
+        window.location.href = "/";
       }
-      const el = document.querySelector(path);
-      el?.scrollIntoView({ behavior: "smooth" });
       return;
     }
+
+    if (path.startsWith("#")) {
+      if (location.pathname !== "/") {
+        window.location.href = "/" + path;
+        return;
+      }
+      
+      const targetId = path.substring(1);
+      const el = document.getElementById(targetId);
+      
+      if (el) {
+        // Offset for fixed navbar
+        const y = el.getBoundingClientRect().top + window.scrollY - 80;
+        window.scrollTo({ top: y, behavior: "smooth" });
+      }
+      return;
+    }
+    
     window.location.href = path;
   };
 

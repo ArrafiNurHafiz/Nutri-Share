@@ -30,10 +30,10 @@ export function RegisterRecipient() {
     resident_count: "",
     age_range: "Children",
     health_condition: "General",
-    daily_protein_need: "",
-    daily_calorie_need: "",
-    daily_iron_need: "",
-    daily_vitamin_c_need: "",
+    daily_protein_need: "0",
+    daily_calorie_need: "0",
+    daily_iron_need: "0",
+    daily_vitamin_c_need: "0",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -105,7 +105,7 @@ export function RegisterRecipient() {
   };
 
   return (
-    <div className="min-h-screen bg-[#faf8f4] flex flex-col md:flex-row">
+    <div className="min-h-[100dvh] bg-[#faf8f4] flex flex-col md:flex-row">
       <SEO title="Register Recipient | NutriShare" />
 
       {/* Left - Narrative Visual Panel */}

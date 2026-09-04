@@ -48,7 +48,7 @@ export function RecognitionSection({
       : "N/A";
 
   return (
-    <section className="py-24 bg-[#eef5f7] overflow-hidden">
+    <section id="dampak" className="py-24 bg-[#eef5f7] overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

@@ -38,7 +38,7 @@ export default function Home() {
   const handleLoginClick = () => navigate("/login");
 
   return (
-    <div className="min-h-screen bg-white text-gray-800 font-sans overflow-x-hidden">
+    <div className="min-h-[100dvh] bg-white text-gray-800 font-sans overflow-x-hidden">
       <Navbar onLoginClick={handleLoginClick} />
       <SEO title="Nutri-Share | Your Surplus Food, Their Nutrition" />
 

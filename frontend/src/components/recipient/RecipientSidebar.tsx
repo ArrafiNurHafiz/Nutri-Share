@@ -32,7 +32,7 @@ export function RecipientSidebar({ activeTab, setActiveTab, mobileOpen, onClose 
       )}
 
       <aside
-        className={`fixed left-0 top-0 h-screen w-64 bg-brand-dark flex flex-col py-6 px-4 z-50 transform transition-transform duration-300 ${
+        className={`fixed left-0 top-0 h-screen w-64 bg-brand-dark/95 backdrop-blur-xl shadow-2xl border-r border-white/10 flex flex-col py-6 px-4 z-50 transform transition-transform duration-300 ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         } lg:translate-x-0`}
       >

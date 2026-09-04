@@ -23,7 +23,7 @@ export function StatsCards({ stats }: Props) {
           initial={{ y: 10, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: i * 0.05 }}
-          className="bg-white p-5 rounded-2xl shadow-sm border border-[var(--border-primary)]"
+          className="glass p-6 rounded-3xl shadow-green border border-white/50 hover:-translate-y-1 hover:shadow-orange-lg transition-all duration-300 flex items-center relative overflow-hidden group"
         >
           <div className="flex items-center gap-3">
             <div className={`p-3 rounded-xl ${item.bg}`}>

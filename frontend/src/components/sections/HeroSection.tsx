@@ -84,7 +84,7 @@ export function HeroSection({ stats }: { stats: any }) {
       ];
 
   return (
-    <section className="relative bg-[#161d1f] min-h-screen flex flex-col items-center overflow-hidden">
+    <section className="relative bg-[#161d1f] min-h-[100dvh] flex flex-col items-center overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 z-0">
         <img
@@ -102,79 +102,83 @@ export function HeroSection({ stats }: { stats: any }) {
         <div className="absolute inset-0 bg-gradient-to-r from-[#161d1f] via-[#161d1f]/70 to-[#161d1f]/60" />
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex-1 flex items-center py-24">
-        <div className="max-w-2xl">
+      <div className="relative z-10 w-full flex flex-col justify-center gap-16 md:gap-20 py-24 flex-1">
+        
+        {/* Text Area */}
+        <div className="max-w-7xl 2xl:max-w-[80vw] w-full mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-2xl 2xl:max-w-4xl">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <span className="text-primary-container font-bold uppercase tracking-[0.2em] text-xs 2xl:text-base mb-4 block font-heading">
+                Food Distribution Platform
+              </span>
+            </motion.div>
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-4xl md:text-5xl lg:text-6xl 2xl:text-7xl font-extrabold text-white leading-tight mb-6 font-heading"
+            >
+              Your Surplus Food,
+              <br />
+              <span className="text-primary-container">Their Nutrition</span>
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="text-base md:text-lg 2xl:text-2xl text-white/70 mb-10 leading-relaxed max-w-xl 2xl:max-w-3xl"
+            >
+              Connecting HoReCa food surplus with those in need, using the{" "}
+              <strong className="text-white">Hybrid Entropy-TOPSIS</strong>{" "}
+              algorithm to ensure every donation is precisely targeted.
+            </motion.p>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="flex flex-wrap gap-4"
+            >
+              <Link
+                to="/register/donor"
+                className="bg-primary-container hover:bg-primary text-white px-8 py-3 2xl:px-10 2xl:py-4 rounded-full font-bold font-heading flex items-center gap-2 shadow-orange-lg btn-hover-effect 2xl:text-xl"
+              >
+                Register as Donor <ArrowRight size={18} className="2xl:w-6 2xl:h-6" />
+              </Link>
+              <Link
+                to="/register/recipient"
+                className="border-2 border-white/40 text-white px-8 py-3 2xl:px-10 2xl:py-4 rounded-full font-bold font-heading hover:bg-white/10 btn-hover-effect 2xl:text-xl"
+              >
+                Register as Recipient
+              </Link>
+            </motion.div>
+          </div>
+        </div>
+
+        {/* Stats bar */}
+        <div className="w-full max-w-5xl 2xl:max-w-[70vw] mx-auto px-4 z-20">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="bg-white rounded-2xl shadow-orange py-8 px-6 md:px-12 2xl:py-12 2xl:px-16 grid grid-cols-1 md:grid-cols-3 gap-6 text-center border border-primary-container/20"
           >
-            <span className="text-primary-container font-bold uppercase tracking-[0.2em] text-xs mb-4 block font-heading">
-              Food Distribution Platform
-            </span>
-          </motion.div>
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-6 font-heading"
-          >
-            Your Surplus Food,
-            <br />
-            <span className="text-primary-container">Their Nutrition</span>
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="text-base md:text-lg text-white/70 mb-10 leading-relaxed max-w-xl"
-          >
-            Connecting HoReCa food surplus with those in need, using the{" "}
-            <strong className="text-white">Hybrid Entropy-TOPSIS</strong>{" "}
-            algorithm to ensure every donation is precisely targeted.
-          </motion.p>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="flex flex-wrap gap-4"
-          >
-            <Link
-              to="/register/donor"
-              className="bg-primary-container hover:bg-primary text-white px-8 py-3 rounded-full font-bold font-heading flex items-center gap-2 shadow-orange-lg btn-hover-effect"
-            >
-              Register as Donor <ArrowRight size={18} />
-            </Link>
-            <Link
-              to="/register/recipient"
-              className="border-2 border-white/40 text-white px-8 py-3 rounded-full font-bold font-heading hover:bg-white/10 btn-hover-effect"
-            >
-              Register as Recipient
-            </Link>
+            {impactItems.map((item, i) => (
+              <div key={i} className="flex flex-col items-center">
+                <item.icon
+                  className="h-8 w-8 2xl:h-12 2xl:w-12 text-primary-container mb-2 float"
+                  style={{ animationDelay: `${i * 0.2}s` }}
+                />
+                <Counter target={item.value} suffix={item.suffix || ""} />
+                <span className="text-xs md:text-sm 2xl:text-lg text-on-surface-variant font-medium mt-1">
+                  {item.label}
+                </span>
+              </div>
+            ))}
           </motion.div>
         </div>
-      </div>
-
-      {/* Stats bar */}
-      <div className="relative z-20 w-full max-w-5xl px-4 pb-12">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="bg-white rounded-2xl shadow-orange py-8 px-6 md:px-12 grid grid-cols-1 md:grid-cols-3 gap-6 text-center border border-primary-container/20"
-        >
-          {impactItems.map((item, i) => (
-            <div key={i} className="flex flex-col items-center">
-              <item.icon
-                className="h-8 w-8 text-primary-container mb-2 float"
-                style={{ animationDelay: `${i * 0.2}s` }}
-              />
-              <Counter target={item.value} suffix={item.suffix || ""} />
-              <span className="text-xs md:text-sm text-on-surface-variant font-medium mt-1">
-                {item.label}
-              </span>
-            </div>
-          ))}
-        </motion.div>
       </div>
     </section>
   );

@@ -43,7 +43,7 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)]">
+    <div className="min-h-[100dvh] bg-[var(--bg-primary)] text-[var(--text-primary)]">
       <Navbar />
       <SEO
         title="Forgot Password"

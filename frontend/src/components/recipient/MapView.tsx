@@ -142,7 +142,7 @@ export function MapView(props: Props) {
 
   return (
     <div
-      className="relative bg-white rounded-2xl overflow-hidden border border-[var(--border-primary)]"
+      className="relative glass rounded-3xl overflow-hidden border border-white/40 shadow-orange group transition-shadow hover:shadow-orange-lg"
       style={{ height: "450px" }}
     >
       <ErrorBoundaryWrapper onError={() => setHasError(true)}>

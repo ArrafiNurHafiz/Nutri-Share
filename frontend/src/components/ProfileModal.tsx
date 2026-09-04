@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, User, MapPin } from "lucide-react";
 import { api } from "../lib/api";
 import { LocationPicker } from "./LocationPicker";
@@ -6,6 +6,15 @@ import toast from "react-hot-toast";
 import { motion, AnimatePresence } from "motion/react";
 
 export function ProfileModal({ user, profile, onClose, onUpdate }: any) {
+  const [demographics, setDemographics] = useState(() => {
+    try {
+      if (profile?.age_range && profile.age_range.startsWith('{')) {
+        return JSON.parse(profile.age_range);
+      }
+    } catch (e) {}
+    return { infants: 0, children: 0, adults: 0, elderly: 0 };
+  });
+
   const [form, setForm] = useState(() => ({
     name: user.name || "",
     email: user.email || "",
@@ -24,9 +33,32 @@ export function ProfileModal({ user, profile, onClose, onUpdate }: any) {
     daily_calorie_need: String(profile?.daily_calorie_need ?? ""),
     daily_iron_need: String(profile?.daily_iron_need ?? ""),
     daily_vitamin_c_need: String(profile?.daily_vitamin_c_need ?? ""),
+    age_range: profile?.age_range || "",
   }));
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+
+  // Auto-calculate AKG for recipients based on demographics
+  useEffect(() => {
+    if (user.role === "recipient") {
+      const { infants, children, adults, elderly } = demographics;
+      const cal = infants * 1000 + children * 1600 + adults * 2200 + elderly * 1800;
+      const prot = infants * 20 + children * 40 + adults * 60 + elderly * 55;
+      const iron = infants * 8 + children * 10 + adults * 15 + elderly * 12;
+      const vitc = infants * 40 + children * 45 + adults * 75 + elderly * 70;
+      const totalCount = infants + children + adults + elderly;
+      
+      setForm(f => ({
+        ...f,
+        daily_calorie_need: String(cal),
+        daily_protein_need: String(prot),
+        daily_iron_need: String(iron),
+        daily_vitamin_c_need: String(vitc),
+        resident_count: String(totalCount),
+        age_range: JSON.stringify(demographics)
+      }));
+    }
+  }, [demographics, user.role]);
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
@@ -325,103 +357,74 @@ export function ProfileModal({ user, profile, onClose, onUpdate }: any) {
             )}
 
             {user.role === "recipient" && (
-              <>
-                <div className="grid md:grid-cols-3 gap-4 border-t pt-4">
-                  <div>
-                    <label
-                      htmlFor="profile-resident-count"
-                      className="text-xs font-bold text-gray-700 mb-1 block"
-                    >
-                      Resident Count
-                    </label>
-                    <input
-                      id="profile-resident-count"
-                      type="number"
-                      value={form.resident_count}
-                      onChange={(e) =>
-                        setForm({ ...form, resident_count: e.target.value })
-                      }
-                      className="w-full border p-2 rounded-xl"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label
-                      htmlFor="profile-protein"
-                      className="text-xs font-bold text-gray-700 mb-1 block"
-                    >
-                      Protein / Day
-                    </label>
-                    <input
-                      id="profile-protein"
-                      type="number"
-                      value={form.daily_protein_need}
-                      onChange={(e) =>
-                        setForm({ ...form, daily_protein_need: e.target.value })
-                      }
-                      className="w-full border p-2 rounded-xl"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label
-                      htmlFor="profile-calories"
-                      className="text-xs font-bold text-gray-700 mb-1 block"
-                    >
-                      Calories / Day
-                    </label>
-                    <input
-                      id="profile-calories"
-                      type="number"
-                      value={form.daily_calorie_need}
-                      onChange={(e) =>
-                        setForm({ ...form, daily_calorie_need: e.target.value })
-                      }
-                      className="w-full border p-2 rounded-xl"
-                      required
-                    />
-                  </div>
+              <div className="border-t pt-4">
+                <div className="bg-brand-medium/10 p-4 rounded-2xl mb-4 border border-brand-medium/20">
+                  <h3 className="font-bold text-brand-dark flex items-center gap-2 mb-2">
+                    <User size={18} /> Automated Nutrition Calculator (AKG)
+                  </h3>
+                  <p className="text-xs text-brand-dark/70">
+                    Input the number of people in your institution. The system will automatically calculate your daily nutritional targets (AKG) based on WHO/Kemenkes standards.
+                  </p>
                 </div>
-                <div className="grid md:grid-cols-2 gap-4">
+                
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                   <div>
-                    <label
-                      htmlFor="profile-iron"
-                      className="text-xs font-bold text-gray-700 mb-1 block"
-                    >
-                      Iron / Day (mg)
-                    </label>
+                    <label className="text-xs font-bold text-gray-700 mb-1 block">Infants (0-4y)</label>
                     <input
-                      id="profile-iron"
                       type="number"
-                      value={form.daily_iron_need}
-                      onChange={(e) =>
-                        setForm({ ...form, daily_iron_need: e.target.value })
-                      }
+                      min="0"
+                      value={demographics.infants}
+                      onChange={(e) => setDemographics({...demographics, infants: parseInt(e.target.value) || 0})}
                       className="w-full border p-2 rounded-xl"
                     />
                   </div>
                   <div>
-                    <label
-                      htmlFor="profile-vitaminc"
-                      className="text-xs font-bold text-gray-700 mb-1 block"
-                    >
-                      Vitamin C / Day (mg)
-                    </label>
+                    <label className="text-xs font-bold text-gray-700 mb-1 block">Children (5-12y)</label>
                     <input
-                      id="profile-vitaminc"
                       type="number"
-                      value={form.daily_vitamin_c_need}
-                      onChange={(e) =>
-                        setForm({
-                          ...form,
-                          daily_vitamin_c_need: e.target.value,
-                        })
-                      }
+                      min="0"
+                      value={demographics.children}
+                      onChange={(e) => setDemographics({...demographics, children: parseInt(e.target.value) || 0})}
+                      className="w-full border p-2 rounded-xl"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-gray-700 mb-1 block">Adults (13-59y)</label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={demographics.adults}
+                      onChange={(e) => setDemographics({...demographics, adults: parseInt(e.target.value) || 0})}
+                      className="w-full border p-2 rounded-xl"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-gray-700 mb-1 block">Elderly (60+)</label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={demographics.elderly}
+                      onChange={(e) => setDemographics({...demographics, elderly: parseInt(e.target.value) || 0})}
                       className="w-full border p-2 rounded-xl"
                     />
                   </div>
                 </div>
-              </>
+
+                <div className="bg-gray-50 p-4 rounded-2xl flex flex-wrap gap-4 justify-between border">
+                  <div>
+                    <span className="block text-xs text-gray-500">Total Residents</span>
+                    <strong className="text-lg text-brand-dark">{form.resident_count}</strong>
+                  </div>
+                  <div>
+                    <span className="block text-xs text-gray-500">Daily Calories</span>
+                    <strong className="text-lg text-primary-orange">{form.daily_calorie_need} kcal</strong>
+                  </div>
+                  <div>
+                    <span className="block text-xs text-gray-500">Daily Protein</span>
+                    <strong className="text-lg text-primary-orange">{form.daily_protein_need} g</strong>
+                  </div>
+                </div>
+              </div>
             )}
 
             <button

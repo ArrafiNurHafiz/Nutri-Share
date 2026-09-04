@@ -92,7 +92,7 @@ export function RegisterDonor() {
   };
 
   return (
-    <div className="min-h-screen bg-[#faf8f4] flex flex-col md:flex-row">
+    <div className="min-h-[100dvh] bg-[#faf8f4] flex flex-col md:flex-row">
       <SEO title="Register Donor | NutriShare" />
 
       {/* Left - Narrative Visual Panel */}

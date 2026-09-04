@@ -44,8 +44,8 @@ export function DonationList({
   user,
 }: Props) {
   return (
-    <div className="bg-white rounded-2xl border border-[var(--border-primary)] flex flex-col shadow-sm h-full">
-      <div className="p-5 border-b border-[var(--border-primary)] flex justify-between items-center">
+    <div className="glass rounded-3xl border border-white/50 flex flex-col shadow-orange h-full overflow-hidden">
+      <div className="p-5 border-b border-white/30 flex justify-between items-center bg-white/10">
         <h3 className="font-bold flex items-center gap-2 text-brand-dark">
           <svg
             className="w-5 h-5 text-brand-medium"
@@ -80,10 +80,10 @@ export function DonationList({
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
-              className={`p-4 rounded-xl border transition-colors ${
+              className={`p-4 rounded-2xl bg-white/50 backdrop-blur border transition-all duration-300 ${
                 d.rank === 1
-                  ? "border-primary-orange/40 hover:border-primary-orange"
-                  : "border-[var(--border-primary)] hover:border-primary-orange/30"
+                  ? "border-primary-orange shadow-orange hover:-translate-y-1 hover:shadow-orange-lg"
+                  : "border-white/50 hover:border-primary-orange/50 hover:-translate-y-1 hover:shadow-sm"
               }`}
             >
               <div className="flex justify-between items-start mb-2">
@@ -141,8 +141,8 @@ export function DonationList({
         )}
       </div>
 
-      <div className="p-4 border-t border-[var(--border-primary)]">
-        <button className="w-full bg-[var(--bg-tertiary)] text-brand-dark py-3 rounded-xl font-bold text-sm hover:bg-primary-orange hover:text-white transition-all">
+      <div className="p-4 border-t border-white/30 bg-white/10">
+        <button className="w-full bg-white/50 backdrop-blur border border-white/50 text-brand-dark py-3 rounded-xl font-bold text-sm hover:bg-primary-orange hover:border-primary-orange hover:text-white transition-all shadow-sm">
           View All Results
         </button>
       </div>
