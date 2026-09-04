@@ -142,7 +142,7 @@ async def _compute_rankings(session, donation_id, donation, recipients):
 
     p_sum = np.where(np.sum(norm_matrix, axis=0) == 0, EPSILON, np.sum(norm_matrix, axis=0))
     p_matrix = norm_matrix / p_sum
-    k = -1.0 / np.log(m)
+    k = 1.0 / np.log(m)
     entropy = -k * np.sum(p_matrix * np.log(np.clip(p_matrix, EPSILON, 1)), axis=0)
     d_j = np.maximum(0, 1 - entropy)
     sum_d_j = np.sum(d_j)

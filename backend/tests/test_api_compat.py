@@ -141,15 +141,19 @@ class TestAuth:
 
 @pytest.mark.asyncio
 class TestDonations:
-    async def test_list_donations(self, client):
+    async def test_list_donations_unauthorized(self, client):
         resp = await client.get("/api/donations")
+        assert resp.status_code == 401
+
+    async def test_list_donations(self, client, donor_token: str):
+        resp = await client.get("/api/donations", cookies={"nutrishare_token": donor_token})
         assert resp.status_code == 200
         data = resp.json()
         assert isinstance(data, list)
 
-    async def test_get_donation(self, client):
+    async def test_get_donation(self, client, donor_token: str):
         # Get first donation's ID dynamically
-        list_resp = await client.get("/api/donations")
+        list_resp = await client.get("/api/donations", cookies={"nutrishare_token": donor_token})
         assert list_resp.status_code == 200
         donations = list_resp.json()
         if not donations:

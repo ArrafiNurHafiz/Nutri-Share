@@ -73,8 +73,8 @@ class ClaimDonationRequest(BaseModel):
 
 class ReviewRequest(BaseModel):
     donation_id: int
-    donor_id: int
-    recipient_id: int
+    donor_id: int | None = None
+    recipient_id: int | None = None
     rating: int = Field(ge=1, le=5)
     comment: str = Field(default="")
 

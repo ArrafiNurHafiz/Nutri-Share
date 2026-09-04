@@ -114,26 +114,52 @@ async def create_donation(
 @router.get("/donations")
 async def list_donations(
     session: SessionDep,
+    current_user: User = Depends(get_current_user),
     donor_id: int | None = Query(None),
     page: int = Query(1, ge=1),
     limit: int = Query(20, ge=1, le=100),
 ):
     offset = (page - 1) * limit
-    if donor_id:
+    if current_user.role == "donor":
         result = await session.execute(
             select(Donation)
-            .where(Donation.donor_id == donor_id)
+            .where(Donation.donor_id == current_user.id)
             .order_by(Donation.id.desc())
             .offset(offset)
             .limit(limit)
         )
+    elif current_user.role == "admin":
+        if donor_id:
+            result = await session.execute(
+                select(Donation)
+                .where(Donation.donor_id == donor_id)
+                .order_by(Donation.id.desc())
+                .offset(offset)
+                .limit(limit)
+            )
+        else:
+            result = await session.execute(
+                select(Donation)
+                .order_by(Donation.id.desc())
+                .offset(offset)
+                .limit(limit)
+            )
     else:
-        result = await session.execute(
-            select(Donation)
-            .order_by(Donation.id.desc())
-            .offset(offset)
-            .limit(limit)
-        )
+        if donor_id:
+            result = await session.execute(
+                select(Donation)
+                .where(Donation.donor_id == donor_id)
+                .order_by(Donation.id.desc())
+                .offset(offset)
+                .limit(limit)
+            )
+        else:
+            result = await session.execute(
+                select(Donation)
+                .order_by(Donation.id.desc())
+                .offset(offset)
+                .limit(limit)
+            )
     donations = result.scalars().all()
 
     # Batch load recipient profiles to avoid N+1 queries

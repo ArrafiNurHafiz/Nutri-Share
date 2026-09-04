@@ -8,4 +8,3 @@ export { ReviewList } from "./ReviewList";
 export { ImpactBadges } from "./ImpactBadges";
 export { LogisticsMap } from "./LogisticsMap";
 export { QuickCatalog } from "./QuickCatalog";
-export { NotificationDropdown } from "./NotificationDropdown";
