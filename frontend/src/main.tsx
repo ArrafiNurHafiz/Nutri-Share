@@ -1,4 +1,4 @@
-import { StrictMode, lazy, Suspense } from "react";
+import { StrictMode, lazy, Suspense, type ComponentType } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
@@ -20,7 +20,7 @@ window.addEventListener("vite:preloadError", (event) => {
   }
 });
 
-function safeLazy<T extends React.ComponentType<any>>(
+function safeLazy<T extends ComponentType<any>>(
   factory: () => Promise<{ default: T } | T>,
 ) {
   return lazy(async () => {
