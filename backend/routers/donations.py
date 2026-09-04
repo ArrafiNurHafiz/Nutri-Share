@@ -389,10 +389,24 @@ async def claim_donation(
     if current_user.role != "recipient":
         raise HTTPException(status_code=403, detail="Access denied")
 
-    # Validate donation exists
+    # Validate donation exists and is active
     d_check = await session.execute(select(Donation).where(Donation.id == donation_id))
-    if not d_check.scalar_one_or_none():
+    d = d_check.scalar_one_or_none()
+    if not d:
         raise HTTPException(status_code=404, detail="Donation not found")
+    if d.status != "active":
+        raise HTTPException(status_code=400, detail="Donation is no longer available for claim")
+
+    # Prevent duplicate claim submissions by the same recipient
+    existing_claim = await session.execute(
+        select(Claim).where(
+            Claim.donation_id == donation_id,
+            Claim.recipient_id == current_user.id,
+            Claim.status.in_(["pending", "approved", "in_transit", "arrived", "completed"]),
+        )
+    )
+    if existing_claim.scalar_one_or_none():
+        raise HTTPException(status_code=400, detail="You have already submitted a claim for this donation")
 
     t = await session.execute(
         select(TopsisResult)
@@ -417,8 +431,6 @@ async def claim_donation(
 
     # Notify admins
     admins = await session.execute(select(User.id).where(User.role == "admin"))
-    d = await session.execute(select(Donation).where(Donation.id == donation_id))
-    d = d.scalar_one_or_none()
 
     for aid in admins.scalars().all():
         notif = Notification(
@@ -468,8 +480,23 @@ async def confirm_arrived(
     if not d:
         raise HTTPException(status_code=404, detail="Donation not found or status mismatch")
 
-    d.arrived_at = datetime.now(UTC).isoformat()
+    now = datetime.now(UTC).isoformat()
+    d.arrived_at = now
     session.add(d)
+
+    # Sync claim status to arrived
+    cl = await session.execute(
+        select(Claim).where(
+            Claim.donation_id == donation_id,
+            Claim.recipient_id == current_user.id,
+            Claim.status.in_(["approved", "in_transit"]),
+        )
+    )
+    claim_obj = cl.scalar_one_or_none()
+    if claim_obj:
+        claim_obj.status = "arrived"
+        session.add(claim_obj)
+
     await session.commit()
     return {"message": "Kedatangan dikonfirmasi"}
 
@@ -498,6 +525,20 @@ async def complete_donation(
     d.status = "completed"
     d.completed_at = now
     session.add(d)
+
+    # Sync claim status to completed
+    if d.claimed_by:
+        cl = await session.execute(
+            select(Claim).where(
+                Claim.donation_id == donation_id,
+                Claim.recipient_id == d.claimed_by,
+                Claim.status.in_(["approved", "in_transit", "arrived"]),
+            )
+        )
+        claim_obj = cl.scalar_one_or_none()
+        if claim_obj:
+            claim_obj.status = "completed"
+            session.add(claim_obj)
 
     # Update recipient's last_received_donation
     if d.claimed_by:

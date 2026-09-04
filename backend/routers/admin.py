@@ -142,6 +142,14 @@ async def admin_approve_claim(
     claim = claim.scalar_one_or_none()
     if not claim:
         raise HTTPException(status_code=404, detail="Claim not found")
+    if claim.status != "pending":
+        raise HTTPException(status_code=400, detail="Claim is not in pending status")
+
+    # Update donation
+    d = await session.execute(select(Donation).where(Donation.id == claim.donation_id))
+    d = d.scalar_one_or_none()
+    if not d or d.status not in ["active", "claimed"]:
+        raise HTTPException(status_code=400, detail="Donation is no longer available")
 
     now = datetime.now(UTC).isoformat()
     claim.status = "approved"
@@ -149,14 +157,25 @@ async def admin_approve_claim(
     claim.reviewed_by = current_user.id
     session.add(claim)
 
-    # Update donation
-    d = await session.execute(select(Donation).where(Donation.id == claim.donation_id))
-    d = d.scalar_one_or_none()
     if d:
         d.status = "claimed"
         d.claimed_by = claim.recipient_id
         d.claimed_at = now
         session.add(d)
+
+    # Automatically reject other competing pending claims for the same donation
+    competing = await session.execute(
+        select(Claim).where(
+            Claim.donation_id == claim.donation_id,
+            Claim.id != claim_id,
+            Claim.status == "pending",
+        )
+    )
+    for cc in competing.scalars().all():
+        cc.status = "rejected"
+        cc.reviewed_at = now
+        cc.reviewed_by = current_user.id
+        session.add(cc)
 
     await session.flush()
 
