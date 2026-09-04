@@ -56,7 +56,7 @@ class TestJWT:
             decode_token(token)
 
     def test_invalid_signature(self):
-        token = jwt.encode({"id": 1}, "wrong-secret", algorithm="HS256")
+        token = jwt.encode({"id": 1}, "wrong-secret-key-at-least-32-characters-long!", algorithm="HS256")
         with pytest.raises(Exception):
             decode_token(token)
 

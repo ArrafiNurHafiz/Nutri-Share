@@ -52,6 +52,7 @@ class TestReviewsAPI:
         await db_session.refresh(donation)
 
         recip_token = sign_token(recip)
+        client.cookies.set("nutrishare_token", recip_token)
 
         # Submit review without donor_id and recipient_id in JSON payload
         resp = await client.post(
@@ -61,7 +62,6 @@ class TestReviewsAPI:
                 "rating": 5,
                 "comment": "Makanan sangat berkualiatas dan higienis!",
             },
-            cookies={"nutrishare_token": recip_token},
         )
         assert resp.status_code == 200
         data = resp.json()
@@ -78,7 +78,6 @@ class TestReviewsAPI:
         dup_resp = await client.post(
             "/api/reviews",
             json={"donation_id": donation.id, "rating": 4, "comment": "Ulang"},
-            cookies={"nutrishare_token": recip_token},
         )
         assert dup_resp.status_code == 400
 
@@ -110,9 +109,9 @@ class TestReviewsAPI:
         await db_session.refresh(donation)
 
         recip_token = sign_token(recip)
+        client.cookies.set("nutrishare_token", recip_token)
         resp = await client.post(
             "/api/reviews",
             json={"donation_id": donation.id, "rating": 5, "comment": "Belum selesai"},
-            cookies={"nutrishare_token": recip_token},
         )
         assert resp.status_code == 400

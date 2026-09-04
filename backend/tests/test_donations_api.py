@@ -11,6 +11,7 @@ class TestDonationsCRUD:
 
     async def test_create_donation_success(self, client: AsyncClient, donor_token: str):
         """Test successful donation creation."""
+        client.cookies.set("nutrishare_token", donor_token)
         response = await client.post(
             "/api/donations",
             json={
@@ -23,7 +24,6 @@ class TestDonationsCRUD:
                 "pickup_latitude": -6.2,
                 "pickup_longitude": 106.8,
             },
-            cookies={"nutrishare_token": donor_token},
         )
         assert response.status_code == 200
         data = response.json()
@@ -48,10 +48,8 @@ class TestDonationsCRUD:
 
     async def test_list_donations(self, client: AsyncClient, donor_token: str, test_donation: dict):
         """Test listing donations."""
-        response = await client.get(
-            "/api/donations",
-            cookies={"nutrishare_token": donor_token},
-        )
+        client.cookies.set("nutrishare_token", donor_token)
+        response = await client.get("/api/donations")
         assert response.status_code == 200
         data = response.json()
         assert isinstance(data, list)
@@ -83,10 +81,8 @@ class TestDonationsActive:
 
     async def test_list_active_donations_with_recipient(self, client: AsyncClient, recipient_token: str, test_donation: dict):
         """Test listing active donations with recipient ID."""
-        response = await client.get(
-            "/api/donations/active",
-            cookies={"nutrishare_token": recipient_token},
-        )
+        client.cookies.set("nutrishare_token", recipient_token)
+        response = await client.get("/api/donations/active")
         assert response.status_code == 200
 
 
@@ -96,20 +92,16 @@ class TestDonationsTransit:
 
     async def test_list_transit_donations_donor(self, client: AsyncClient, donor_token: str):
         """Test listing transit donations for donor."""
-        response = await client.get(
-            "/api/donations/transit",
-            cookies={"nutrishare_token": donor_token},
-        )
+        client.cookies.set("nutrishare_token", donor_token)
+        response = await client.get("/api/donations/transit")
         assert response.status_code == 200
         data = response.json()
         assert isinstance(data, list)
 
     async def test_list_transit_donations_recipient(self, client: AsyncClient, recipient_token: str):
         """Test listing transit donations for recipient."""
-        response = await client.get(
-            "/api/donations/transit",
-            cookies={"nutrishare_token": recipient_token},
-        )
+        client.cookies.set("nutrishare_token", recipient_token)
+        response = await client.get("/api/donations/transit")
         assert response.status_code == 200
         data = response.json()
         assert isinstance(data, list)
@@ -127,10 +119,8 @@ class TestDonationsClaim:
     async def test_claim_donation_success(self, client: AsyncClient, recipient_token: str, test_donation: dict):
         """Test claiming a donation."""
         donation_id = test_donation["id"]
-        response = await client.post(
-            f"/api/donations/{donation_id}/claim",
-            cookies={"nutrishare_token": recipient_token},
-        )
+        client.cookies.set("nutrishare_token", recipient_token)
+        response = await client.post(f"/api/donations/{donation_id}/claim")
         assert response.status_code == 200
         data = response.json()
         assert "message" in data
@@ -143,10 +133,8 @@ class TestDonationsClaim:
 
     async def test_claim_donation_not_found(self, client: AsyncClient, recipient_token: str):
         """Test claiming nonexistent donation fails."""
-        response = await client.post(
-            "/api/donations/99999/claim",
-            cookies={"nutrishare_token": recipient_token},
-        )
+        client.cookies.set("nutrishare_token", recipient_token)
+        response = await client.post("/api/donations/99999/claim")
         assert response.status_code in [404, 403]
 
 
@@ -156,18 +144,14 @@ class TestDonationsHistory:
 
     async def test_list_donation_history_recipient(self, client: AsyncClient, recipient_token: str):
         """Test listing donation history for recipient."""
-        response = await client.get(
-            "/api/donations/history",
-            cookies={"nutrishare_token": recipient_token},
-        )
+        client.cookies.set("nutrishare_token", recipient_token)
+        response = await client.get("/api/donations/history")
         assert response.status_code == 200
         data = response.json()
         assert isinstance(data, list)
 
     async def test_list_donation_history_donor_fails(self, client: AsyncClient, donor_token: str):
         """Test that donors cannot access recipient history."""
-        response = await client.get(
-            "/api/donations/history",
-            cookies={"nutrishare_token": donor_token},
-        )
+        client.cookies.set("nutrishare_token", donor_token)
+        response = await client.get("/api/donations/history")
         assert response.status_code == 403

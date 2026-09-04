@@ -119,10 +119,8 @@ class TestAuthMe:
 
     async def test_get_current_user(self, client: AsyncClient, donor_token: str):
         """Test getting current user with valid token."""
-        response = await client.get(
-            "/api/auth/me",
-            cookies={"nutrishare_token": donor_token},
-        )
+        client.cookies.set("nutrishare_token", donor_token)
+        response = await client.get("/api/auth/me")
         assert response.status_code == 200
         data = response.json()
         # Response may nest user info under "user" or at root
@@ -137,10 +135,8 @@ class TestAuthMe:
 
     async def test_get_current_user_invalid_token(self, client: AsyncClient):
         """Test getting current user with invalid token fails."""
-        response = await client.get(
-            "/api/auth/me",
-            cookies={"nutrishare_token": "invalid-token"},
-        )
+        client.cookies.set("nutrishare_token", "invalid-token")
+        response = await client.get("/api/auth/me")
         assert response.status_code == 401
 
 
@@ -150,8 +146,6 @@ class TestAuthLogout:
 
     async def test_logout_success(self, client: AsyncClient, donor_token: str):
         """Test successful logout."""
-        response = await client.post(
-            "/api/auth/logout",
-            cookies={"nutrishare_token": donor_token},
-        )
+        client.cookies.set("nutrishare_token", donor_token)
+        response = await client.post("/api/auth/logout")
         assert response.status_code == 200

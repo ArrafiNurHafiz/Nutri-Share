@@ -146,14 +146,16 @@ class TestDonations:
         assert resp.status_code == 401
 
     async def test_list_donations(self, client, donor_token: str):
-        resp = await client.get("/api/donations", cookies={"nutrishare_token": donor_token})
+        client.cookies.set("nutrishare_token", donor_token)
+        resp = await client.get("/api/donations")
         assert resp.status_code == 200
         data = resp.json()
         assert isinstance(data, list)
 
     async def test_get_donation(self, client, donor_token: str):
         # Get first donation's ID dynamically
-        list_resp = await client.get("/api/donations", cookies={"nutrishare_token": donor_token})
+        client.cookies.set("nutrishare_token", donor_token)
+        list_resp = await client.get("/api/donations")
         assert list_resp.status_code == 200
         donations = list_resp.json()
         if not donations:
