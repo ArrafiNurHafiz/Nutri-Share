@@ -24,6 +24,9 @@ interface Props {
   setActiveTab: (t: string) => void;
   mobileOpen?: boolean;
   onClose?: () => void;
+  onBrowseMap?: () => void;
+  onSettings?: () => void;
+  onSupport?: () => void;
 }
 
 export function DonorSidebar({
@@ -31,6 +34,9 @@ export function DonorSidebar({
   setActiveTab,
   mobileOpen,
   onClose,
+  onBrowseMap,
+  onSettings,
+  onSupport,
 }: Props) {
   return (
     <>
@@ -89,14 +95,35 @@ export function DonorSidebar({
           })}
         </nav>
         <div className="pt-6 border-t border-white/10">
-          <button className="w-full bg-primary-orange/20 hover:bg-primary-orange/30 text-primary-orange py-3 px-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all text-sm">
+          <button
+            type="button"
+            onClick={() => {
+              onBrowseMap?.();
+              onClose?.();
+            }}
+            className="w-full bg-primary-orange/20 hover:bg-primary-orange/30 text-primary-orange py-3 px-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all text-sm"
+          >
             <Search size={18} /> Browse Map
           </button>
           <div className="mt-4 space-y-1">
-            <button className="w-full flex items-center gap-3 px-3 py-2 text-white/50 hover:text-white/80 transition-colors text-sm rounded-lg">
+            <button
+              type="button"
+              onClick={() => {
+                onSettings?.();
+                onClose?.();
+              }}
+              className="w-full flex items-center gap-3 px-3 py-2 text-white/50 hover:text-white/80 transition-colors text-sm rounded-lg"
+            >
               <Settings size={16} /> Settings
             </button>
-            <button className="w-full flex items-center gap-3 px-3 py-2 text-white/50 hover:text-white/80 transition-colors text-sm rounded-lg">
+            <button
+              type="button"
+              onClick={() => {
+                onSupport?.();
+                onClose?.();
+              }}
+              className="w-full flex items-center gap-3 px-3 py-2 text-white/50 hover:text-white/80 transition-colors text-sm rounded-lg"
+            >
               <LifeBuoy size={16} /> Support
             </button>
           </div>

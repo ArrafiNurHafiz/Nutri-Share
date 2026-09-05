@@ -222,6 +222,9 @@ export function DonorDashboard() {
         setActiveTab={setActiveTab}
         mobileOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
+        onBrowseMap={() => nav("/map")}
+        onSettings={() => setShowProfile(true)}
+        onSupport={() => nav("/contact")}
       />
 
       <main className="lg:ml-64 flex-1 p-4 lg:p-8 w-full">
@@ -301,7 +304,25 @@ export function DonorDashboard() {
                   onAddDonation={() => setShowForm(true)}
                 />
                 <ImpactBadges badges={badges} />
-                <LogisticsMap />
+                <LogisticsMap
+                  inTransitCount={
+                    donations.filter(
+                      (d) => d.status === "claimed" || (d as any).arrived_at,
+                    ).length
+                  }
+                  onTrack={() => {
+                    const activeTransit = donations.find(
+                      (d) => d.status === "claimed" || (d as any).arrived_at,
+                    );
+                    if (activeTransit) {
+                      setTrackingData(activeTransit);
+                    } else {
+                      setActiveTab("donations");
+                      setFilterTab("claimed");
+                      toast("No donation currently in transit", { icon: "ℹ️" });
+                    }
+                  }}
+                />
               </div>
             </div>
           </div>
