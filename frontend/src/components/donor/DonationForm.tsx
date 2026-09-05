@@ -188,19 +188,15 @@ export function DonationForm(props: Props) {
     },
   ];
 
-  const handleAutoEstimate = () => {
-    if (!form.food_name) {
-      toast.error("Masukkan nama makanan terlebih dahulu");
-      return;
-    }
-
-    const name = form.food_name.toLowerCase();
-    let prot = 10;
-    let cal = 250;
-    let iron = 1.5;
+  const estimateNutritionFromName = (nameStr: string) => {
+    if (!nameStr || nameStr.trim().length === 0) return null;
+    const name = nameStr.toLowerCase();
+    let prot = 8;
+    let cal = 200;
+    let iron = 1.2;
     let vitC = 5;
+    let detectedType = "makanan_berat";
 
-    // Smart Indonesian Food Nutrition Heuristics
     if (
       name.includes("ayam") ||
       name.includes("chicken") ||
@@ -209,6 +205,7 @@ export function DonationForm(props: Props) {
       prot += 16;
       cal += 180;
       iron += 0.8;
+      detectedType = "lauk_protein";
     }
     if (
       name.includes("nasi") ||
@@ -218,7 +215,8 @@ export function DonationForm(props: Props) {
       name.includes("pasta")
     ) {
       prot += 4;
-      cal += 240;
+      cal += 220;
+      detectedType = "makanan_berat";
     }
     if (
       name.includes("sapi") ||
@@ -229,6 +227,7 @@ export function DonationForm(props: Props) {
       prot += 22;
       cal += 240;
       iron += 2.5;
+      detectedType = "lauk_protein";
     }
     if (
       name.includes("ikan") ||
@@ -239,6 +238,7 @@ export function DonationForm(props: Props) {
       prot += 19;
       cal += 130;
       iron += 1.0;
+      detectedType = "lauk_protein";
     }
     if (
       name.includes("telur") ||
@@ -249,11 +249,13 @@ export function DonationForm(props: Props) {
       prot += 12;
       cal += 150;
       iron += 1.4;
+      detectedType = "lauk_protein";
     }
     if (name.includes("tempe") || name.includes("tahu")) {
       prot += 10;
       cal += 120;
       iron += 1.8;
+      detectedType = "lauk_protein";
     }
     if (
       name.includes("sayur") ||
@@ -263,9 +265,10 @@ export function DonationForm(props: Props) {
       name.includes("salad")
     ) {
       prot += 3;
-      cal = Math.max(70, cal - 80);
+      cal = Math.max(70, cal - 60);
       vitC += 25;
       iron += 1.2;
+      detectedType = "sayur";
     }
     if (
       name.includes("buah") ||
@@ -278,6 +281,7 @@ export function DonationForm(props: Props) {
       prot = Math.max(1, prot - 6);
       cal = 110;
       vitC += 40;
+      detectedType = "snack";
     }
     if (
       name.includes("roti") ||
@@ -288,24 +292,48 @@ export function DonationForm(props: Props) {
     ) {
       prot = Math.max(4, prot - 3);
       cal += 160;
+      detectedType = "snack";
     }
-    if (name.includes("susu") || name.includes("milk")) {
+    if (
+      name.includes("susu") ||
+      name.includes("milk") ||
+      name.includes("jus")
+    ) {
       prot += 8;
       cal += 120;
       vitC += 8;
+      detectedType = "minuman";
     }
 
-    onSetForm({
-      ...form,
-      protein_per_portion: String(Math.round(prot)),
-      calorie_per_portion: String(Math.round(cal)),
-      iron_mg: String(iron.toFixed(1)),
-      vitamin_c_mg: String(Math.round(vitC)),
-    });
+    return {
+      protein: String(Math.round(prot)),
+      calorie: String(Math.round(cal)),
+      iron: String(iron.toFixed(1)),
+      vitC: String(Math.round(vitC)),
+      foodType: detectedType,
+    };
+  };
 
-    toast.success(
-      `✨ Estimasi Otomatis: ${Math.round(prot)}g protein, ${Math.round(cal)} kcal!`,
-    );
+  const handleAutoEstimate = () => {
+    if (!form.food_name) {
+      toast.error("Masukkan nama makanan terlebih dahulu");
+      return;
+    }
+
+    const est = estimateNutritionFromName(form.food_name);
+    if (est) {
+      onSetForm({
+        ...form,
+        food_type: est.foodType,
+        protein_per_portion: est.protein,
+        calorie_per_portion: est.calorie,
+        iron_mg: est.iron,
+        vitamin_c_mg: est.vitC,
+      });
+      toast.success(
+        `✨ Estimasi AI: ${est.protein}g protein, ${est.calorie} kkal per porsi!`,
+      );
+    }
   };
 
   return (
@@ -440,7 +468,31 @@ export function DonationForm(props: Props) {
 
               <button
                 type="button"
-                onClick={() => onSetStep(2)}
+                onClick={() => {
+                  if (form.food_name) {
+                    const est = estimateNutritionFromName(form.food_name);
+                    if (
+                      est &&
+                      (!form.protein_per_portion ||
+                        form.protein_per_portion === "0" ||
+                        !form.calorie_per_portion ||
+                        form.calorie_per_portion === "0")
+                    ) {
+                      onSetForm({
+                        ...form,
+                        food_type: est.foodType,
+                        protein_per_portion: est.protein,
+                        calorie_per_portion: est.calorie,
+                        iron_mg: est.iron,
+                        vitamin_c_mg: est.vitC,
+                      });
+                      toast.success(
+                        `✨ Estimasi AI otomatis terisi untuk "${form.food_name}"!`,
+                      );
+                    }
+                  }
+                  onSetStep(2);
+                }}
                 disabled={!form.food_name || !form.portion_count}
                 className="w-full bg-primary-orange hover:bg-primary-orange-dark text-white py-2.5 rounded-xl font-bold text-sm transition-all disabled:opacity-40 flex items-center justify-center gap-1.5 shadow-sm"
               >
