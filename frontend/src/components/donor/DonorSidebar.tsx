@@ -26,7 +26,12 @@ interface Props {
   onClose?: () => void;
 }
 
-export function DonorSidebar({ activeTab, setActiveTab, mobileOpen, onClose }: Props) {
+export function DonorSidebar({
+  activeTab,
+  setActiveTab,
+  mobileOpen,
+  onClose,
+}: Props) {
   return (
     <>
       {/* Mobile overlay */}

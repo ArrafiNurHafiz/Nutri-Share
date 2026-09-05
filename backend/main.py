@@ -70,17 +70,24 @@ app.add_middleware(
 )
 
 
+import time
+import uuid
+
 @app.middleware("http")
-async def add_security_headers(request: Request, call_next):
-    """Security headers equivalent to Helmet.js + CSRF origin check."""
+async def add_security_and_observability(request: Request, call_next):
+    """Observability (Request ID & timing) + Security headers + CSRF check."""
+    request_id = request.headers.get("X-Request-ID") or uuid.uuid4().hex[:12]
+    request.state.request_id = request_id
+    start_time = time.perf_counter()
+
     # CSRF protection: validate Origin/Referer for state-changing methods
     if request.method in ("POST", "PUT", "DELETE", "PATCH"):
         origin = request.headers.get("Origin")
         referer = request.headers.get("Referer")
         allowed = settings.cors_origins if settings.is_production else ["http://localhost:3000", "http://localhost:5173", "http://127.0.0.1:3000", "http://127.0.0.1:5173"]
 
-        # Skip CSRF check for health endpoint and auth (they handle their own)
-        is_public = request.url.path in ("/health", "/api/auth/login", "/api/auth/logout", "/api/auth/register/donor", "/api/auth/register/recipient")
+        # Skip CSRF check for health endpoints and auth
+        is_public = request.url.path in ("/health", "/health/detailed", "/health/ready", "/api/auth/login", "/api/auth/logout", "/api/auth/register/donor", "/api/auth/register/recipient")
 
         if not is_public and request.url.path.startswith("/api"):
             has_valid_origin = False
@@ -95,12 +102,28 @@ async def add_security_headers(request: Request, call_next):
                 return JSONResponse(status_code=403, content={"message": "CSRF validation failed: invalid origin"})
 
     response = await call_next(request)
+    duration_ms = (time.perf_counter() - start_time) * 1000.0
+
+    # Attach Request ID and Performance metrics to response headers
+    response.headers["X-Request-ID"] = request_id
+    response.headers["X-Response-Time-Ms"] = f"{duration_ms:.2f}"
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
     response.headers["Content-Security-Policy"] = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https://*.supabase.co; frame-ancestors 'none'; object-src 'none'; base-uri 'self'"
     if settings.is_production:
         response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
+
+    if request.url.path != "/health":
+        logger.info(
+            "http_request",
+            request_id=request_id,
+            method=request.method,
+            path=request.url.path,
+            status_code=response.status_code,
+            duration_ms=round(duration_ms, 2),
+        )
+
     return response
 
 

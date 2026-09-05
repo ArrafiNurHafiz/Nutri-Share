@@ -42,9 +42,7 @@ function safeLazy<T extends ComponentType<any>>(
 }
 
 const Home = safeLazy(() => import("./pages/Home"));
-const Login = safeLazy(() =>
-  import("./pages/Auth").then((m) => m.Login),
-);
+const Login = safeLazy(() => import("./pages/Auth").then((m) => m.Login));
 const RegisterDonor = safeLazy(() =>
   import("./pages/RegisterDonor").then((m) => m.RegisterDonor),
 );

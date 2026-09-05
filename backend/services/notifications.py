@@ -1,7 +1,8 @@
-"""Enhanced notification service with push notification support.
+"""Enhanced notification service with real-time push/SSE support.
 
 Supports:
 - In-app notifications (database)
+- Real-time SSE broadcasting via RealtimeBroker
 - Push notifications (web push via service worker)
 - Email notifications (template-based)
 """
@@ -11,6 +12,7 @@ import json
 from typing import Any
 from dataclasses import dataclass
 
+from backend.services.realtime import broker
 from backend.utils.logger import logger
 
 
@@ -26,23 +28,18 @@ class NotificationPayload:
 
 
 async def notify_user(user_id: int, data: Any) -> None:
-    """Send notification to user via available channels.
-
-    Sends to:
-    1. Database (in-app notification)
-    2. Push notification (if browser push enabled)
-    """
+    """Send notification to user via database + real-time broker."""
     logger.debug("notification_created", user_id=user_id)
-    # Push notification would be sent here in production
-    # await _send_push_notification(user_id, data)
+    await broker.publish(
+        event_type="NOTIFICATION_CREATED",
+        resource_id=data.get("id") if isinstance(data, dict) else None,
+        data=data if isinstance(data, dict) else {"content": data},
+        target_user_ids=[user_id],
+    )
 
 
 async def notify_user_push(user_id: int, payload: NotificationPayload) -> None:
-    """Send push notification to user's devices.
-
-    In production, this would use Firebase Cloud Messaging (FCM) or Web Push API.
-    For now, it logs the notification for debugging.
-    """
+    """Send push notification to user's devices."""
     logger.info(
         "push_notification_sent",
         user_id=user_id,
@@ -76,17 +73,18 @@ async def send_donation_available_notification(
         )
         session.add(notif)
         await session.commit()
+        await session.refresh(notif)
 
-    # Also send push notification
-    push_payload = NotificationPayload(
-        title="Donation Available!",
-        message=f"{food_name} - {portion_count} portions",
-        type="donation_available",
-        related_donation_id=donation_id,
-        action_url=f"/donations/{donation_id}",
-        priority="normal",
-    )
-    await notify_user_push(user_id, push_payload)
+    await notify_user(user_id, {
+        "id": notif.id,
+        "user_id": user_id,
+        "title": notif.title,
+        "message": notif.message,
+        "type": notif.type,
+        "is_read": notif.is_read,
+        "related_donation_id": notif.related_donation_id,
+        "created_at": notif.created_at,
+    })
 
 
 async def send_claim_approved_notification(
@@ -112,16 +110,18 @@ async def send_claim_approved_notification(
         )
         session.add(notif)
         await session.commit()
+        await session.refresh(notif)
 
-    push_payload = NotificationPayload(
-        title="Claim Approved!",
-        message=f"Donation {food_name} is ready for pickup",
-        type="claim_approved",
-        related_donation_id=donation_id,
-        action_url=f"/transit",
-        priority="high",
-    )
-    await notify_user_push(user_id, push_payload)
+    await notify_user(user_id, {
+        "id": notif.id,
+        "user_id": user_id,
+        "title": notif.title,
+        "message": notif.message,
+        "type": notif.type,
+        "is_read": notif.is_read,
+        "related_donation_id": notif.related_donation_id,
+        "created_at": notif.created_at,
+    })
 
 
 async def send_emergency_notification(
@@ -147,12 +147,12 @@ async def send_emergency_notification(
             session.add(notif)
         await session.commit()
 
-    push_payload = NotificationPayload(
-        title="Emergency Request!",
-        message=f"Review the emergency request from {recipient_name}",
-        type="emergency",
-        action_url="/admin",
-        priority="urgent",
-    )
     for admin_id in admin_ids:
-        await notify_user_push(admin_id, push_payload)
+        await notify_user(admin_id, {
+            "user_id": admin_id,
+            "title": "Emergency Request!",
+            "message": f"Recipient '{recipient_name}' requested emergency status. Review now.",
+            "type": "emergency",
+            "is_read": 0,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+        })

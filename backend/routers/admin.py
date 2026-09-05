@@ -20,6 +20,7 @@ from backend.models import (
 )
 from backend.schemas import AdminVerifyRequest
 from backend.services.notifications import notify_user
+from backend.services.realtime import broker
 from backend.services.topsis import run_topsis_all_active
 from backend.utils.logger import log_activity
 from backend.utils.rate_limit import rate_limit_dependency
@@ -101,6 +102,15 @@ async def admin_verify_user(
             session.add(rp)
 
     await session.commit()
+
+    # Publish user verified event
+    await broker.publish(
+        event_type="USER_VERIFIED",
+        resource_id=user_id,
+        data={"user_id": user_id, "role": user.role, "status": "verified"},
+        target_user_ids=[user_id],
+        target_roles=["admin"],
+    )
 
     if user.role == "recipient":
         await run_topsis_all_active()
@@ -208,6 +218,22 @@ async def admin_approve_claim(
         })
 
     await session.commit()
+
+    # Publish real-time events for claim approved
+    await broker.publish(
+        event_type="CLAIM_APPROVED",
+        resource_id=claim_id,
+        data={
+            "claim_id": claim_id,
+            "donation_id": claim.donation_id,
+            "recipient_id": claim.recipient_id,
+            "donor_id": d.donor_id if d else None,
+            "status": "approved",
+        },
+        target_roles=["admin", "recipient", "donor"],
+        target_user_ids=notify_ids,
+    )
+
     await log_activity(session, current_user.id, "klaim_setujui", f"Klaim #{claim_id} disetujui")
     return {"message": "Klaim disetujui"}
 
@@ -236,6 +262,15 @@ async def admin_toggle_emergency(
     rp.emergency = next_status
     session.add(rp)
     await session.commit()
+
+    # Publish emergency toggled event
+    await broker.publish(
+        event_type="EMERGENCY_STATUS_UPDATED",
+        resource_id=user_id,
+        data={"user_id": user_id, "emergency": next_status},
+        target_roles=["admin"],
+        target_user_ids=[user_id],
+    )
 
     await run_topsis_all_active()
     return {"emergency": next_status}
@@ -284,6 +319,14 @@ async def admin_delete_user(
         await session.execute(text("DELETE FROM activity_logs WHERE user_id = :uid"), {"uid": user_id})
         await session.execute(text("DELETE FROM users WHERE id = :uid"), {"uid": user_id})
         await session.commit()
+
+        # Publish user deleted event
+        await broker.publish(
+            event_type="USER_DELETED",
+            resource_id=user_id,
+            data={"user_id": user_id, "role": user.role},
+            target_roles=["admin"],
+        )
     except Exception as e:
         await session.rollback()
         raise HTTPException(status_code=500, detail=f"Gagal menghapus user: {e}")

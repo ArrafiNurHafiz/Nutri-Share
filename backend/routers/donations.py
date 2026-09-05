@@ -23,6 +23,7 @@ from backend.models import (
 )
 from backend.schemas import CreateDonationRequest
 from backend.services.notifications import notify_user
+from backend.services.realtime import broker
 from backend.services.topsis import calculate_topsis_for_donation
 from backend.utils.logger import log_activity, logger
 from backend.utils.rate_limit import rate_limit_dependency
@@ -106,6 +107,20 @@ async def create_donation(
             "related_donation_id": notif.related_donation_id,
             "created_at": notif.created_at,
         })
+
+    # Publish real-time events to all relevant audiences
+    await broker.publish(
+        event_type="DONATION_CREATED",
+        resource_id=donation.id,
+        data={
+            "donation_id": donation.id,
+            "food_name": donation.food_name,
+            "donor_id": donation.donor_id,
+            "portion_count": donation.portion_count,
+            "status": donation.status,
+        },
+        target_roles=["recipient", "admin", "donor"],
+    )
 
     await log_activity(session, current_user.id, "donasi_buat", f"Published {body.food_name} ({body.portion_count} portions)")
     return {"message": "Donation published successfully!"}
@@ -456,6 +471,20 @@ async def claim_donation(
         })
     await session.commit()
 
+    # Publish real-time events for claim creation
+    await broker.publish(
+        event_type="CLAIM_CREATED",
+        resource_id=claim.id,
+        data={
+            "claim_id": claim.id,
+            "donation_id": donation_id,
+            "recipient_id": current_user.id,
+            "status": "pending",
+        },
+        target_roles=["admin"],
+        target_user_ids=[current_user.id],
+    )
+
     await log_activity(session, current_user.id, "klaim_buat", f"Mengklaim donasi #{donation_id}")
     return {"message": "Claim submitted successfully, waiting for admin approval."}
 
@@ -498,6 +527,22 @@ async def confirm_arrived(
         session.add(claim_obj)
 
     await session.commit()
+
+    # Publish delivery arrived event
+    await broker.publish(
+        event_type="DELIVERY_ARRIVED",
+        resource_id=donation_id,
+        data={
+            "donation_id": donation_id,
+            "donor_id": d.donor_id,
+            "recipient_id": current_user.id,
+            "status": "arrived",
+            "arrived_at": now,
+        },
+        target_user_ids=[d.donor_id, current_user.id],
+        target_roles=["admin"],
+    )
+
     return {"message": "Kedatangan dikonfirmasi"}
 
 
@@ -560,5 +605,25 @@ async def complete_donation(
         session.add(dp)
 
     await session.commit()
+
+    # Publish donation completed / handover event
+    target_users = [current_user.id]
+    if d.claimed_by:
+        target_users.append(d.claimed_by)
+
+    await broker.publish(
+        event_type="HANDOVER_COMPLETED",
+        resource_id=donation_id,
+        data={
+            "donation_id": donation_id,
+            "donor_id": current_user.id,
+            "claimed_by": d.claimed_by,
+            "status": "completed",
+            "completed_at": now,
+        },
+        target_user_ids=target_users,
+        target_roles=["admin"],
+    )
+
     await log_activity(session, current_user.id, "donasi_selesai", f"Donasi #{donation_id} selesai")
     return {"message": "Handover confirmed successfully"}

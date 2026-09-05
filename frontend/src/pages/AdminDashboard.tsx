@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../lib/api";
+import { useRealtime, RealtimeEvent } from "../lib/useRealtime";
 import { Claim } from "../types";
 import { useAuth } from "../contexts/AuthContext";
 import { ProfileModal } from "../components/ProfileModal";
@@ -162,12 +163,23 @@ export function AdminDashboard() {
     return () => clearTimeout(timer);
   }, [search]);
 
-  // Auto-refresh
-  useEffect(() => {
-    if (!currentUser || currentUser.role !== "admin") return;
-    const timer = setInterval(loadData, AUTO_REFRESH_MS);
-    return () => clearInterval(timer);
-  }, [loadData]);
+  // Real-time synchronization
+  useRealtime(
+    currentUser?.id,
+    currentUser?.role,
+    (event: RealtimeEvent) => {
+      loadData();
+      if (event.event_type === "CLAIM_CREATED") {
+        toast("Klaim donasi baru masuk!", { icon: "🔔" });
+      } else if (event.event_type === "DONATION_CREATED") {
+        toast("Donasi baru telah dibuat!", { icon: "📦" });
+      } else if (event.event_type === "EMERGENCY_STATUS_UPDATED") {
+        toast("Status darurat penerima diperbarui!", { icon: "🚨" });
+      }
+    },
+    loadData,
+    AUTO_REFRESH_MS,
+  );
 
   const handleVerify = async (userId: number, urgencyScore?: number) => {
     const body = urgencyScore ? { urgency_score: urgencyScore } : {};
@@ -491,7 +503,21 @@ export function AdminDashboard() {
                 className="lg:hidden p-2 text-brand-dark hover:bg-gray-100 rounded-lg"
                 aria-label="Open menu"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="3" y1="12" x2="21" y2="12" />
+                  <line x1="3" y1="6" x2="21" y2="6" />
+                  <line x1="3" y1="18" x2="21" y2="18" />
+                </svg>
               </button>
               <h2 className="text-xl font-bold text-brand-dark font-heading">
                 Dashboard Overview

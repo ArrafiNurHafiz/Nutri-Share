@@ -24,11 +24,19 @@ const NAV_ITEMS = [
   { key: "nutrition", label: "Nutrient Stats", icon: BarChart3 },
 ];
 
-export function RecipientSidebar({ activeTab, setActiveTab, mobileOpen, onClose }: Props) {
+export function RecipientSidebar({
+  activeTab,
+  setActiveTab,
+  mobileOpen,
+  onClose,
+}: Props) {
   return (
     <>
       {mobileOpen && (
-        <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={onClose} />
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={onClose}
+        />
       )}
 
       <aside

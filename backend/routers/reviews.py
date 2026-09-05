@@ -13,6 +13,7 @@ from backend.auth import get_current_user
 from backend.dependencies import SessionDep
 from backend.models import Donation, Notification, RecipientProfile, Review, User
 from backend.schemas import ReviewRequest
+from backend.services.realtime import broker
 from backend.utils.rate_limit import rate_limit_dependency
 
 router = APIRouter()
@@ -68,6 +69,21 @@ async def create_review(
     )
     session.add(notif)
     await session.commit()
+
+    # Publish review created event
+    await broker.publish(
+        event_type="REVIEW_CREATED",
+        resource_id=review.id,
+        data={
+            "review_id": review.id,
+            "donation_id": body.donation_id,
+            "donor_id": donation.donor_id,
+            "recipient_id": current_user.id,
+            "rating": body.rating,
+        },
+        target_user_ids=[donation.donor_id, current_user.id],
+        target_roles=["admin"],
+    )
 
     return {"message": "Review submitted successfully"}
 

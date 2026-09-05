@@ -74,7 +74,9 @@ self.addEventListener("fetch", (event) => {
               cache.put(request, response);
             });
           })
-          .catch(() => {/* ignore network errors */});
+          .catch(() => {
+            /* ignore network errors */
+          });
         return cachedResponse;
       }
 

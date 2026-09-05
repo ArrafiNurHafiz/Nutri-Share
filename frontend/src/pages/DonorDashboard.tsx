@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Package, Activity, TrendingUp } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { api } from "../lib/api";
+import { useRealtime, RealtimeEvent } from "../lib/useRealtime";
 import { useAuth } from "../contexts/AuthContext";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { SEO } from "../components/SEO";
@@ -90,20 +91,23 @@ export function DonorDashboard() {
     if (user) loadDonations();
   }, [loadDonations, user]);
 
-  // Poll notifications
-  useEffect(() => {
-    if (!user?.id) return;
-    const poll = async () => {
-      try {
-        setNotifications(
-          await api.fetchJSON(`/api/notifications?user_id=${user.id}`),
-        );
-      } catch {}
-    };
-    poll();
-    const timer = setInterval(poll, 30000);
-    return () => clearInterval(timer);
-  }, [user?.id]);
+  // Real-time synchronization
+  useRealtime(
+    user?.id,
+    user?.role,
+    (event: RealtimeEvent) => {
+      loadDonations();
+      if (event.event_type === "CLAIM_APPROVED") {
+        toast("Klaim donasi Anda telah diproses!", { icon: "✅" });
+      } else if (event.event_type === "DELIVERY_ARRIVED") {
+        toast("Penerima telah tiba di lokasi!", { icon: "📍" });
+      } else if (event.event_type === "REVIEW_CREATED") {
+        toast("Ulasan baru diterima untuk donasi Anda!", { icon: "⭐" });
+      }
+    },
+    loadDonations,
+    30000,
+  );
 
   if (authLoading || !user) return null;
 
@@ -344,14 +348,16 @@ export function DonorDashboard() {
               />
             </div>
             <div className="lg:col-span-4 flex flex-col gap-6">
-               <div className="glass p-6 rounded-3xl border border-white/50 shadow-sm bg-gradient-to-br from-brand-medium/10 to-transparent">
-                 <h3 className="font-bold text-brand-dark mb-2 flex items-center gap-2">
-                   <Package size={18} className="text-brand-medium"/> My Donations
-                 </h3>
-                 <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-                   Thank you for your generous contributions! Ensure that your food is packed securely before the courier arrives.
-                 </p>
-               </div>
+              <div className="glass p-6 rounded-3xl border border-white/50 shadow-sm bg-gradient-to-br from-brand-medium/10 to-transparent">
+                <h3 className="font-bold text-brand-dark mb-2 flex items-center gap-2">
+                  <Package size={18} className="text-brand-medium" /> My
+                  Donations
+                </h3>
+                <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                  Thank you for your generous contributions! Ensure that your
+                  food is packed securely before the courier arrives.
+                </p>
+              </div>
             </div>
           </div>
         )}
@@ -362,14 +368,16 @@ export function DonorDashboard() {
               <ImpactBadges badges={badges} />
             </div>
             <div className="lg:col-span-4 flex flex-col gap-6">
-               <div className="glass p-6 rounded-3xl border border-white/50 shadow-sm bg-gradient-to-br from-primary-orange/10 to-transparent">
-                 <h3 className="font-bold text-brand-dark mb-2 flex items-center gap-2">
-                   <Activity size={18} className="text-primary-orange"/> Impact Tracker
-                 </h3>
-                 <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-                   Every portion you donate makes a huge difference in someone's life. Keep up the great work!
-                 </p>
-               </div>
+              <div className="glass p-6 rounded-3xl border border-white/50 shadow-sm bg-gradient-to-br from-primary-orange/10 to-transparent">
+                <h3 className="font-bold text-brand-dark mb-2 flex items-center gap-2">
+                  <Activity size={18} className="text-primary-orange" /> Impact
+                  Tracker
+                </h3>
+                <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                  Every portion you donate makes a huge difference in someone's
+                  life. Keep up the great work!
+                </p>
+              </div>
             </div>
           </div>
         )}

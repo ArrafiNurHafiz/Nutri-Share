@@ -13,6 +13,7 @@ from backend.auth import get_current_user
 from backend.dependencies import SessionDep
 from backend.models import Donation, RecipientProfile, User
 from backend.schemas import EmergencyRequest
+from backend.services.realtime import broker
 from backend.utils.rate_limit import rate_limit_dependency
 
 router = APIRouter()
@@ -135,6 +136,15 @@ async def toggle_emergency(
     rp.emergency = next_status
     session.add(rp)
     await session.commit()
+
+    # Publish real-time emergency request event
+    await broker.publish(
+        event_type="EMERGENCY_STATUS_UPDATED",
+        resource_id=user_id,
+        data={"user_id": user_id, "emergency": next_status},
+        target_roles=["admin"],
+        target_user_ids=[user_id],
+    )
 
     msg = (
         "Emergency request sent to admin"

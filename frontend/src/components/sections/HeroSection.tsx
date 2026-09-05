@@ -103,7 +103,6 @@ export function HeroSection({ stats }: { stats: any }) {
       </div>
 
       <div className="relative z-10 w-full flex flex-col justify-center gap-16 md:gap-20 py-24 flex-1">
-        
         {/* Text Area */}
         <div className="max-w-7xl 2xl:max-w-[80vw] w-full mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-2xl 2xl:max-w-4xl">
@@ -145,7 +144,8 @@ export function HeroSection({ stats }: { stats: any }) {
                 to="/register/donor"
                 className="bg-primary-container hover:bg-primary text-white px-8 py-3 2xl:px-10 2xl:py-4 rounded-full font-bold font-heading flex items-center gap-2 shadow-orange-lg btn-hover-effect 2xl:text-xl"
               >
-                Register as Donor <ArrowRight size={18} className="2xl:w-6 2xl:h-6" />
+                Register as Donor{" "}
+                <ArrowRight size={18} className="2xl:w-6 2xl:h-6" />
               </Link>
               <Link
                 to="/register/recipient"

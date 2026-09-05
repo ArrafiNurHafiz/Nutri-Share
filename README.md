@@ -52,4 +52,5 @@ frontend/       React SPA (pages, components, contexts, hooks)
 data/           Database data (gitignored)
 docs/           Documentation and PRDs
 ```
+
 # Nutri-Share

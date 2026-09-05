@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Activity, Truck, TrendingUp } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { api } from "../lib/api";
+import { useRealtime, RealtimeEvent } from "../lib/useRealtime";
 import { useAuth } from "../contexts/AuthContext";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { EmptyState } from "../components/EmptyState";
@@ -83,6 +84,24 @@ export function RecipientDashboard() {
   useEffect(() => {
     if (user) loadData();
   }, [loadData, user]);
+
+  // Real-time synchronization
+  useRealtime(
+    user?.id,
+    user?.role,
+    (event: RealtimeEvent) => {
+      loadData();
+      if (event.event_type === "CLAIM_APPROVED") {
+        toast.success("Klaim donasi Anda telah disetujui!", { icon: "🎉" });
+      } else if (event.event_type === "DONATION_CREATED") {
+        toast("Donasi baru tersedia!", { icon: "🍱" });
+      } else if (event.event_type === "HANDOVER_COMPLETED") {
+        toast.success("Donasi selesai diserahkan!", { icon: "🤝" });
+      }
+    },
+    loadData,
+    30000,
+  );
 
   if (authLoading || !user)
     return <LoadingSpinner size={32} label="Loading..." />;
@@ -332,12 +351,16 @@ export function RecipientDashboard() {
             <div className="lg:col-span-4 flex flex-col gap-6">
               <div className="glass p-6 rounded-3xl border border-white/50 shadow-sm bg-gradient-to-br from-brand-medium/10 to-transparent">
                 <h3 className="font-bold text-brand-dark mb-2 flex items-center gap-2">
-                  <Activity size={18} className="text-brand-medium"/> Claims Tips
+                  <Activity size={18} className="text-brand-medium" /> Claims
+                  Tips
                 </h3>
                 <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-                  Make sure to arrive on time when claiming a donation. Donors will appreciate your punctuality!
-                  <br/><br/>
-                  Our AI TOPSIS algorithm prioritizes claims based on urgency and nutritional match.
+                  Make sure to arrive on time when claiming a donation. Donors
+                  will appreciate your punctuality!
+                  <br />
+                  <br />
+                  Our AI TOPSIS algorithm prioritizes claims based on urgency
+                  and nutritional match.
                 </p>
               </div>
             </div>
@@ -374,14 +397,16 @@ export function RecipientDashboard() {
               )}
             </div>
             <div className="lg:col-span-4 flex flex-col gap-6">
-               <div className="glass p-6 rounded-3xl border border-white/50 shadow-sm bg-gradient-to-br from-brand-accent/10 to-transparent">
-                 <h3 className="font-bold text-brand-dark mb-2 flex items-center gap-2">
-                   <Truck size={18} className="text-brand-accent"/> Logistics Tracking
-                 </h3>
-                 <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-                   Track your inbound donations here. Once the courier arrives, mark the donation as received to update the donor!
-                 </p>
-               </div>
+              <div className="glass p-6 rounded-3xl border border-white/50 shadow-sm bg-gradient-to-br from-brand-accent/10 to-transparent">
+                <h3 className="font-bold text-brand-dark mb-2 flex items-center gap-2">
+                  <Truck size={18} className="text-brand-accent" /> Logistics
+                  Tracking
+                </h3>
+                <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                  Track your inbound donations here. Once the courier arrives,
+                  mark the donation as received to update the donor!
+                </p>
+              </div>
             </div>
           </div>
         )}
@@ -392,16 +417,20 @@ export function RecipientDashboard() {
               <NutritionTracker akg={akg} />
             </div>
             <div className="lg:col-span-4 flex flex-col gap-6">
-               <div className="glass p-6 rounded-3xl border border-white/50 shadow-sm bg-gradient-to-br from-primary-orange/10 to-transparent">
-                 <h3 className="font-bold text-brand-dark mb-2 flex items-center gap-2">
-                   <TrendingUp size={18} className="text-primary-orange"/> AKG Goals
-                 </h3>
-                 <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-                   Your nutritional needs are calculated automatically based on the demographics you provided in your profile.
-                   <br/><br/>
-                   Try to balance your claims across different food types to reach 100% of your daily goals!
-                 </p>
-               </div>
+              <div className="glass p-6 rounded-3xl border border-white/50 shadow-sm bg-gradient-to-br from-primary-orange/10 to-transparent">
+                <h3 className="font-bold text-brand-dark mb-2 flex items-center gap-2">
+                  <TrendingUp size={18} className="text-primary-orange" /> AKG
+                  Goals
+                </h3>
+                <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                  Your nutritional needs are calculated automatically based on
+                  the demographics you provided in your profile.
+                  <br />
+                  <br />
+                  Try to balance your claims across different food types to
+                  reach 100% of your daily goals!
+                </p>
+              </div>
             </div>
           </div>
         )}

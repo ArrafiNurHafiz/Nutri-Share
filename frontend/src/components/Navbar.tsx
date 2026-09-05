@@ -32,10 +32,10 @@ export function Navbar({ onLoginClick }: { onLoginClick?: () => void }) {
         window.location.href = "/" + path;
         return;
       }
-      
+
       const targetId = path.substring(1);
       const el = document.getElementById(targetId);
-      
+
       if (el) {
         // Offset for fixed navbar
         const y = el.getBoundingClientRect().top + window.scrollY - 80;
@@ -43,7 +43,7 @@ export function Navbar({ onLoginClick }: { onLoginClick?: () => void }) {
       }
       return;
     }
-    
+
     window.location.href = path;
   };
 

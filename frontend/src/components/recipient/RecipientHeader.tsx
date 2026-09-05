@@ -1,5 +1,13 @@
 import { useState } from "react";
-import { AlertTriangle, Bell, Download, User, LogOut, X, Menu } from "lucide-react";
+import {
+  AlertTriangle,
+  Bell,
+  Download,
+  User,
+  LogOut,
+  X,
+  Menu,
+} from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { NotificationDropdown } from "./NotificationDropdown";
 
