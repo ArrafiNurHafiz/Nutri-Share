@@ -151,40 +151,64 @@ export function DonationForm(props: Props) {
 
   const QUICK_PRESETS = [
     {
-      label: "🍱 Nasi Kotak Komplit",
-      name: "Nasi Kotak Komplit (Nasi + Ayam + Sayur)",
+      label: "🍱 Nasi + Ayam/Daging",
+      sub: "~24g protein · 550 kcal",
+      name: "Nasi Box Ayam / Daging Komplit",
       type: "makanan_berat",
-      protein: "26",
-      calorie: "600",
-      iron: "2.5",
-      vitC: "18",
-    },
-    {
-      label: "🍗 Lauk Daging/Ayam",
-      name: "Lauk Ayam / Daging Siap Santap",
-      type: "lauk_protein",
       protein: "24",
-      calorie: "320",
-      iron: "2.0",
-      vitC: "2",
+      calorie: "550",
+      iron: "2.5",
+      vitC: "15",
     },
     {
-      label: "🥗 Sayuran & Sup",
-      name: "Menu Sayuran Bergizi",
+      label: "🍳 Nasi + Telur/Tahu Tempe",
+      sub: "~14g protein · 400 kcal",
+      name: "Nasi Box Telur & Tahu Tempe",
+      type: "makanan_berat",
+      protein: "14",
+      calorie: "400",
+      iron: "2.2",
+      vitC: "8",
+    },
+    {
+      label: "🥗 Sayur / Sup / Capcay",
+      sub: "~5g protein · 120 kcal",
+      name: "Menu Sayuran & Sup Sehat",
       type: "sayur",
       protein: "5",
-      calorie: "110",
+      calorie: "120",
       iron: "1.8",
       vitC: "28",
     },
     {
-      label: "🍎 Buah & Snack",
-      name: "Paket Buah & Camilan Sehat",
+      label: "🍞 Roti / Snack / Pastry",
+      sub: "~6g protein · 250 kcal",
+      name: "Roti, Kue & Camilan",
       type: "snack",
-      protein: "3",
-      calorie: "140",
-      iron: "0.9",
-      vitC: "35",
+      protein: "6",
+      calorie: "250",
+      iron: "1.0",
+      vitC: "2",
+    },
+    {
+      label: "🍉 Buah-buahan Segar",
+      sub: "~2g protein · 100 kcal",
+      name: "Potongan Buah Segar",
+      type: "snack",
+      protein: "2",
+      calorie: "100",
+      iron: "0.8",
+      vitC: "45",
+    },
+    {
+      label: "🥛 Susu / Minuman Nutrisi",
+      sub: "~8g protein · 150 kcal",
+      name: "Susu & Minuman Bernutrisi",
+      type: "minuman",
+      protein: "8",
+      calorie: "150",
+      iron: "1.0",
+      vitC: "10",
     },
   ];
 
@@ -521,27 +545,37 @@ export function DonationForm(props: Props) {
               </div>
 
               {/* Quick Macro Presets */}
-              <div className="grid grid-cols-2 gap-1.5 pb-1">
-                {QUICK_PRESETS.map((preset, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => {
-                      onSetForm({
-                        ...form,
-                        food_type: preset.type,
-                        protein_per_portion: preset.protein,
-                        calorie_per_portion: preset.calorie,
-                        iron_mg: preset.iron,
-                        vitamin_c_mg: preset.vitC,
-                      });
-                      toast.success(`Preset diterapkan: ${preset.label}`);
-                    }}
-                    className="text-left text-[11px] p-2 bg-slate-50 hover:bg-primary-orange/10 hover:border-primary-orange/30 border border-slate-200 rounded-lg transition-all font-medium text-slate-700 truncate"
-                  >
-                    {preset.label}
-                  </button>
-                ))}
+              <div className="space-y-1.5 pb-1">
+                <p className="text-[11px] font-semibold text-slate-500">
+                  Pilih Preset Menu Siap Pakai (1-Klik):
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  {QUICK_PRESETS.map((preset, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => {
+                        onSetForm({
+                          ...form,
+                          food_type: preset.type,
+                          protein_per_portion: preset.protein,
+                          calorie_per_portion: preset.calorie,
+                          iron_mg: preset.iron,
+                          vitamin_c_mg: preset.vitC,
+                        });
+                        toast.success(`Preset diterapkan: ${preset.label}`);
+                      }}
+                      className="text-left p-2.5 bg-slate-50 hover:bg-orange-50/60 hover:border-primary-orange/40 border border-slate-200/80 rounded-xl transition-all shadow-2xs group"
+                    >
+                      <p className="text-xs font-bold text-slate-800 group-hover:text-primary-orange truncate">
+                        {preset.label}
+                      </p>
+                      <p className="text-[10px] text-slate-500 mt-0.5 font-medium">
+                        {preset.sub}
+                      </p>
+                    </button>
+                  ))}
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
