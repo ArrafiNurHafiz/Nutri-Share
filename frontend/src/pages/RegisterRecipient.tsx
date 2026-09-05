@@ -429,6 +429,26 @@ export function RegisterRecipient() {
               Sign in
             </Link>
           </p>
+
+          <footer className="mt-8 text-center">
+            <p className="text-xs text-gray-400 leading-relaxed">
+              By registering, you agree to NutriShare's{" "}
+              <Link
+                to="/#tentang"
+                className="underline hover:text-primary-orange"
+              >
+                Terms of Service
+              </Link>{" "}
+              and{" "}
+              <Link
+                to="/#tentang"
+                className="underline hover:text-primary-orange"
+              >
+                Privacy Policy
+              </Link>
+              .
+            </p>
+          </footer>
         </motion.div>
       </div>
     </div>

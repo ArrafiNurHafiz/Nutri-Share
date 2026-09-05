@@ -338,10 +338,9 @@ export function Login() {
               </svg>
               Register as Donor / Recipient
             </Link>
-            <a
-              href="#"
-              className="w-full py-3 text-gray-400 text-sm rounded-lg hover:text-gray-600 transition-colors flex items-center justify-center gap-2 border border-transparent"
-              onClick={(e) => e.preventDefault()}
+            <Link
+              to="/#cara-kerja"
+              className="w-full py-3 text-gray-500 text-sm rounded-lg hover:text-primary-orange transition-colors flex items-center justify-center gap-2 border border-transparent"
             >
               <svg
                 className="w-4 h-4"
@@ -357,28 +356,26 @@ export function Login() {
                 />
               </svg>
               Need Technical Support?
-            </a>
+            </Link>
           </div>
 
           {/* Compliance Footer */}
           <footer className="mt-10 text-center">
             <p className="text-xs text-gray-400 leading-relaxed">
               By logging in, you agree to NutriShare's{" "}
-              <a
-                href="#"
+              <Link
+                to="/#tentang"
                 className="underline hover:text-primary-orange"
-                onClick={(e) => e.preventDefault()}
               >
                 Terms of Service
-              </a>{" "}
+              </Link>{" "}
               and{" "}
-              <a
-                href="#"
+              <Link
+                to="/#tentang"
                 className="underline hover:text-primary-orange"
-                onClick={(e) => e.preventDefault()}
               >
                 Privacy Policy
-              </a>
+              </Link>
               .
             </p>
           </footer>
