@@ -473,23 +473,38 @@ export function AdminDashboard() {
           </nav>
 
           {/* Sidebar Footer */}
-          <div className="mt-auto border-t border-[#e7e5e4] pt-4">
-            <div className="flex items-center gap-3 px-2 mb-4">
-              <div className="w-10 h-10 rounded-full bg-brand-medium/20 flex items-center justify-center text-brand-dark font-bold text-sm">
+          <div className="mt-auto border-t border-[#e7e5e4] pt-4 space-y-3">
+            <button
+              onClick={() => nav("/map")}
+              className="w-full bg-primary-orange/10 hover:bg-primary-orange/20 text-primary-orange-dark py-2.5 px-3 rounded-lg font-bold flex items-center justify-center gap-2 transition-all text-xs"
+            >
+              <Search size={16} /> Browse Map
+            </button>
+            <div className="flex items-center gap-3 px-2">
+              <div className="w-9 h-9 rounded-full bg-brand-medium/20 flex items-center justify-center text-brand-dark font-bold text-sm">
                 A
               </div>
-              <div className="flex flex-col">
-                <span className="text-sm font-bold">{currentUser.name}</span>
-                <span className="text-xs text-gray-500">Administrator</span>
+              <div className="flex flex-col min-w-0">
+                <span className="text-xs font-bold truncate">
+                  {currentUser.name}
+                </span>
+                <span className="text-[10px] text-gray-500">Administrator</span>
               </div>
             </div>
-            <button
-              onClick={() => setShowProfile(true)}
-              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg bg-primary-orange text-white text-sm font-bold hover:bg-primary-orange-dark transition-all"
-            >
-              <User size={16} />
-              My Profile
-            </button>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => setShowProfile(true)}
+                className="flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg bg-white border border-gray-200 text-gray-700 text-xs font-bold hover:bg-gray-50 transition-all"
+              >
+                <Settings size={14} /> Profile
+              </button>
+              <button
+                onClick={() => nav("/contact")}
+                className="flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg bg-white border border-gray-200 text-gray-700 text-xs font-bold hover:bg-gray-50 transition-all"
+              >
+                <Shield size={14} /> Support
+              </button>
+            </div>
           </div>
         </aside>
 

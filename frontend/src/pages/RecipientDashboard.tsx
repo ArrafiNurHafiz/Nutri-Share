@@ -249,6 +249,9 @@ export function RecipientDashboard() {
         setActiveTab={setActiveTab}
         mobileOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
+        onBrowseMap={() => nav("/map")}
+        onSettings={() => setShowProfile(true)}
+        onSupport={() => nav("/contact")}
       />
 
       <main className="lg:ml-64 flex-1 p-4 lg:p-8 w-full">
