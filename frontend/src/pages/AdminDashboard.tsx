@@ -496,7 +496,7 @@ export function AdminDashboard() {
         {/* ===== MAIN CONTENT ===== */}
         <main className="flex-1 overflow-y-auto bg-surface-gray">
           {/* Top Bar */}
-          <header className="h-16 flex items-center justify-between px-4 lg:px-8 sticky top-0 bg-[#faf8f4]/80 backdrop-blur-md z-10 border-b border-[#e7e5e4]/50">
+          <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 lg:px-8 sticky top-0 bg-[#faf8f4]/90 backdrop-blur-md z-10 border-b border-[#e7e5e4]/80">
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setSidebarOpen(true)}
@@ -519,27 +519,38 @@ export function AdminDashboard() {
                   <line x1="3" y1="18" x2="21" y2="18" />
                 </svg>
               </button>
-              <h2 className="text-xl font-bold text-brand-dark font-heading">
-                Dashboard Overview
-              </h2>
+              <div>
+                <h2 className="text-xl md:text-2xl font-black text-brand-dark font-heading">
+                  Good Morning, Admin 👋
+                </h2>
+                <p className="text-xs text-gray-500">
+                  Monitor food rescue operations in real time
+                </p>
+              </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-wrap">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-xs font-bold text-emerald-800">
+                  LIVE · Real-time synchronization active
+                </span>
+              </div>
               <button
                 onClick={() => {
                   loadData();
                   toast.success("Data refreshed");
                 }}
-                className="p-2 text-gray-500 hover:bg-gray-100 rounded-full transition-all"
+                className="p-2 text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 rounded-xl transition-all shadow-sm"
                 title="Refresh"
               >
-                <RefreshCw size={18} />
+                <RefreshCw size={16} />
               </button>
               <button
                 onClick={async () => {
                   await logout();
                   nav("/");
                 }}
-                className="flex items-center gap-2 text-gray-500 hover:text-alert-red px-3 py-2 rounded-lg hover:bg-red-50 transition-all text-sm font-medium"
+                className="flex items-center gap-1.5 text-gray-600 hover:text-alert-red px-3 py-2 rounded-xl hover:bg-red-50 border border-transparent hover:border-red-100 transition-all text-xs font-bold"
               >
                 <LogOut size={16} />
                 Logout

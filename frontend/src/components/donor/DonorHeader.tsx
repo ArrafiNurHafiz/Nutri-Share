@@ -28,7 +28,7 @@ export function DonorHeader({
   const avgRating = "4.9";
 
   return (
-    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 bg-white/60 backdrop-blur-sm p-4 rounded-2xl border border-[var(--border-primary)] shadow-sm">
       <div>
         <div className="flex items-center gap-3 flex-wrap">
           <button
@@ -38,34 +38,39 @@ export function DonorHeader({
           >
             <Menu size={24} />
           </button>
-          <h1 className="text-2xl md:text-3xl font-bold text-brand-dark">
-            Donor Dashboard
+          <h1 className="text-xl md:text-2xl font-black text-brand-dark tracking-tight">
+            Good Morning, {profile?.business_name || user?.name || "Donor"} 👋
           </h1>
-          <span className="bg-brand-medium/10 text-brand-medium text-xs font-bold px-3 py-1 rounded-full border border-brand-medium/20">
-            {profile?.business_name || "Partner"}
+          <span className="bg-primary-orange/10 text-primary-orange text-[11px] font-extrabold px-2.5 py-0.5 rounded-full border border-primary-orange/20">
+            {profile?.business_type || "Pro Donor"}
           </span>
         </div>
-        <p className="text-sm text-[var(--text-secondary)] mt-1">
-          {profile?.business_name} &middot;{" "}
-          {profile?.business_type || "Partner"} &middot;
-          <span className="text-accent font-bold ml-1">★ {avgRating}</span>
-        </p>
+        <div className="flex items-center gap-2 text-xs text-[var(--text-secondary)] mt-1">
+          <span className="inline-flex items-center gap-1 font-semibold text-emerald-600">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            LIVE
+          </span>
+          <span>&middot;</span>
+          <span>Real-time logistics synchronization active</span>
+          <span>&middot;</span>
+          <span className="text-amber-600 font-bold">★ {avgRating}</span>
+        </div>
       </div>
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2.5 flex-wrap">
         <button
           onClick={onAddDonation}
-          className="bg-primary-orange text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 hover:bg-primary-orange-dark transition-all shadow-sm text-sm"
+          className="bg-primary-orange text-white px-4 py-2 rounded-xl font-bold flex items-center gap-1.5 hover:bg-primary-orange-dark transition-all shadow-sm text-xs active:scale-95"
         >
-          <Plus size={18} /> Add Donation
+          <Plus size={16} /> Add Donation
         </button>
         <div className="relative">
           <button
             onClick={() => setShowNotif(!showNotif)}
-            className="relative p-2.5 text-[var(--text-secondary)] bg-white rounded-xl hover:bg-[var(--bg-tertiary)] transition-all border border-[var(--border-primary)]"
+            className="relative p-2 text-[var(--text-secondary)] bg-white rounded-xl hover:bg-slate-50 transition-all border border-[var(--border-primary)]"
           >
-            <Bell size={20} />
+            <Bell size={18} />
             {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-danger text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold shadow-md">
+              <span className="absolute -top-1 -right-1 bg-danger text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold shadow-md">
                 {unreadCount}
               </span>
             )}
@@ -115,13 +120,14 @@ export function DonorHeader({
         </div>
         <button
           onClick={onShowProfile}
-          className="text-sm font-medium text-[var(--text-secondary)] bg-white px-4 py-2.5 rounded-xl border border-[var(--border-primary)] hover:border-primary-orange hover:text-primary-orange transition-all flex items-center gap-2"
+          className="text-xs font-bold text-[var(--text-secondary)] bg-white px-3.5 py-2 rounded-xl border border-[var(--border-primary)] hover:border-primary-orange hover:text-primary-orange transition-all flex items-center gap-1.5"
         >
-          <User size={16} /> Profile
+          <User size={15} /> Profile
         </button>
         <button
           onClick={onLogout}
-          className="text-sm font-medium text-[var(--text-tertiary)] hover:text-danger transition-colors"
+          className="p-2 text-[var(--text-tertiary)] hover:text-danger hover:bg-red-50 rounded-xl transition-all"
+          title="Logout"
         >
           <LogOut size={18} />
         </button>
