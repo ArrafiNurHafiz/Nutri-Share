@@ -1,6 +1,13 @@
 import { useState } from "react";
 import { motion } from "motion/react";
-import { Plus, Upload, Sparkles } from "lucide-react";
+import {
+  Plus,
+  Upload,
+  Sparkles,
+  Package,
+  ArrowRight,
+  ArrowLeft,
+} from "lucide-react";
 import toast from "react-hot-toast";
 
 interface Props {
@@ -41,7 +48,7 @@ export function DonationForm(props: Props) {
 
   const handleAutoEstimate = () => {
     if (!form.food_name) {
-      toast.error("Please enter a food name first in Step 1");
+      toast.error("Please enter a food name first");
       return;
     }
 
@@ -100,7 +107,6 @@ export function DonationForm(props: Props) {
       cal += 150;
     }
 
-    // Ensure no negative values
     prot = Math.max(0, prot + Math.floor(Math.random() * 5));
     cal = Math.max(10, cal + Math.floor(Math.random() * 30));
 
@@ -110,274 +116,278 @@ export function DonationForm(props: Props) {
       calorie_per_portion: String(cal),
     });
 
-    toast.success(
-      `✨ AI estimated: ${prot}g protein, ${cal} kcal for "${form.food_name}"`,
-    );
+    toast.success(`✨ Estimated: ${prot}g protein, ${cal} kcal`);
   };
 
   return (
     <div
       id="donation-form"
-      className="bg-white rounded-2xl border border-[var(--border-primary)] p-5 shadow-sm"
+      className="bg-white rounded-2xl border border-[var(--border-primary)] shadow-sm overflow-hidden"
     >
-      <button
-        onClick={onToggleCatalog}
-        className="w-full flex items-center justify-between mb-1"
-      >
-        <span className="text-sm font-bold text-brand-dark flex items-center gap-2">
-          <Plus size={18} className="text-brand-medium" /> New Donation
-        </span>
-        <motion.span animate={{ rotate: showCatalog ? 45 : 0 }}>
-          <Plus size={20} className="text-brand-medium" />
-        </motion.span>
-      </button>
-      <p className="text-xs text-[var(--text-tertiary)] mb-4">
-        Publish your food surplus
-      </p>
-
-      {showCatalog && (
-        <motion.div
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: "auto" }}
-          className="overflow-hidden"
-        >
-          <input
-            placeholder="Search food..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full border border-[var(--border-primary)] p-2 rounded-xl bg-[var(--bg-tertiary)] focus:bg-white focus:ring-2 focus:ring-brand-medium/30 outline-none transition-all text-xs mb-3"
-          />
-          <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto mb-3">
-            {FOOD_CATALOG.filter((f) =>
-              f.name.toLowerCase().includes(search.toLowerCase()),
-            ).map((item, i) => (
-              <button
-                key={i}
-                type="button"
-                onClick={() => onSelectCatalog(item)}
-                className="text-left p-2.5 rounded-xl border border-[var(--border-primary)] hover:border-primary-orange/40 hover:bg-primary-orange-bg transition-all text-xs"
-              >
-                <p className="font-bold text-brand-dark truncate">
-                  {item.name}
-                </p>
-                <p className="text-[10px] text-[var(--text-tertiary)]">
-                  {item.protein}g protein
-                </p>
-              </button>
-            ))}
+      <div className="p-4 border-b border-[var(--border-primary)] flex items-center justify-between bg-gradient-to-r from-surface-container-low to-white">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-xl bg-primary-orange/10 text-primary-orange flex items-center justify-center">
+            <Plus size={16} />
           </div>
-        </motion.div>
-      )}
+          <div>
+            <h3 className="text-sm font-bold text-brand-dark">
+              Create Food Donation
+            </h3>
+            <p className="text-[11px] text-[var(--text-tertiary)]">
+              Publish surplus to nearby recipients
+            </p>
+          </div>
+        </div>
 
-      <form onSubmit={onSubmit} className="flex flex-col gap-3 text-sm">
+        <button
+          type="button"
+          onClick={onToggleCatalog}
+          className="text-xs font-semibold text-brand-medium hover:underline"
+        >
+          {showCatalog ? "Hide Catalog" : "Fast Template"}
+        </button>
+      </div>
+
+      <div className="p-5">
         {showCatalog && (
-          <div className="flex gap-1.5 mb-1">
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            className="mb-4 p-3.5 bg-slate-50 rounded-xl border border-slate-200/80"
+          >
+            <input
+              placeholder="Search templates (e.g. Rice, Chicken)..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full border border-[var(--border-primary)] p-2 rounded-lg bg-white focus:ring-2 focus:ring-brand-medium/30 outline-none text-xs mb-2.5"
+            />
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {FOOD_CATALOG.filter((f) =>
+                f.name.toLowerCase().includes(search.toLowerCase()),
+              ).map((item, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => onSelectCatalog(item)}
+                  className="text-left p-2 rounded-lg border border-slate-200 bg-white hover:border-primary-orange/50 hover:bg-orange-50/30 transition-all text-xs"
+                >
+                  <p className="font-bold text-brand-dark truncate">
+                    {item.name}
+                  </p>
+                  <p className="text-[10px] text-[var(--text-tertiary)]">
+                    {item.protein}g protein
+                  </p>
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
+        <form onSubmit={onSubmit} className="space-y-4">
+          <div className="flex gap-1.5 mb-2">
             {[1, 2, 3].map((s) => (
               <div
                 key={s}
-                className={`h-1 flex-1 rounded-full transition-colors ${formStep >= s ? "bg-brand-medium" : "bg-[var(--bg-tertiary)]"}`}
+                className={`h-1.5 flex-1 rounded-full transition-colors ${
+                  formStep >= s ? "bg-primary-orange" : "bg-slate-100"
+                }`}
               />
             ))}
           </div>
-        )}
 
-        {formStep === 1 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="space-y-3"
-          >
-            <p className="text-xs font-bold text-[var(--text-tertiary)] uppercase">
-              Food Info
-            </p>
-            <div>
-              <label className="text-xs font-bold text-brand-dark mb-1 block">
-                Food Name
-              </label>
-              <input
-                placeholder="e.g. Boxed Rice"
-                value={form.food_name}
-                onChange={(e) =>
-                  onSetForm({ ...form, food_name: e.target.value })
-                }
-                className="w-full border border-[var(--border-primary)] p-2.5 rounded-xl bg-[var(--bg-tertiary)] focus:bg-white focus:ring-2 focus:ring-brand-medium/30 outline-none transition-all"
-                required
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-xs font-bold text-brand-dark mb-1 block">
-                  Portions
-                </label>
-                <input
-                  type="number"
-                  placeholder="Portions"
-                  value={form.portion_count}
-                  onChange={(e) =>
-                    onSetForm({ ...form, portion_count: e.target.value })
-                  }
-                  className="w-full border border-[var(--border-primary)] p-2.5 rounded-xl bg-[var(--bg-tertiary)] focus:bg-white focus:ring-2 focus:ring-brand-medium/30 outline-none transition-all"
-                  required
-                />
-              </div>
-              <div>
-                <label className="text-xs font-bold text-brand-dark mb-1 block">
-                  Valid Hours
-                </label>
-                <input
-                  type="number"
-                  placeholder="Hours"
-                  value={form.hours_valid}
-                  onChange={(e) =>
-                    onSetForm({ ...form, hours_valid: e.target.value })
-                  }
-                  className="w-full border border-[var(--border-primary)] p-2.5 rounded-xl bg-[var(--bg-tertiary)] focus:bg-white focus:ring-2 focus:ring-brand-medium/30 outline-none transition-all"
-                  required
-                />
-              </div>
-            </div>
-            <div>
-              <label className="text-xs font-bold text-brand-dark mb-1 block">
-                Food Photo{" "}
-                <span className="font-normal text-[var(--text-tertiary)]">
-                  optional
-                </span>
-              </label>
-              <label className="flex items-center gap-2 px-3 py-2 bg-[var(--bg-tertiary)] border border-[var(--border-primary)] rounded-xl cursor-pointer hover:bg-[var(--bg-secondary)] transition-all text-xs font-medium">
-                <Upload size={14} />{" "}
-                {uploading ? "Uploading..." : "Choose Photo"}
-                <input
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  className="hidden"
-                  onChange={async (e) => {
-                    /* upload logic */
-                  }}
-                />
-              </label>
-            </div>
-            <button
-              type="button"
-              onClick={() => onSetStep(2)}
-              disabled={!form.food_name || !form.portion_count}
-              className="w-full bg-primary-orange text-white py-3 rounded-xl font-bold hover:bg-primary-orange-dark transition-all disabled:opacity-40 text-sm"
+          {formStep === 1 && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="space-y-3"
             >
-              Next
-            </button>
-          </motion.div>
-        )}
-
-        {formStep === 2 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="space-y-3"
-          >
-            <div className="flex justify-between items-center">
-              <p className="text-xs font-bold text-[var(--text-tertiary)] uppercase">
-                Nutrition
-              </p>
-              <button
-                type="button"
-                onClick={handleAutoEstimate}
-                className="flex items-center gap-1.5 text-xs font-bold text-[#6366f1] bg-[#eef2ff] px-3 py-1.5 rounded-full hover:bg-[#e0e7ff] transition-all"
-              >
-                <Sparkles size={14} /> AI Auto-Estimate
-              </button>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="text-xs font-bold text-brand-dark mb-1 block">
-                  Protein/portion (g)
+                  Food Name
                 </label>
                 <input
-                  type="number"
-                  placeholder="Protein"
-                  value={form.protein_per_portion}
+                  placeholder="e.g. 50 Packs Nasi Box Ayam Bakar"
+                  value={form.food_name}
                   onChange={(e) =>
-                    onSetForm({ ...form, protein_per_portion: e.target.value })
+                    onSetForm({ ...form, food_name: e.target.value })
                   }
-                  className="w-full border border-[var(--border-primary)] p-2.5 rounded-xl bg-[var(--bg-tertiary)] focus:bg-white focus:ring-2 focus:ring-brand-medium/30 outline-none transition-all"
+                  className="w-full border border-[var(--border-primary)] p-2.5 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-brand-medium/30 outline-none text-sm transition-all"
                   required
                 />
               </div>
-              <div>
-                <label className="text-xs font-bold text-brand-dark mb-1 block">
-                  Calories/portion
-                </label>
-                <input
-                  type="number"
-                  placeholder="Calories"
-                  value={form.calorie_per_portion}
-                  onChange={(e) =>
-                    onSetForm({ ...form, calorie_per_portion: e.target.value })
-                  }
-                  className="w-full border border-[var(--border-primary)] p-2.5 rounded-xl bg-[var(--bg-tertiary)] focus:bg-white focus:ring-2 focus:ring-brand-medium/30 outline-none transition-all"
-                  required
-                />
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => onSetStep(1)}
-                className="flex-1 border border-[var(--border-primary)] py-3 rounded-xl font-bold text-sm hover:bg-[var(--bg-tertiary)] transition-all"
-              >
-                Back
-              </button>
-              <button
-                type="button"
-                onClick={() => onSetStep(3)}
-                className="flex-1 bg-primary-orange text-white py-3 rounded-xl font-bold text-sm hover:bg-primary-orange-dark transition-all"
-              >
-                Next
-              </button>
-            </div>
-          </motion.div>
-        )}
 
-        {formStep === 3 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="space-y-3"
-          >
-            <p className="text-xs font-bold text-[var(--text-tertiary)] uppercase">
-              Confirm
-            </p>
-            <div className="bg-[var(--bg-tertiary)] rounded-xl p-3 space-y-2 text-xs">
-              <p>
-                <span className="font-bold">Food:</span> {form.food_name}
-              </p>
-              <p>
-                <span className="font-bold">Portions:</span>{" "}
-                {form.portion_count}
-              </p>
-              <p>
-                <span className="font-bold">Protein:</span>{" "}
-                {form.protein_per_portion}g |{" "}
-                <span className="font-bold">Calories:</span>{" "}
-                {form.calorie_per_portion}
-              </p>
-            </div>
-            <div className="flex gap-2">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-bold text-brand-dark mb-1 block">
+                    Portion Count
+                  </label>
+                  <input
+                    type="number"
+                    placeholder="Portions"
+                    value={form.portion_count}
+                    onChange={(e) =>
+                      onSetForm({ ...form, portion_count: e.target.value })
+                    }
+                    className="w-full border border-[var(--border-primary)] p-2.5 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-brand-medium/30 outline-none text-sm transition-all"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-brand-dark mb-1 block">
+                    Valid Hours
+                  </label>
+                  <input
+                    type="number"
+                    placeholder="Hours"
+                    value={form.hours_valid}
+                    onChange={(e) =>
+                      onSetForm({ ...form, hours_valid: e.target.value })
+                    }
+                    className="w-full border border-[var(--border-primary)] p-2.5 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-brand-medium/30 outline-none text-sm transition-all"
+                    required
+                  />
+                </div>
+              </div>
+
               <button
                 type="button"
                 onClick={() => onSetStep(2)}
-                className="flex-1 border border-[var(--border-primary)] py-3 rounded-xl font-bold text-sm hover:bg-[var(--bg-tertiary)] transition-all"
+                disabled={!form.food_name || !form.portion_count}
+                className="w-full bg-primary-orange hover:bg-primary-orange-dark text-white py-2.5 rounded-xl font-bold text-sm transition-all disabled:opacity-40 flex items-center justify-center gap-1.5 shadow-sm"
               >
-                Back
+                <span>Continue to Nutrition</span> <ArrowRight size={15} />
               </button>
-              <button
-                type="submit"
-                className="flex-1 bg-primary-orange text-white py-3 rounded-xl font-bold text-sm shadow-md hover:bg-primary-orange-dark transition-all"
-              >
-                Publish
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </form>
+            </motion.div>
+          )}
+
+          {formStep === 2 && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="space-y-3"
+            >
+              <div className="flex justify-between items-center">
+                <span className="text-xs font-bold text-[var(--text-secondary)] uppercase">
+                  Nutritional Breakdown
+                </span>
+                <button
+                  type="button"
+                  onClick={handleAutoEstimate}
+                  className="flex items-center gap-1 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-2.5 py-1 rounded-full transition-all"
+                >
+                  <Sparkles size={13} /> AI Estimate
+                </button>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-bold text-brand-dark mb-1 block">
+                    Protein (g)
+                  </label>
+                  <input
+                    type="number"
+                    placeholder="Protein"
+                    value={form.protein_per_portion}
+                    onChange={(e) =>
+                      onSetForm({
+                        ...form,
+                        protein_per_portion: e.target.value,
+                      })
+                    }
+                    className="w-full border border-[var(--border-primary)] p-2.5 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-brand-medium/30 outline-none text-sm transition-all"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-brand-dark mb-1 block">
+                    Calories (kcal)
+                  </label>
+                  <input
+                    type="number"
+                    placeholder="Calories"
+                    value={form.calorie_per_portion}
+                    onChange={(e) =>
+                      onSetForm({
+                        ...form,
+                        calorie_per_portion: e.target.value,
+                      })
+                    }
+                    className="w-full border border-[var(--border-primary)] p-2.5 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-brand-medium/30 outline-none text-sm transition-all"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => onSetStep(1)}
+                  className="flex-1 border border-[var(--border-primary)] py-2.5 rounded-xl font-bold text-xs text-slate-700 hover:bg-slate-50 transition-all flex items-center justify-center gap-1"
+                >
+                  <ArrowLeft size={14} /> Back
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onSetStep(3)}
+                  className="flex-1 bg-primary-orange hover:bg-primary-orange-dark text-white py-2.5 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-1 shadow-sm"
+                >
+                  <span>Review</span> <ArrowRight size={14} />
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+          {formStep === 3 && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="space-y-3"
+            >
+              <div className="bg-slate-50 rounded-xl p-3.5 border border-slate-200/80 space-y-1.5 text-xs">
+                <p className="flex justify-between">
+                  <span className="text-[var(--text-tertiary)]">
+                    Food Name:
+                  </span>
+                  <span className="font-bold text-brand-dark">
+                    {form.food_name}
+                  </span>
+                </p>
+                <p className="flex justify-between">
+                  <span className="text-[var(--text-tertiary)]">Quantity:</span>
+                  <span className="font-bold text-brand-dark">
+                    {form.portion_count} Portions
+                  </span>
+                </p>
+                <p className="flex justify-between">
+                  <span className="text-[var(--text-tertiary)]">
+                    Nutrition:
+                  </span>
+                  <span className="font-bold text-brand-dark">
+                    {form.protein_per_portion}g protein |{" "}
+                    {form.calorie_per_portion} kcal
+                  </span>
+                </p>
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => onSetStep(2)}
+                  className="flex-1 border border-[var(--border-primary)] py-2.5 rounded-xl font-bold text-xs text-slate-700 hover:bg-slate-50 transition-all flex items-center justify-center gap-1"
+                >
+                  <ArrowLeft size={14} /> Back
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 bg-primary-orange hover:bg-primary-orange-dark text-white py-2.5 rounded-xl font-bold text-xs transition-all shadow-sm active:scale-95"
+                >
+                  Publish Donation
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </form>
+      </div>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Package, Activity, TrendingUp } from "lucide-react";
+import { Package, Activity, TrendingUp, Plus, MapPin } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { api } from "../lib/api";
 import { useRealtime, RealtimeEvent } from "../lib/useRealtime";
@@ -245,43 +245,14 @@ export function DonorDashboard() {
 
         {activeTab === "dashboard" && (
           <div className="flex flex-col gap-6">
+            {/* KPI Cards */}
             <DonorStats stats={statsItems} />
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-              {/* Left col: Form + Donations */}
+            {/* Main Command Grid: 8 Cols Main / 4 Cols Side */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+              {/* Left col: Form + Active Donations List */}
               <div className="lg:col-span-8 flex flex-col gap-6">
-                {/* CTA Banner */}
-                <div className="relative overflow-hidden bg-brand-dark rounded-2xl p-8 text-white flex justify-between items-center">
-                  <div className="relative z-10">
-                    <h3 className="text-2xl font-bold mb-2">
-                      Ready to make an impact?
-                    </h3>
-                    <p className="text-white/80 text-sm mb-4 max-w-md">
-                      Your contribution helps bridge the gap between surplus and
-                      scarcity.
-                    </p>
-                    <button
-                      onClick={() => {
-                        setShowForm(true);
-                        setShowCatalog(true);
-                        setFormStep(1);
-                        setTimeout(() => {
-                          document
-                            .getElementById("donation-form")
-                            ?.scrollIntoView({
-                              behavior: "smooth",
-                              block: "start",
-                            });
-                        }, 100);
-                      }}
-                      className="bg-white text-brand-dark px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-gray-100 active:scale-95 transition-all shadow-xl"
-                    >
-                      + Create New Donation
-                    </button>
-                  </div>
-                </div>
-
-                {/* Form */}
+                {/* Collapsible/Direct Creation Form */}
                 <DonationForm
                   form={form}
                   formStep={formStep}
@@ -295,7 +266,7 @@ export function DonorDashboard() {
                   onSelectCatalog={selectFromCatalog}
                 />
 
-                {/* Donation List */}
+                {/* Donation Logistics List */}
                 <DonationList
                   donations={donations}
                   filterTab={filterTab}
@@ -304,11 +275,11 @@ export function DonorDashboard() {
                   onComplete={handleComplete}
                 />
 
-                {/* Reviews */}
+                {/* Reviews & Social Proof */}
                 <ReviewList reviews={reviews} />
               </div>
 
-              {/* Right col: Side panel */}
+              {/* Right col: Side Command Panels */}
               <div className="lg:col-span-4 flex flex-col gap-6">
                 <QuickCatalog
                   onSelectCategory={(type, label) => {
@@ -350,12 +321,12 @@ export function DonorDashboard() {
             <div className="lg:col-span-4 flex flex-col gap-6">
               <div className="glass p-6 rounded-3xl border border-white/50 shadow-sm bg-gradient-to-br from-brand-medium/10 to-transparent">
                 <h3 className="font-bold text-brand-dark mb-2 flex items-center gap-2">
-                  <Package size={18} className="text-brand-medium" /> My
-                  Donations
+                  <Package size={18} className="text-brand-medium" /> Donation
+                  Tips
                 </h3>
                 <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-                  Thank you for your generous contributions! Ensure that your
-                  food is packed securely before the courier arrives.
+                  Thank you for your contributions! Pack food securely with
+                  proper temperature controls before the courier arrives.
                 </p>
               </div>
             </div>
@@ -374,8 +345,8 @@ export function DonorDashboard() {
                   Tracker
                 </h3>
                 <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-                  Every portion you donate makes a huge difference in someone's
-                  life. Keep up the great work!
+                  Every portion you donate diverts edible food from landfills
+                  and nourishes individuals in need.
                 </p>
               </div>
             </div>
