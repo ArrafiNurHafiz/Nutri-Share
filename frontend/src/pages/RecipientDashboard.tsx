@@ -302,6 +302,7 @@ export function RecipientDashboard() {
                       selectedDonation={selectedDonation}
                       topsisData={topsisData}
                       userId={user.id}
+                      onClaim={handleClaim}
                     />
                   </div>
                 )}

@@ -20,17 +20,14 @@ ChartJS.register(
   Legend,
 );
 
-function NutritionBar({
-  label,
-  value,
-  pct,
-  color,
-}: {
+function NutritionBar(props: {
+  key?: any;
   label: string;
   value: string;
   pct: number;
   color: string;
 }) {
+  const { label, value, pct, color } = props;
   return (
     <div>
       <div className="flex justify-between items-center mb-1">

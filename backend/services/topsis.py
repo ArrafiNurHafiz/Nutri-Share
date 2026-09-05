@@ -39,6 +39,40 @@ def _haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     return float(R * 2 * np.arctan2(np.sqrt(a), np.sqrt(1 - a)))
 
 
+# Policy weights baseline: [C1: Protein 25%, C2: Urgency 25%, C3: Shelf Life 15%, C4: Distance 20%, C5: Fairness/Days 15%]
+DEFAULT_POLICY_WEIGHTS = np.array([0.25, 0.25, 0.15, 0.20, 0.15])
+ALPHA_POLICY = 0.50  # 50% Policy, 50% Shannon Entropy for stability & objectivity
+
+
+def generate_match_reasons(raw_c1: float, raw_c2: float, raw_c3: float, raw_c4: float, raw_c5: float, rank: int) -> list[str]:
+    """Generate human-readable matching justification for recipients & donors."""
+    reasons = []
+    if raw_c2 >= 1000:
+        reasons.append("🚨 Prioritas Darurat Aktif (Emergency Boost)")
+    elif raw_c2 >= 8:
+        reasons.append("⚡ Tingkat urgensi kebutuhan sangat tinggi")
+
+    if raw_c4 <= 3.0:
+        reasons.append(f"📍 Sangat dekat ({raw_c4:.1f} km) - distribusi kilat")
+    elif raw_c4 <= 7.0:
+        reasons.append(f"📍 Jarak terjangkau ({raw_c4:.1f} km)")
+
+    if raw_c1 >= 70:
+        reasons.append(f"🥩 Memenuhi {raw_c1:.0f}% kebutuhan protein harian")
+    elif raw_c1 >= 40:
+        reasons.append(f"🥗 Menyuplai {raw_c1:.0f}% kebutuhan protein")
+
+    if raw_c5 >= 14:
+        reasons.append(f"⚖️ Pemerataan: Belum menerima donasi {int(raw_c5)} hari")
+    elif raw_c5 >= 7:
+        reasons.append(f"⚖️ Pemerataan: {int(raw_c5)} hari sejak donasi terakhir")
+
+    if not reasons:
+        reasons.append("✨ Skor kesesuaian logistik & nutrisi optimal")
+
+    return reasons
+
+
 # --- TOPSIS Calculation ---
 
 async def calculate_topsis_for_donation(session: any, donation_id: int) -> None:
@@ -146,7 +180,12 @@ async def _compute_rankings(session, donation_id, donation, recipients):
     entropy = -k * np.sum(p_matrix * np.log(np.clip(p_matrix, EPSILON, 1)), axis=0)
     d_j = np.maximum(0, 1 - entropy)
     sum_d_j = np.sum(d_j)
-    w_j = np.full(n, 1.0 / n) if sum_d_j == 0 else d_j / sum_d_j
+    w_entropy = np.full(n, 1.0 / n) if sum_d_j == 0 else d_j / sum_d_j
+
+    # Entropy-Weighted Hybrid TOPSIS: Combine Objective Entropy with Domain Policy
+    w_j = (ALPHA_POLICY * DEFAULT_POLICY_WEIGHTS) + ((1.0 - ALPHA_POLICY) * w_entropy)
+    w_j = w_j / np.sum(w_j)  # Re-normalize to ensure strictly sum = 1.0
+
     v_matrix = norm_matrix * w_j
     a_plus = np.where(is_benefit, np.max(v_matrix, axis=0), np.min(v_matrix, axis=0))
     a_minus = np.where(is_benefit, np.min(v_matrix, axis=0), np.max(v_matrix, axis=0))

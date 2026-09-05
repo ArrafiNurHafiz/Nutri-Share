@@ -38,6 +38,7 @@ import {
   Activity,
   LayoutDashboard,
   Shield,
+  Settings,
   Database,
   RefreshCw,
   ChevronUp,

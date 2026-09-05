@@ -39,84 +39,273 @@ export function DonationForm(props: Props) {
   const [search, setSearch] = useState("");
 
   const FOOD_CATALOG = [
-    { name: "Boxed Rice", type: "makanan_berat", protein: 8, calorie: 500 },
-    { name: "Fried Chicken", type: "lauk_protein", protein: 25, calorie: 350 },
-    { name: "Vegetable Soup", type: "sayur", protein: 2, calorie: 60 },
-    { name: "Cut Fruit", type: "snack", protein: 1, calorie: 100 },
-    { name: "Mineral Water", type: "minuman", protein: 0, calorie: 0 },
+    {
+      name: "Nasi Kotak Ayam Bakar + Lalapan",
+      type: "makanan_berat",
+      protein: 24,
+      calorie: 580,
+      iron: 2.5,
+      vitC: 15,
+      tag: "Populer",
+    },
+    {
+      name: "Nasi Padang Rendang Sapi",
+      type: "makanan_berat",
+      protein: 28,
+      calorie: 650,
+      iron: 3.8,
+      vitC: 5,
+      tag: "Tinggi Protein",
+    },
+    {
+      name: "Ayam Goreng Lengkuas / Crispy",
+      type: "lauk_protein",
+      protein: 25,
+      calorie: 340,
+      iron: 1.8,
+      vitC: 0,
+      tag: "Lauk",
+    },
+    {
+      name: "Ikan Bakar / Goreng Balado",
+      type: "lauk_protein",
+      protein: 22,
+      calorie: 280,
+      iron: 1.5,
+      vitC: 4,
+      tag: "Seafood",
+    },
+    {
+      name: "Telur Balado / Dadar Padang",
+      type: "lauk_protein",
+      protein: 14,
+      calorie: 210,
+      iron: 2.0,
+      vitC: 2,
+      tag: "Lauk",
+    },
+    {
+      name: "Tahu & Tempe Bacem / Goreng",
+      type: "lauk_protein",
+      protein: 12,
+      calorie: 180,
+      iron: 2.8,
+      vitC: 1,
+      tag: "Nabati",
+    },
+    {
+      name: "Sayur Sop Ayam Komplit",
+      type: "sayur",
+      protein: 8,
+      calorie: 130,
+      iron: 1.5,
+      vitC: 25,
+      tag: "Sayur",
+    },
+    {
+      name: "Sayur Asem Jakarta",
+      type: "sayur",
+      protein: 3,
+      calorie: 85,
+      iron: 1.2,
+      vitC: 20,
+      tag: "Sayur",
+    },
+    {
+      name: "Tumis Kangkung / Capcay",
+      type: "sayur",
+      protein: 4,
+      calorie: 95,
+      iron: 2.2,
+      vitC: 30,
+      tag: "Sayur",
+    },
+    {
+      name: "Potongan Buah Segar (Semangka/Melon/Pepaya)",
+      type: "snack",
+      protein: 2,
+      calorie: 110,
+      iron: 0.8,
+      vitC: 45,
+      tag: "Buah",
+    },
+    {
+      name: "Roti & Pastry Bakery",
+      type: "snack",
+      protein: 6,
+      calorie: 260,
+      iron: 1.0,
+      vitC: 0,
+      tag: "Snack",
+    },
+    {
+      name: "Susu Kotak UHT & Minuman Nutrisi",
+      type: "minuman",
+      protein: 8,
+      calorie: 150,
+      iron: 1.0,
+      vitC: 10,
+      tag: "Minuman",
+    },
+  ];
+
+  const QUICK_PRESETS = [
+    {
+      label: "🍱 Nasi Kotak Komplit",
+      name: "Nasi Kotak Komplit (Nasi + Ayam + Sayur)",
+      type: "makanan_berat",
+      protein: "26",
+      calorie: "600",
+      iron: "2.5",
+      vitC: "18",
+    },
+    {
+      label: "🍗 Lauk Daging/Ayam",
+      name: "Lauk Ayam / Daging Siap Santap",
+      type: "lauk_protein",
+      protein: "24",
+      calorie: "320",
+      iron: "2.0",
+      vitC: "2",
+    },
+    {
+      label: "🥗 Sayuran & Sup",
+      name: "Menu Sayuran Bergizi",
+      type: "sayur",
+      protein: "5",
+      calorie: "110",
+      iron: "1.8",
+      vitC: "28",
+    },
+    {
+      label: "🍎 Buah & Snack",
+      name: "Paket Buah & Camilan Sehat",
+      type: "snack",
+      protein: "3",
+      calorie: "140",
+      iron: "0.9",
+      vitC: "35",
+    },
   ];
 
   const handleAutoEstimate = () => {
     if (!form.food_name) {
-      toast.error("Please enter a food name first");
+      toast.error("Masukkan nama makanan terlebih dahulu");
       return;
     }
 
     const name = form.food_name.toLowerCase();
     let prot = 10;
-    let cal = 200;
+    let cal = 250;
+    let iron = 1.5;
+    let vitC = 5;
 
+    // Smart Indonesian Food Nutrition Heuristics
     if (
       name.includes("ayam") ||
       name.includes("chicken") ||
       name.includes("bebek")
     ) {
-      prot += 15;
-      cal += 150;
+      prot += 16;
+      cal += 180;
+      iron += 0.8;
     }
     if (
       name.includes("nasi") ||
       name.includes("rice") ||
       name.includes("mie") ||
-      name.includes("noodle")
+      name.includes("bihun") ||
+      name.includes("pasta")
     ) {
       prot += 4;
-      cal += 250;
+      cal += 240;
     }
     if (
       name.includes("sapi") ||
       name.includes("beef") ||
+      name.includes("rendang") ||
       name.includes("daging")
     ) {
-      prot += 20;
-      cal += 200;
+      prot += 22;
+      cal += 240;
+      iron += 2.5;
     }
     if (
       name.includes("ikan") ||
       name.includes("fish") ||
+      name.includes("udang") ||
       name.includes("seafood")
     ) {
-      prot += 18;
+      prot += 19;
+      cal += 130;
+      iron += 1.0;
+    }
+    if (
+      name.includes("telur") ||
+      name.includes("egg") ||
+      name.includes("dadar") ||
+      name.includes("ceplok")
+    ) {
+      prot += 12;
+      cal += 150;
+      iron += 1.4;
+    }
+    if (name.includes("tempe") || name.includes("tahu")) {
+      prot += 10;
       cal += 120;
+      iron += 1.8;
     }
     if (
       name.includes("sayur") ||
-      name.includes("vegetable") ||
+      name.includes("sop") ||
+      name.includes("capcay") ||
+      name.includes("kangkung") ||
       name.includes("salad")
     ) {
-      prot += 2;
-      cal -= 100;
+      prot += 3;
+      cal = Math.max(70, cal - 80);
+      vitC += 25;
+      iron += 1.2;
     }
     if (
+      name.includes("buah") ||
+      name.includes("fruit") ||
+      name.includes("jeruk") ||
+      name.includes("pisang") ||
+      name.includes("melon") ||
+      name.includes("pepaya")
+    ) {
+      prot = Math.max(1, prot - 6);
+      cal = 110;
+      vitC += 40;
+    }
+    if (
+      name.includes("roti") ||
       name.includes("kue") ||
       name.includes("cake") ||
       name.includes("snack") ||
-      name.includes("manis")
+      name.includes("pastry")
     ) {
-      prot -= 5;
-      cal += 150;
+      prot = Math.max(4, prot - 3);
+      cal += 160;
     }
-
-    prot = Math.max(0, prot + Math.floor(Math.random() * 5));
-    cal = Math.max(10, cal + Math.floor(Math.random() * 30));
+    if (name.includes("susu") || name.includes("milk")) {
+      prot += 8;
+      cal += 120;
+      vitC += 8;
+    }
 
     onSetForm({
       ...form,
-      protein_per_portion: String(prot),
-      calorie_per_portion: String(cal),
+      protein_per_portion: String(Math.round(prot)),
+      calorie_per_portion: String(Math.round(cal)),
+      iron_mg: String(iron.toFixed(1)),
+      vitamin_c_mg: String(Math.round(vitC)),
     });
 
-    toast.success(`✨ Estimated: ${prot}g protein, ${cal} kcal`);
+    toast.success(
+      `✨ Estimasi Otomatis: ${Math.round(prot)}g protein, ${Math.round(cal)} kcal!`,
+    );
   };
 
   return (
@@ -268,15 +457,39 @@ export function DonationForm(props: Props) {
             >
               <div className="flex justify-between items-center">
                 <span className="text-xs font-bold text-[var(--text-secondary)] uppercase">
-                  Nutritional Breakdown
+                  Nutritional Breakdown (Per Porsi)
                 </span>
                 <button
                   type="button"
                   onClick={handleAutoEstimate}
                   className="flex items-center gap-1 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-2.5 py-1 rounded-full transition-all"
                 >
-                  <Sparkles size={13} /> AI Estimate
+                  <Sparkles size={13} /> Hitung Otomatis
                 </button>
+              </div>
+
+              {/* Quick Macro Presets */}
+              <div className="grid grid-cols-2 gap-1.5 pb-1">
+                {QUICK_PRESETS.map((preset, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => {
+                      onSetForm({
+                        ...form,
+                        food_type: preset.type,
+                        protein_per_portion: preset.protein,
+                        calorie_per_portion: preset.calorie,
+                        iron_mg: preset.iron,
+                        vitamin_c_mg: preset.vitC,
+                      });
+                      toast.success(`Preset diterapkan: ${preset.label}`);
+                    }}
+                    className="text-left text-[11px] p-2 bg-slate-50 hover:bg-primary-orange/10 hover:border-primary-orange/30 border border-slate-200 rounded-lg transition-all font-medium text-slate-700 truncate"
+                  >
+                    {preset.label}
+                  </button>
+                ))}
               </div>
 
               <div className="grid grid-cols-2 gap-3">
@@ -286,7 +499,7 @@ export function DonationForm(props: Props) {
                   </label>
                   <input
                     type="number"
-                    placeholder="Protein"
+                    placeholder="Contoh: 24"
                     value={form.protein_per_portion}
                     onChange={(e) =>
                       onSetForm({
@@ -300,11 +513,11 @@ export function DonationForm(props: Props) {
                 </div>
                 <div>
                   <label className="text-xs font-bold text-brand-dark mb-1 block">
-                    Calories (kcal)
+                    Kalori (kcal)
                   </label>
                   <input
                     type="number"
-                    placeholder="Calories"
+                    placeholder="Contoh: 500"
                     value={form.calorie_per_portion}
                     onChange={(e) =>
                       onSetForm({
@@ -343,30 +556,43 @@ export function DonationForm(props: Props) {
               animate={{ opacity: 1 }}
               className="space-y-3"
             >
-              <div className="bg-slate-50 rounded-xl p-3.5 border border-slate-200/80 space-y-1.5 text-xs">
+              <div className="bg-slate-50 rounded-xl p-3.5 border border-slate-200/80 space-y-2 text-xs">
                 <p className="flex justify-between">
-                  <span className="text-[var(--text-tertiary)]">
-                    Food Name:
-                  </span>
+                  <span className="text-[var(--text-tertiary)]">Makanan:</span>
                   <span className="font-bold text-brand-dark">
                     {form.food_name}
                   </span>
                 </p>
                 <p className="flex justify-between">
-                  <span className="text-[var(--text-tertiary)]">Quantity:</span>
+                  <span className="text-[var(--text-tertiary)]">Jumlah:</span>
                   <span className="font-bold text-brand-dark">
-                    {form.portion_count} Portions
+                    {form.portion_count} Porsi
                   </span>
                 </p>
                 <p className="flex justify-between">
                   <span className="text-[var(--text-tertiary)]">
-                    Nutrition:
+                    Total Nutrisi:
                   </span>
-                  <span className="font-bold text-brand-dark">
-                    {form.protein_per_portion}g protein |{" "}
-                    {form.calorie_per_portion} kcal
+                  <span className="font-bold text-emerald-700">
+                    {(
+                      Number(form.protein_per_portion || 0) *
+                      Number(form.portion_count || 1)
+                    ).toLocaleString()}
+                    g Protein ·{" "}
+                    {(
+                      Number(form.calorie_per_portion || 0) *
+                      Number(form.portion_count || 1)
+                    ).toLocaleString()}{" "}
+                    kkal
                   </span>
                 </p>
+                <div className="pt-2 border-t border-slate-200 flex items-center gap-1.5 text-[11px] text-slate-600">
+                  <Sparkles size={13} className="text-primary-orange" />
+                  <span>
+                    Sistem TOPSIS akan memprioritaskan penerima berjarak
+                    terdekat & kebutuhan gizi tertinggi.
+                  </span>
+                </div>
               </div>
 
               <div className="flex gap-2">

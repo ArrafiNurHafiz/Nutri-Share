@@ -10,7 +10,7 @@ from sqlmodel import select
 from backend.auth import get_current_user
 from backend.dependencies import SessionDep
 from backend.models import RecipientProfile, TopsisResult, User
-from backend.services.topsis import run_topsis_all_active
+from backend.services.topsis import run_topsis_all_active, generate_match_reasons
 
 router = APIRouter()
 
@@ -29,16 +29,50 @@ async def get_topsis_results(
     results = result.scalars().all()
 
     enriched = []
+    weights_summary = None
+
     for r in results:
         prof = await session.execute(
             select(RecipientProfile).where(RecipientProfile.user_id == r.recipient_id)
         )
         prof = prof.scalar_one_or_none()
+
+        reasons = generate_match_reasons(
+            raw_c1=r.raw_c1,
+            raw_c2=r.raw_c2,
+            raw_c3=r.raw_c3,
+            raw_c4=r.raw_c4,
+            raw_c5=r.raw_c5,
+            rank=r.rank_position,
+        )
+
+        if weights_summary is None:
+            weights_summary = {
+                "c1_protein": round(r.weight_c1, 4),
+                "c2_urgency": round(r.weight_c2, 4),
+                "c3_shelf_life": round(r.weight_c3, 4),
+                "c4_distance": round(r.weight_c4, 4),
+                "c5_fairness": round(r.weight_c5, 4),
+            }
+
         enriched.append({
             **r.model_dump(),
             "institution_name": prof.institution_name if prof else None,
+            "match_reasons": reasons,
+            "match_percentage": round(r.ci_score * 100, 1),
         })
-    return {"results": enriched}
+
+    return {
+        "results": enriched,
+        "weights": weights_summary or {
+            "c1_protein": 0.25,
+            "c2_urgency": 0.25,
+            "c3_shelf_life": 0.15,
+            "c4_distance": 0.20,
+            "c5_fairness": 0.15,
+        },
+        "algorithm": "Entropy-Weighted Hybrid TOPSIS",
+    }
 
 
 @router.post("/admin/topsis/run")
