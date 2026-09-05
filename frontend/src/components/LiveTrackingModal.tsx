@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, Component, type ReactNode } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -15,6 +15,12 @@ import toast from "react-hot-toast";
 
 const SIMULATION_MS = 30000;
 
+function safeNum(v: any, fallback = 0): number {
+  if (v === null || v === undefined) return fallback;
+  const n = Number(v);
+  return isNaN(n) || !isFinite(n) ? fallback : n;
+}
+
 export function LiveTrackingModal({
   donation,
   user,
@@ -25,7 +31,20 @@ export function LiveTrackingModal({
   const [arrivalConfirmed, setArrivalConfirmed] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const [done, setDone] = useState(false);
+  const [hasMapError, setHasMapError] = useState(false);
+
   const isDonor = user?.id === donation.donor_id;
+
+  const donorLat = safeNum(
+    donation.donor_lat || donation.pickup_latitude,
+    -7.797068,
+  );
+  const donorLon = safeNum(
+    donation.donor_lon || donation.pickup_longitude,
+    110.370529,
+  );
+  const recipientLat = safeNum(donation.recipient_lat, donorLat + 0.015);
+  const recipientLon = safeNum(donation.recipient_lon, donorLon + 0.015);
 
   useEffect(() => {
     let cancelled = false;
@@ -79,18 +98,14 @@ export function LiveTrackingModal({
       } catch {}
     }, 3000);
     return () => clearInterval(poll);
-  }, [isDonor, done]);
+  }, [isDonor, done, donation.id, onComplete, onClose]);
 
-  const getLat = () =>
-    donation.donor_lat +
-    (donation.recipient_lat - donation.donor_lat) * progress;
-  const getLon = () =>
-    donation.donor_lon +
-    (donation.recipient_lon - donation.donor_lon) * progress;
+  const getLat = () => donorLat + (recipientLat - donorLat) * progress;
+  const getLon = () => donorLon + (recipientLon - donorLon) * progress;
 
   const center: [number, number] = [
-    (donation.donor_lat + donation.recipient_lat) / 2,
-    (donation.donor_lon + donation.recipient_lon) / 2,
+    (donorLat + recipientLat) / 2,
+    (donorLon + recipientLon) / 2,
   ];
 
   const handleConfirmArrival = async () => {
@@ -118,7 +133,15 @@ export function LiveTrackingModal({
     <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
       <div className="bg-white rounded-[2rem] w-full max-w-4xl shadow-2xl overflow-hidden flex flex-col border border-gray-100">
         <div
-          className={`p-5 border-b flex justify-between items-center ${done ? "bg-[#2D7A4F]" : arrived && !arrivalConfirmed ? "bg-[#E65100]" : arrived ? "bg-[#1565C0]" : "bg-[#2D7A4F]"} text-white`}
+          className={`p-5 border-b flex justify-between items-center ${
+            done
+              ? "bg-[#2D7A4F]"
+              : arrived && !arrivalConfirmed
+                ? "bg-[#E65100]"
+                : arrived
+                  ? "bg-[#1565C0]"
+                  : "bg-[#2D7A4F]"
+          } text-white`}
         >
           <div>
             <div className="flex items-center gap-2">
@@ -148,66 +171,78 @@ export function LiveTrackingModal({
             <X size={24} />
           </button>
         </div>
+
         <div className="h-[60vh] w-full bg-gray-100 relative">
-          <MapContainer
-            center={center}
-            zoom={13}
-            style={{ height: "100%", width: "100%" }}
-          >
-            <TileLayer
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              referrerPolicy="origin"
-            />
-
-            <Marker
-              position={[donation.donor_lat, donation.donor_lon]}
-              icon={donorIcon}
-            >
-              <Popup>
-                <b>{donation.donor_name || "Donor Location"}</b>
-                <br />
-                Pickup Point
-              </Popup>
-            </Marker>
-
-            <Marker
-              position={[donation.recipient_lat, donation.recipient_lon]}
-              icon={recipientIcon}
-            >
-              <Popup>
-                <b>{donation.recipient_name || "Recipient Location"}</b>
-                <br />
-                Destination
-              </Popup>
-            </Marker>
-
-            <Polyline
-              positions={[
-                [donation.donor_lat, donation.donor_lon],
-                [donation.recipient_lat, donation.recipient_lon],
-              ]}
-              color="#2D7A4F"
-              weight={4}
-              dashArray="8, 8"
-              opacity={0.6}
-            />
-
-            {!done && (
-              <Marker
-                position={[getLat(), getLon()]}
-                icon={courierIcon}
-                zIndexOffset={1000}
+          {hasMapError ? (
+            <div className="h-full w-full flex items-center justify-center text-center p-6 bg-slate-50">
+              <div>
+                <MapPin className="mx-auto mb-2 text-slate-400" size={32} />
+                <p className="font-bold text-slate-700">Map unavailable</p>
+                <p className="text-xs text-slate-500 mt-1">
+                  Location coordinates are currently being refreshed.
+                </p>
+              </div>
+            </div>
+          ) : (
+            <ErrorBoundaryWrapper onError={() => setHasMapError(true)}>
+              <MapContainer
+                center={center}
+                zoom={13}
+                style={{ height: "100%", width: "100%" }}
               >
-                <Popup>
-                  NUTRI-SHARE Courier
-                  <br />
-                  {(progress * 100).toFixed(0)}% Journey Complete
-                </Popup>
-              </Marker>
-            )}
-          </MapContainer>
+                <TileLayer
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  referrerPolicy="origin"
+                />
 
-          {!done && (
+                <Marker position={[donorLat, donorLon]} icon={donorIcon}>
+                  <Popup>
+                    <b>{donation.donor_name || "Donor Location"}</b>
+                    <br />
+                    Pickup Point
+                  </Popup>
+                </Marker>
+
+                <Marker
+                  position={[recipientLat, recipientLon]}
+                  icon={recipientIcon}
+                >
+                  <Popup>
+                    <b>{donation.recipient_name || "Recipient Location"}</b>
+                    <br />
+                    Destination
+                  </Popup>
+                </Marker>
+
+                <Polyline
+                  positions={[
+                    [donorLat, donorLon],
+                    [recipientLat, recipientLon],
+                  ]}
+                  color="#2D7A4F"
+                  weight={4}
+                  dashArray="8, 8"
+                  opacity={0.6}
+                />
+
+                {!done && (
+                  <Marker
+                    position={[getLat(), getLon()]}
+                    icon={courierIcon}
+                    zIndexOffset={1000}
+                  >
+                    <Popup>
+                      NUTRI-SHARE Courier
+                      <br />
+                      {(progress * 100).toFixed(0)}% Journey Complete
+                    </Popup>
+                  </Marker>
+                )}
+              </MapContainer>
+            </ErrorBoundaryWrapper>
+          )}
+
+          {!done && !hasMapError && (
             <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-[1000] bg-white px-6 py-3 rounded-full shadow-lg border border-gray-100 flex items-center gap-4">
               <div className="bg-gray-100 w-32 h-2 rounded-full overflow-hidden">
                 <div
@@ -334,4 +369,16 @@ export function LiveTrackingModal({
       </div>
     </div>
   );
+}
+
+class ErrorBoundaryWrapper extends Component<{
+  children: ReactNode;
+  onError: () => void;
+}> {
+  componentDidCatch() {
+    (this as any).props.onError();
+  }
+  render() {
+    return (this as any).props.children;
+  }
 }
