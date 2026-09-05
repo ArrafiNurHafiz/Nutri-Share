@@ -9,6 +9,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import { Activity, AlertCircle, CheckCircle2 } from "lucide-react";
 
 ChartJS.register(
   RadialLinearScale,
@@ -18,8 +19,6 @@ ChartJS.register(
   Tooltip,
   Legend,
 );
-
-const radarGrid = { stroke: "#CBD5E1", strokeWidth: 1, fill: "none" };
 
 function NutritionBar({
   label,
@@ -34,21 +33,27 @@ function NutritionBar({
 }) {
   return (
     <div>
-      <div className="flex justify-between items-end mb-1">
-        <p className="text-xs text-[var(--text-secondary)] font-medium">
+      <div className="flex justify-between items-center mb-1">
+        <span className="text-xs font-semibold text-[var(--text-secondary)]">
           {label}
-        </p>
-        <p className="text-sm font-bold" style={{ color }}>
-          {value}
-        </p>
+        </span>
+        <div className="flex items-center gap-1.5">
+          <span className="text-xs font-bold text-brand-dark">{value}</span>
+          <span
+            className="text-[10px] font-bold px-1.5 py-0.5 rounded"
+            style={{ backgroundColor: `${color}15`, color }}
+          >
+            {Math.round(pct)}%
+          </span>
+        </div>
       </div>
-      <div className="h-2 bg-[var(--bg-tertiary)] rounded-full overflow-hidden">
+      <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: `${Math.min(pct, 100)}%` }}
-          transition={{ duration: 1, delay: 0.2 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
           className="h-full rounded-full"
-          style={{ backgroundColor: color, width: `${Math.min(pct, 100)}%` }}
+          style={{ backgroundColor: color }}
         />
       </div>
     </div>
@@ -73,21 +78,21 @@ export function NutritionTracker({ akg }: Props) {
     },
     {
       label: "Calories",
-      value: `${akg.today_intake.calories}cal / ${akg.daily_needs.calories}cal`,
+      value: `${akg.today_intake.calories} cal / ${akg.daily_needs.calories} cal`,
       pct: pct(akg.percentages.calories),
-      color: "#10b981",
+      color: "#f59e0b",
     },
     {
       label: "Iron",
       value: `${akg.today_intake.iron}mg / ${akg.daily_needs.iron}mg`,
       pct: pct(akg.percentages.iron),
-      color: "#d4893b",
+      color: "#d97706",
     },
     {
       label: "Vitamin C",
       value: `${akg.today_intake.vitamin_c}mg / ${akg.daily_needs.vitamin_c}mg`,
       pct: pct(akg.percentages.vitamin_c),
-      color: "#f59e0b",
+      color: "#06b6d4",
     },
   ];
 
@@ -102,89 +107,106 @@ export function NutritionTracker({ akg }: Props) {
           akg.percentages.iron,
           akg.percentages.vitamin_c,
         ],
-        backgroundColor: "rgba(16,185,129,0.15)",
+        backgroundColor: "rgba(16, 185, 129, 0.15)",
         borderColor: "#10b981",
+        borderWidth: 2,
         pointBackgroundColor: "#10b981",
         pointBorderColor: "#fff",
+        pointRadius: 3,
       },
     ],
   };
 
+  const lowestNutrient = [...nutrients].sort((a, b) => a.pct - b.pct)[0];
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 15 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-2xl border border-[var(--border-primary)] p-5 shadow-sm"
+      className="bg-white rounded-2xl border border-[var(--border-primary)] p-5 shadow-sm flex flex-col justify-between h-full"
     >
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="font-bold flex items-center gap-2 text-brand-dark">
-          <svg
-            className="w-5 h-5 text-accent"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+      <div>
+        <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+              <Activity size={16} />
+            </div>
+            <div>
+              <h3 className="font-bold text-sm text-brand-dark">
+                Nutritional AKG Tracker
+              </h3>
+              <p className="text-[11px] text-[var(--text-tertiary)]">
+                Daily Intake Fulfillment
+              </p>
+            </div>
+          </div>
+          <div
+            className={`text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1 ${
+              overallPct >= 80
+                ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                : overallPct >= 50
+                  ? "bg-amber-50 text-amber-700 border border-amber-200"
+                  : "bg-rose-50 text-rose-700 border border-rose-200"
+            }`}
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-            />
-          </svg>
-          Nutritional AKG Tracker
-        </h3>
-        <span
-          className={`text-xs font-bold px-2 py-1 rounded-full ${
-            overallPct >= 80
-              ? "bg-brand-medium/10 text-brand-medium"
-              : overallPct >= 50
-                ? "bg-accent/10 text-accent"
-                : "bg-danger/10 text-danger"
-          }`}
-        >
-          {overallPct}%
-        </span>
-      </div>
-
-      <div className="flex flex-col md:flex-row items-center gap-8">
-        <div className="relative w-48 h-48 shrink-0">
-          <Radar
-            data={radarData}
-            options={{
-              responsive: true,
-              maintainAspectRatio: false,
-              scales: {
-                r: {
-                  beginAtZero: true,
-                  max: 100,
-                  grid: { color: "#e7e5e4" },
-                  ticks: { display: false },
-                },
-              },
-              plugins: { legend: { display: false } },
-            }}
-          />
+            {overallPct >= 80 ? (
+              <CheckCircle2 size={12} />
+            ) : (
+              <AlertCircle size={12} />
+            )}
+            <span>{overallPct}% Target</span>
+          </div>
         </div>
-        <div className="flex-1 space-y-4 w-full">
-          {nutrients.map((n, i) => (
-            <div key={i}>
+
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+          <div className="md:col-span-5 relative h-44 flex items-center justify-center">
+            <Radar
+              data={radarData}
+              options={{
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                  r: {
+                    beginAtZero: true,
+                    max: 100,
+                    grid: { color: "#f1f5f9" },
+                    angleLines: { color: "#f1f5f9" },
+                    ticks: { display: false },
+                    pointLabels: {
+                      font: { size: 10, weight: 600 },
+                      color: "#64748b",
+                    },
+                  },
+                },
+                plugins: { legend: { display: false } },
+              }}
+            />
+          </div>
+
+          <div className="md:col-span-7 space-y-3">
+            {nutrients.map((n, i) => (
               <NutritionBar
+                key={i}
                 label={n.label}
                 value={n.value}
                 pct={n.pct}
                 color={n.color}
               />
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
 
-      <div className="mt-6 p-4 bg-[var(--bg-tertiary)] rounded-xl border-l-4 border-l-brand-medium">
-        <p className="text-sm text-brand-dark">
-          Insight: Focus on claims with high <b>Iron</b> content this week to
-          balance your goals.
-        </p>
-      </div>
+      {lowestNutrient && lowestNutrient.pct < 80 && (
+        <div className="mt-4 p-3 bg-amber-50/60 rounded-xl border border-amber-200/60 flex items-center gap-2 text-xs text-amber-900">
+          <AlertCircle size={14} className="text-amber-600 shrink-0" />
+          <span>
+            Priority: Prioritize claims with higher{" "}
+            <strong>{lowestNutrient.label}</strong> content to balance your
+            intake.
+          </span>
+        </div>
+      )}
     </motion.div>
   );
 }
