@@ -532,6 +532,7 @@ export function DonorDashboard() {
           <LiveTrackingModal
             donation={trackingData}
             user={user}
+            profile={profile}
             onClose={() => setTrackingData(null)}
             onComplete={loadDonations}
           />

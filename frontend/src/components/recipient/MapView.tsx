@@ -6,7 +6,9 @@ import {
   Marker,
   Popup,
   Polyline,
+  useMap,
 } from "react-leaflet";
+import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { recipientIcon, donorIcon } from "../../lib/mapIcons";
 
@@ -20,6 +22,35 @@ function safeNum(v: any): number | null {
   if (v === null || v === undefined) return null;
   const n = Number(v);
   return isNaN(n) || !isFinite(n) ? null : n;
+}
+
+function MapBoundsController({
+  recipientCoords,
+  donors,
+}: {
+  recipientCoords: [number, number];
+  donors: any[];
+}) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (donors.length > 0) {
+      const points: [number, number][] = [recipientCoords];
+      for (const d of donors) {
+        const dLat = safeNum(d.latitude);
+        const dLng = safeNum(d.longitude);
+        if (dLat !== null && dLng !== null) {
+          points.push([dLat, dLng]);
+        }
+      }
+      try {
+        const bounds = L.latLngBounds(points);
+        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 14 });
+      } catch {}
+    }
+  }, [map, recipientCoords[0], recipientCoords[1], donors]);
+
+  return null;
 }
 
 function MapInner({ mapData, profile, activeDonations }: Props) {
@@ -43,6 +74,7 @@ function MapInner({ mapData, profile, activeDonations }: Props) {
       zoom={13}
       style={{ height: "100%", width: "100%" }}
     >
+      <MapBoundsController recipientCoords={[lat, lng]} donors={validDonors} />
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         referrerPolicy="origin"

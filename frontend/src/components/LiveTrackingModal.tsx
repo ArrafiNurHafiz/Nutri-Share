@@ -5,7 +5,9 @@ import {
   Marker,
   Popup,
   Polyline,
+  useMap,
 } from "react-leaflet";
+import L from "leaflet";
 import {
   X,
   CheckCircle,
@@ -41,9 +43,36 @@ function cleanPhone(p?: string): string {
   return digits;
 }
 
+function AutoFitBounds({
+  donorCoords,
+  recipientCoords,
+}: {
+  donorCoords: [number, number];
+  recipientCoords: [number, number];
+}) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (
+      !isNaN(donorCoords[0]) &&
+      !isNaN(donorCoords[1]) &&
+      !isNaN(recipientCoords[0]) &&
+      !isNaN(recipientCoords[1])
+    ) {
+      try {
+        const bounds = L.latLngBounds([donorCoords, recipientCoords]);
+        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
+      } catch {}
+    }
+  }, [map, donorCoords[0], donorCoords[1], recipientCoords[0], recipientCoords[1]]);
+
+  return null;
+}
+
 export function LiveTrackingModal({
   donation,
   user,
+  profile,
   onClose,
   onComplete,
   onRate,
@@ -55,18 +84,28 @@ export function LiveTrackingModal({
   const [done, setDone] = useState(donation.status === "completed");
   const [hasMapError, setHasMapError] = useState(false);
 
-  const isDonor = user?.id === data.donor_id;
+  const isDonor = user?.role === "donor" || user?.id === data.donor_id;
 
   const donorLat = safeNum(
-    data.donor_lat || data.pickup_latitude,
-    -7.797068,
+    data.donor_lat ?? data.pickup_latitude,
+    -7.6,
   );
   const donorLon = safeNum(
-    data.donor_lon || data.pickup_longitude,
-    110.370529,
+    data.donor_lon ?? data.pickup_longitude,
+    110.4,
   );
-  const recipientLat = safeNum(data.recipient_lat, donorLat + 0.015);
-  const recipientLon = safeNum(data.recipient_lon, donorLon + 0.015);
+  const recipientLat = safeNum(
+    data.recipient_lat ??
+      data.recipient_info?.lat ??
+      (!isDonor ? (profile?.latitude ?? user?.latitude) : null),
+    -7.85,
+  );
+  const recipientLon = safeNum(
+    data.recipient_lon ??
+      data.recipient_info?.lon ??
+      (!isDonor ? (profile?.longitude ?? user?.longitude) : null),
+    110.33,
+  );
 
   // Fetch latest donation info with enriched profiles
   useEffect(() => {
@@ -136,8 +175,9 @@ export function LiveTrackingModal({
     return () => clearInterval(poll);
   }, [done, donation.id, arrivalConfirmed, onComplete, onClose]);
 
-  const getLat = () => donorLat + (recipientLat - donorLat) * progress;
-  const getLon = () => donorLon + (recipientLon - donorLon) * progress;
+  // Self-pickup: recipient travels from recipient location to donor pickup location
+  const getLat = () => recipientLat + (donorLat - recipientLat) * progress;
+  const getLon = () => recipientLon + (donorLon - recipientLon) * progress;
 
   const center: [number, number] = [
     (donorLat + recipientLat) / 2,
@@ -313,9 +353,13 @@ export function LiveTrackingModal({
             <ErrorBoundaryWrapper onError={() => setHasMapError(true)}>
               <MapContainer
                 center={center}
-                zoom={13}
+                zoom={12}
                 style={{ height: "100%", width: "100%" }}
               >
+                <AutoFitBounds
+                  donorCoords={[donorLat, donorLon]}
+                  recipientCoords={[recipientLat, recipientLon]}
+                />
                 <TileLayer
                   url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                   referrerPolicy="origin"

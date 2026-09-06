@@ -320,10 +320,12 @@ export function RecipientDashboard() {
                 <ClaimLifecycle
                   transitDonations={transitDonations}
                   onArrived={handleArrived}
+                  onTrack={(d) => setTrackingData(d)}
                 />
                 <TransitSection
                   transitDonations={transitDonations}
                   onArrived={handleArrived}
+                  onTrack={(d) => setTrackingData(d)}
                 />
               </div>
             </div>
@@ -379,6 +381,7 @@ export function RecipientDashboard() {
               <TransitSection
                 transitDonations={transitDonations}
                 onArrived={handleArrived}
+                onTrack={(d) => setTrackingData(d)}
               />
               {transitDonations.length === 0 && (
                 <EmptyState
@@ -454,6 +457,7 @@ export function RecipientDashboard() {
           <LiveTrackingModal
             donation={trackingData}
             user={user}
+            profile={profile}
             onClose={() => setTrackingData(null)}
             onComplete={loadData}
             onRate={(d: any) => setSelectedReviewDonation(d)}

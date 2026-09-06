@@ -3,9 +3,10 @@ import { motion } from "motion/react";
 interface Props {
   transitDonations: any[];
   onArrived: (id: number) => void;
+  onTrack?: (donation: any) => void;
 }
 
-export function ClaimLifecycle({ transitDonations, onArrived }: Props) {
+export function ClaimLifecycle({ transitDonations, onArrived, onTrack }: Props) {
   const hasActive = transitDonations.some((d: any) => !d.arrived_at);
 
   if (!hasActive) return null;
@@ -142,11 +143,20 @@ export function ClaimLifecycle({ transitDonations, onArrived }: Props) {
 
         {pending.length > 0 && (
           <div className="flex gap-3 pt-2">
+            {onTrack && (
+              <button
+                type="button"
+                onClick={() => onTrack(pending[0])}
+                className="flex-1 border border-brand-medium text-brand-medium py-3 rounded-xl font-bold text-sm hover:bg-brand-medium/5 transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                Lihat Peta Rute
+              </button>
+            )}
             <button
               onClick={() => onArrived(pending[0].id)}
-              className="flex-1 border border-primary-orange text-primary-orange py-3 rounded-xl font-bold text-sm hover:bg-primary-orange-bg transition-all"
+              className="flex-1 bg-accent hover:bg-amber-600 text-white py-3 rounded-xl font-bold text-sm shadow-sm transition-all cursor-pointer"
             >
-              Confirm Arrival
+              Konfirmasi Tiba di Lokasi
             </button>
           </div>
         )}

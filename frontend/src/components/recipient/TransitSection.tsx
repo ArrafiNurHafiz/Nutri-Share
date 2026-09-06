@@ -4,6 +4,7 @@ import { Truck, MapPin, CheckCircle, Navigation, Clock, Building2, MessageCircle
 interface Props {
   transitDonations: any[];
   onArrived: (id: number) => void;
+  onTrack?: (donation: any) => void;
 }
 
 function cleanPhone(p?: string): string {
@@ -13,7 +14,7 @@ function cleanPhone(p?: string): string {
   return digits;
 }
 
-export function TransitSection({ transitDonations, onArrived }: Props) {
+export function TransitSection({ transitDonations, onArrived, onTrack }: Props) {
   const arrived = transitDonations.filter((d: any) => d.arrived_at);
   const pending = transitDonations.filter((d: any) => !d.arrived_at);
 
@@ -77,9 +78,20 @@ export function TransitSection({ transitDonations, onArrived }: Props) {
               <span className="flex items-center gap-1 text-emerald-800 font-medium">
                 <Clock size={12} /> Menunggu Donatur Menyerahkan Makanan
               </span>
-              <span className="font-bold text-brand-dark">
-                #{d.id}
-              </span>
+              <div className="flex items-center gap-2">
+                {onTrack && (
+                  <button
+                    type="button"
+                    onClick={() => onTrack(d)}
+                    className="text-[11px] text-emerald-700 hover:text-emerald-900 font-bold flex items-center gap-1 cursor-pointer"
+                  >
+                    <Navigation size={11} /> Peta Rute
+                  </button>
+                )}
+                <span className="font-bold text-brand-dark">
+                  #{d.id}
+                </span>
+              </div>
             </div>
           </motion.div>
         ))}
@@ -119,23 +131,30 @@ export function TransitSection({ transitDonations, onArrived }: Props) {
                 </p>
               )}
 
-              <div className="flex items-center justify-between pt-2 border-t border-slate-100 gap-2">
-                {donorPhone ? (
-                  <a
-                    href={`https://wa.me/${donorPhone}?text=${encodeURIComponent(
-                      `Halo ${d.donor_name}, kami dari penerima donasi NutriShare ingin mengonfirmasi jadwal penjemputan donasi #${d.id} "${d.food_name}".`
-                    )}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-[11px] text-emerald-700 font-bold hover:underline flex items-center gap-1"
-                  >
-                    <MessageCircle size={12} /> Chat Donatur
-                  </a>
-                ) : (
-                  <span className="text-[11px] text-[var(--text-tertiary)]">
-                    Donasi #{d.id}
-                  </span>
-                )}
+              <div className="flex items-center justify-between pt-2 border-t border-slate-100 gap-2 flex-wrap">
+                <div className="flex items-center gap-3">
+                  {donorPhone && (
+                    <a
+                      href={`https://wa.me/${donorPhone}?text=${encodeURIComponent(
+                        `Halo ${d.donor_name}, kami dari penerima donasi NutriShare ingin mengonfirmasi jadwal penjemputan donasi #${d.id} "${d.food_name}".`
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[11px] text-emerald-700 font-bold hover:underline flex items-center gap-1"
+                    >
+                      <MessageCircle size={12} /> Chat Donatur
+                    </a>
+                  )}
+                  {onTrack && (
+                    <button
+                      type="button"
+                      onClick={() => onTrack(d)}
+                      className="text-[11px] text-brand-medium hover:text-brand-dark font-bold flex items-center gap-1 cursor-pointer"
+                    >
+                      <Navigation size={12} /> Lihat Peta Rute
+                    </button>
+                  )}
+                </div>
                 <button
                   type="button"
                   onClick={() => onArrived(d.id)}

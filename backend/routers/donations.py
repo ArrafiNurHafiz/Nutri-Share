@@ -186,13 +186,36 @@ async def list_donations(
         )
         recipient_profiles = {rp.user_id: rp for rp in profiles_result.scalars().all()}
 
+    # Batch load donor profiles
+    donor_ids = list(set(d.donor_id for d in donations))
+    donor_profiles = {}
+    if donor_ids:
+        dp_result = await session.execute(
+            select(DonorProfile).where(DonorProfile.user_id.in_(donor_ids))
+        )
+        donor_profiles = {dp.user_id: dp for dp in dp_result.scalars().all()}
+
     enriched = []
     for d in donations:
+        donor_prof = donor_profiles.get(d.donor_id)
+        rp = recipient_profiles.get(d.claimed_by) if d.claimed_by else None
         recipient_info = None
-        if d.claimed_by and d.claimed_by in recipient_profiles:
-            rp = recipient_profiles[d.claimed_by]
+        if rp:
             recipient_info = {"name": rp.institution_name, "lat": rp.latitude, "lon": rp.longitude}
-        enriched.append({**d.model_dump(), "recipient_info": recipient_info})
+        enriched.append({
+            **d.model_dump(),
+            "recipient_info": recipient_info,
+            "donor_name": donor_prof.business_name if donor_prof else None,
+            "donor_phone": donor_prof.phone if donor_prof else None,
+            "donor_address": donor_prof.address if donor_prof else None,
+            "donor_lat": d.pickup_latitude,
+            "donor_lon": d.pickup_longitude,
+            "recipient_name": rp.institution_name if rp else None,
+            "recipient_phone": rp.phone if rp else None,
+            "recipient_address": rp.address if rp else None,
+            "recipient_lat": rp.latitude if rp else None,
+            "recipient_lon": rp.longitude if rp else None,
+        })
 
     return enriched
 

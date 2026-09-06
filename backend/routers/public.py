@@ -177,9 +177,9 @@ async def map_data(session: SessionDep):
         select(Donation).where(Donation.status == "active")
     )
     return {
-        "donors": [dict(r._mapping) for r in donors.all()],
-        "recipients": [dict(r._mapping) for r in recipients.all()],
-        "activeDonations": [dict(r._mapping) for r in active.all()],
+        "donors": [d.model_dump() for d in donors.scalars().all()],
+        "recipients": [r.model_dump() for r in recipients.scalars().all()],
+        "activeDonations": [a.model_dump() for a in active.scalars().all()],
     }
 
 
