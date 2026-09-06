@@ -339,7 +339,7 @@ export function Login() {
               Register as Donor / Recipient
             </Link>
             <Link
-              to="/#cara-kerja"
+              to="/contact"
               className="w-full py-3 text-gray-500 text-sm rounded-lg hover:text-primary-orange transition-colors flex items-center justify-center gap-2 border border-transparent"
             >
               <svg

@@ -58,6 +58,12 @@ const RecipientDashboard = safeLazy(() =>
 const AdminDashboard = safeLazy(() =>
   import("./pages/AdminDashboard").then((m) => m.AdminDashboard),
 );
+const BrowseMap = safeLazy(() =>
+  import("./pages/BrowseMap").then((m) => m.BrowseMap),
+);
+const Support = safeLazy(() =>
+  import("./pages/Support").then((m) => m.Support),
+);
 const ForgotPassword = safeLazy(() => import("./pages/ForgotPassword"));
 const ResetPassword = safeLazy(() => import("./pages/ResetPassword"));
 const NotFound = safeLazy(() => import("./pages/NotFound"));
@@ -82,6 +88,9 @@ function AnimatedRoutes() {
         <Suspense fallback={<Loading />}>
           <Routes location={location}>
             <Route path="/" element={<Home />} />
+            <Route path="/map" element={<BrowseMap />} />
+            <Route path="/contact" element={<Support />} />
+            <Route path="/support" element={<Support />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/login" element={<Login />} />
