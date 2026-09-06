@@ -1,6 +1,16 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Package, Activity, TrendingUp, Plus, MapPin } from "lucide-react";
+import {
+  Package,
+  Activity,
+  TrendingUp,
+  Plus,
+  MapPin,
+  Heart,
+  Truck,
+  Users,
+  Phone,
+} from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { api } from "../lib/api";
 import { useRealtime, RealtimeEvent } from "../lib/useRealtime";
@@ -27,6 +37,10 @@ export function DonorDashboard() {
   const [reviews, setReviews] = useState<any[]>([]);
   const [badges, setBadges] = useState<any[]>([]);
   const [notifications, setNotifications] = useState<any[]>([]);
+  const [mapData, setMapData] = useState<{ donors: any[]; recipients: any[] }>({
+    donors: [],
+    recipients: [],
+  });
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("dashboard");
   const [filterTab, setFilterTab] = useState("all");
@@ -72,16 +86,18 @@ export function DonorDashboard() {
   const loadDonations = useCallback(async () => {
     if (!user || user.role !== "donor") return;
     try {
-      const [data, donorReviews, notifs, bdgs] = await Promise.all([
+      const [data, donorReviews, notifs, bdgs, mData] = await Promise.all([
         api.fetchJSON(`/api/donations?donor_id=${user.id}`),
         api.fetchJSON(`/api/donors/${user.id}/reviews`),
         api.fetchJSON(`/api/notifications?user_id=${user.id}`),
         api.fetchJSON(`/api/donors/${user.id}/badges`),
+        api.fetchJSON("/api/map/data").catch(() => ({ donors: [], recipients: [] })),
       ]);
       setDonations(data);
       setReviews(donorReviews);
       setNotifications(notifs);
       setBadges(bdgs);
+      if (mData) setMapData(mData);
     } finally {
       setLoading(false);
     }
@@ -368,6 +384,138 @@ export function DonorDashboard() {
                 <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
                   Every portion you donate diverts edible food from landfills
                   and nourishes individuals in need.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === "recipients" && (
+          <div className="mt-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="lg:col-span-8 flex flex-col gap-6">
+              <div className="glass p-6 rounded-3xl border border-white/50 shadow-sm">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h2 className="text-xl font-bold text-brand-dark flex items-center gap-2">
+                      <Heart size={22} className="text-[#E53935]" /> Mitra Penerima Terverifikasi
+                    </h2>
+                    <p className="text-sm text-[var(--text-secondary)] mt-1">
+                      Daftar panti asuhan, rumah singgah, dan panti lansia di Yogyakarta yang terhubung dengan NutriShare.
+                    </p>
+                  </div>
+                  <span className="text-xs font-bold px-3 py-1.5 rounded-full bg-brand-medium/10 text-brand-medium">
+                    {mapData.recipients.length} Lembaga
+                  </span>
+                </div>
+
+                <div className="grid sm:grid-cols-2 gap-4 mt-6">
+                  {mapData.recipients.length === 0 ? (
+                    <div className="sm:col-span-2 text-center py-10 text-gray-400">
+                      Belum ada lembaga penerima yang terdaftar.
+                    </div>
+                  ) : (
+                    mapData.recipients.map((item: any, idx: number) => {
+                      const r = item.RecipientProfile || item;
+                      return (
+                        <div
+                          key={r.id || idx}
+                          className="bg-white/90 rounded-2xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
+                        >
+                          <div>
+                            <div className="flex items-start justify-between gap-2 mb-2">
+                              <h3 className="font-bold text-brand-dark text-base">
+                                {r.institution_name}
+                              </h3>
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 capitalize shrink-0">
+                                {(r.institution_type || "Yayasan").replace(/_/g, " ")}
+                              </span>
+                            </div>
+                            <p className="text-xs text-gray-500 flex items-center gap-1.5 mb-2">
+                              <MapPin size={14} className="text-gray-400 shrink-0" />
+                              <span className="truncate">{r.address || "Yogyakarta"}</span>
+                            </p>
+                            <div className="flex items-center gap-4 text-xs text-gray-600 mt-3 pt-3 border-t border-gray-50">
+                              <span className="flex items-center gap-1">
+                                <Users size={14} className="text-brand-medium" />
+                                <strong>{r.resident_count || 0}</strong> Warga
+                              </span>
+                              {r.phone && (
+                                <span className="flex items-center gap-1 text-gray-400 truncate">
+                                  <Phone size={14} />
+                                  {r.phone}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+            </div>
+            <div className="lg:col-span-4 flex flex-col gap-6">
+              <div className="glass p-6 rounded-3xl border border-white/50 shadow-sm bg-gradient-to-br from-brand-medium/10 to-transparent">
+                <h3 className="font-bold text-brand-dark mb-2 flex items-center gap-2">
+                  <Heart size={18} className="text-brand-medium" /> Penyaluran Tepat Sasaran
+                </h3>
+                <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                  NutriShare menggunakan algoritma Entropy-TOPSIS untuk memprioritaskan penyaluran donasi pangan ke panti dan yayasan dengan kebutuhan nutrisi dan urgensi tertinggi.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === "logistics" && (
+          <div className="mt-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="lg:col-span-8 flex flex-col gap-6">
+              <div className="glass p-6 rounded-3xl border border-white/50 shadow-sm">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h2 className="text-xl font-bold text-brand-dark flex items-center gap-2">
+                      <Truck size={22} className="text-brand-medium" /> Pelacakan Logistik & Kurir
+                    </h2>
+                    <p className="text-sm text-[var(--text-secondary)] mt-1">
+                      Daftar penjemputan donasi yang sedang berlangsung dan konfirmasi serah-terima kurir.
+                    </p>
+                  </div>
+                </div>
+                <DonationList
+                  donations={donations.filter((d) => d.status === "claimed" || (d as any).arrived_at)}
+                  filterTab="claimed"
+                  onFilterChange={() => {}}
+                  onTrack={setTrackingData}
+                  onComplete={handleComplete}
+                />
+              </div>
+            </div>
+            <div className="lg:col-span-4 flex flex-col gap-6">
+              <LogisticsMap
+                inTransitCount={
+                  donations.filter(
+                    (d) => d.status === "claimed" || (d as any).arrived_at,
+                  ).length
+                }
+                onTrack={() => {
+                  const activeTransit = donations.find(
+                    (d) => d.status === "claimed" || (d as any).arrived_at,
+                  );
+                  if (activeTransit) {
+                    setTrackingData(activeTransit);
+                  } else {
+                    toast("Tidak ada donasi yang sedang dalam perjalanan saat ini.", {
+                      icon: "ℹ️",
+                    });
+                  }
+                }}
+              />
+              <div className="glass p-6 rounded-3xl border border-white/50 shadow-sm bg-gradient-to-br from-primary-orange/10 to-transparent">
+                <h3 className="font-bold text-brand-dark mb-2 flex items-center gap-2">
+                  <Truck size={18} className="text-primary-orange" /> Protokol Penjemputan
+                </h3>
+                <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                  Pastikan makanan surplus dikemas dengan higienis dan aman sebelum kurir tiba untuk menjaga kualitas dan keamanan pangan bagi penerima.
                 </p>
               </div>
             </div>
