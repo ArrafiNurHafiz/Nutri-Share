@@ -70,7 +70,7 @@ export function DonorDashboard() {
   }, [authLoading, user]);
 
   const loadDonations = useCallback(async () => {
-    if (!user) return;
+    if (!user || user.role !== "donor") return;
     try {
       const [data, donorReviews, notifs, bdgs] = await Promise.all([
         api.fetchJSON(`/api/donations?donor_id=${user.id}`),
@@ -88,7 +88,7 @@ export function DonorDashboard() {
   }, [user]);
 
   useEffect(() => {
-    if (user) loadDonations();
+    if (user && user.role === "donor") loadDonations();
   }, [loadDonations, user]);
 
   // Real-time synchronization
