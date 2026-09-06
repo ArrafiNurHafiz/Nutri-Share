@@ -326,9 +326,13 @@ async def list_transit_donations(
         enriched.append({
             **d.model_dump(),
             "donor_name": donor_prof.business_name if donor_prof else None,
+            "donor_phone": donor_prof.phone if donor_prof else None,
+            "donor_address": donor_prof.address if donor_prof else None,
             "donor_lat": d.pickup_latitude,
             "donor_lon": d.pickup_longitude,
             "recipient_name": rp.institution_name if rp else None,
+            "recipient_phone": rp.phone if rp else None,
+            "recipient_address": rp.address if rp else None,
             "recipient_lat": rp.latitude if rp else None,
             "recipient_lon": rp.longitude if rp else None,
         })
@@ -411,7 +415,26 @@ async def get_donation(donation_id: int, session: SessionDep):
     )
     donor_prof = dp.scalar_one_or_none()
 
-    return {**d.model_dump(), "donor_name": donor_prof.business_name if donor_prof else None}
+    rp = None
+    if d.claimed_by:
+        rp_res = await session.execute(
+            select(RecipientProfile).where(RecipientProfile.user_id == d.claimed_by)
+        )
+        rp = rp_res.scalar_one_or_none()
+
+    return {
+        **d.model_dump(),
+        "donor_name": donor_prof.business_name if donor_prof else None,
+        "donor_phone": donor_prof.phone if donor_prof else None,
+        "donor_address": donor_prof.address if donor_prof else None,
+        "donor_lat": d.pickup_latitude,
+        "donor_lon": d.pickup_longitude,
+        "recipient_name": rp.institution_name if rp else None,
+        "recipient_phone": rp.phone if rp else None,
+        "recipient_address": rp.address if rp else None,
+        "recipient_lat": rp.latitude if rp else None,
+        "recipient_lon": rp.longitude if rp else None,
+    }
 
 
 @router.post("/donations/{donation_id}/claim", dependencies=[Depends(rate_limit_dependency(10, 60))])

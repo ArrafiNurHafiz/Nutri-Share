@@ -13,11 +13,11 @@ export function LogisticsMap({ inTransitCount = 0, onTrack }: Props) {
           <div className="w-12 h-12 mx-auto mb-3 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-primary-orange">
             <Truck size={24} />
           </div>
-          <p className="text-sm font-bold text-white">Live Logistics Map</p>
+          <p className="text-sm font-bold text-white">Peta Penjemputan Mandiri</p>
           <p className="text-xs text-white/70 mt-1">
             {inTransitCount > 0
-              ? `${inTransitCount} donation${inTransitCount > 1 ? "s" : ""} currently in transit`
-              : "No active delivery in transit"}
+              ? `${inTransitCount} donasi siap dijemput pihak penerima`
+              : "Belum ada penjemputan aktif"}
           </p>
         </div>
       </div>
@@ -25,9 +25,9 @@ export function LogisticsMap({ inTransitCount = 0, onTrack }: Props) {
         <button
           type="button"
           onClick={onTrack}
-          className="w-full bg-white/20 backdrop-blur-md border border-white/30 text-white py-2.5 rounded-xl text-xs font-bold hover:bg-white/30 transition-all flex items-center justify-center gap-1.5 active:scale-[0.98]"
+          className="w-full bg-white/20 backdrop-blur-md border border-white/30 text-white py-2.5 rounded-xl text-xs font-bold hover:bg-white/30 transition-all flex items-center justify-center gap-1.5 active:scale-[0.98] cursor-pointer"
         >
-          <Navigation size={14} /> Track Deliveries
+          <Navigation size={14} /> Koordinasi & Pantau Penjemputan
         </button>
       </div>
     </div>

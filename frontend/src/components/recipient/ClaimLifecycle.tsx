@@ -82,9 +82,9 @@ export function ClaimLifecycle({ transitDonations, onArrived }: Props) {
               </svg>
             </div>
             <div>
-              <h4 className="font-bold text-sm text-brand-dark">In Transit</h4>
+              <h4 className="font-bold text-sm text-brand-dark">Proses Penjemputan Mandiri</h4>
               <p className="text-xs text-[var(--text-secondary)] mb-2">
-                Courier: NutriShare Logistics Hub
+                Metode: Diambil langsung oleh perwakilan lembaga penerima
               </p>
               <div className="p-2 bg-brand-medium/5 rounded-lg border border-brand-medium/20 flex items-center gap-2">
                 <svg
@@ -107,7 +107,7 @@ export function ClaimLifecycle({ transitDonations, onArrived }: Props) {
                   />
                 </svg>
                 <span className="text-[10px] font-bold text-brand-medium uppercase">
-                  Live Tracking Enabled
+                  Peta Titik Penjemputan Aktif
                 </span>
               </div>
             </div>
