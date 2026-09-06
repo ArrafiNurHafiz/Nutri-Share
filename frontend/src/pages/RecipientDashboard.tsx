@@ -456,6 +456,7 @@ export function RecipientDashboard() {
             user={user}
             onClose={() => setTrackingData(null)}
             onComplete={loadData}
+            onRate={(d: any) => setSelectedReviewDonation(d)}
           />
         )}
         {showProfile && (

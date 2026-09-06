@@ -18,6 +18,7 @@ import {
   Navigation,
   ShieldCheck,
   Phone,
+  Star,
 } from "lucide-react";
 import "leaflet/dist/leaflet.css";
 import "../lib/mapIcons";
@@ -45,6 +46,7 @@ export function LiveTrackingModal({
   user,
   onClose,
   onComplete,
+  onRate,
 }: any) {
   const [data, setData] = useState<any>(donation);
   const [progress, setProgress] = useState(0);
@@ -460,7 +462,7 @@ export function LiveTrackingModal({
           )}
 
           {done && (
-            <div className="text-center py-2 space-y-1">
+            <div className="text-center py-2 space-y-2">
               <CheckCircle size={32} className="mx-auto text-[#2D7A4F]" />
               <h4 className="font-bold text-stone-900 text-sm">
                 Serah Terima Selesai!
@@ -468,6 +470,20 @@ export function LiveTrackingModal({
               <p className="text-xs text-stone-500">
                 Makanan telah berhasil diserahkan kepada pihak {data.recipient_name || "penerima"}.
               </p>
+              {!isDonor && onRate && (
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onClose();
+                      onRate(data);
+                    }}
+                    className="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs inline-flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
+                  >
+                    <Star size={14} className="fill-white" /> Beri Penilaian & Ulasan untuk Donatur
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
