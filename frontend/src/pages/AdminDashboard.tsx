@@ -69,7 +69,7 @@ type TabId = "overview" | "verifikasi" | "data" | "aktivitas";
 type SortKey = "name" | "type" | "total" | "status" | "urgency" | "emergency";
 type SortDir = "asc" | "desc";
 
-const AUTO_REFRESH_MS = 30000;
+const AUTO_REFRESH_MS = 5000;
 
 export function AdminDashboard() {
   const [users, setUsers] = useState<{ donors: any[]; recipients: any[] }>({
@@ -172,8 +172,14 @@ export function AdminDashboard() {
       loadData();
       if (event.event_type === "CLAIM_CREATED") {
         toast("Klaim donasi baru masuk!", { icon: "🔔" });
+      } else if (event.event_type === "CLAIM_APPROVED") {
+        toast("Klaim donasi disetujui!", { icon: "✅" });
       } else if (event.event_type === "DONATION_CREATED") {
         toast("Donasi baru telah dibuat!", { icon: "📦" });
+      } else if (event.event_type === "DELIVERY_ARRIVED") {
+        toast("Penerima tiba di lokasi donasi!", { icon: "📍" });
+      } else if (event.event_type === "HANDOVER_COMPLETED") {
+        toast("Distribusi donasi selesai!", { icon: "🤝" });
       } else if (event.event_type === "EMERGENCY_STATUS_UPDATED") {
         toast("Status darurat penerima diperbarui!", { icon: "🚨" });
       }

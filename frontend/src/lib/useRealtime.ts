@@ -14,13 +14,50 @@ const BASE_URL =
   "";
 
 // Multi-tab synchronization channel
+export const MULTITAB_CHANNEL_NAME = "nutrishare_realtime_channel";
+export const STORAGE_SYNC_KEY = "nutrishare_mutation_sync";
+
 let multiTabChannel: BroadcastChannel | null = null;
 try {
   if (typeof window !== "undefined" && "BroadcastChannel" in window) {
-    multiTabChannel = new BroadcastChannel("nutrishare_realtime_channel");
+    multiTabChannel = new BroadcastChannel(MULTITAB_CHANNEL_NAME);
   }
 } catch {
   multiTabChannel = null;
+}
+
+/**
+ * Broadcasts a local mutation across all open browser tabs/windows
+ * so other tabs immediately refresh their data without waiting for polling.
+ */
+export function broadcastMutation(eventType: string, data?: any) {
+  const payload: RealtimeEvent = {
+    event_id: `client-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+    event_type: eventType || "DATA_MUTATION",
+    timestamp: new Date().toISOString(),
+    data: data || {},
+  };
+
+  // 1. BroadcastChannel for instant cross-tab sync
+  try {
+    if (multiTabChannel) {
+      multiTabChannel.postMessage({
+        type: "NUTRIRTIME_EVENT",
+        payload,
+      });
+    }
+  } catch {
+    // ignore
+  }
+
+  // 2. LocalStorage event as a rock-solid cross-window/tab fallback
+  try {
+    if (typeof window !== "undefined" && window.localStorage) {
+      localStorage.setItem(STORAGE_SYNC_KEY, JSON.stringify(payload));
+    }
+  } catch {
+    // ignore
+  }
 }
 
 export function useRealtime(
@@ -28,7 +65,7 @@ export function useRealtime(
   role: string | undefined,
   onEvent: (event: RealtimeEvent) => void,
   fallbackPollFn?: () => void,
-  pollIntervalMs: number = 30000,
+  pollIntervalMs: number = 5000,
 ) {
   const onEventRef = useRef(onEvent);
   onEventRef.current = onEvent;
@@ -40,21 +77,40 @@ export function useRealtime(
   const reconnectTimeoutRef = useRef<any>(null);
   const reconnectAttempts = useRef<number>(0);
   const eventSourceRef = useRef<EventSource | null>(null);
+  const lastSyncTimeRef = useRef<number>(0);
 
-  const handleIncomingEvent = useCallback((event: RealtimeEvent) => {
-    if (!event || !event.event_id) return;
-    // Duplicate event protection
-    if (processedEventIds.current.has(event.event_id)) return;
-
-    processedEventIds.current.add(event.event_id);
-    if (processedEventIds.current.size > 200) {
-      const oldest = Array.from(processedEventIds.current).slice(0, 50);
-      oldest.forEach((id) => processedEventIds.current.delete(id));
+  // Throttled / debounced manual trigger to prevent concurrent burst requests
+  const triggerSync = useCallback(() => {
+    const now = Date.now();
+    if (now - lastSyncTimeRef.current < 800) {
+      return; // prevent spamming within 800ms
     }
-
-    onEventRef.current(event);
+    lastSyncTimeRef.current = now;
+    if (fallbackRef.current) {
+      fallbackRef.current();
+    }
   }, []);
 
+  const handleIncomingEvent = useCallback(
+    (event: RealtimeEvent) => {
+      if (!event || !event.event_id) return;
+      // Duplicate event protection
+      if (processedEventIds.current.has(event.event_id)) return;
+
+      processedEventIds.current.add(event.event_id);
+      if (processedEventIds.current.size > 200) {
+        const oldest = Array.from(processedEventIds.current).slice(0, 50);
+        oldest.forEach((id) => processedEventIds.current.delete(id));
+      }
+
+      // Always trigger data sync on incoming real-time events
+      triggerSync();
+      onEventRef.current(event);
+    },
+    [triggerSync],
+  );
+
+  // 1. Cross-tab synchronization via BroadcastChannel
   useEffect(() => {
     if (!multiTabChannel) return;
 
@@ -70,6 +126,57 @@ export function useRealtime(
     };
   }, [handleIncomingEvent]);
 
+  // 2. Cross-tab synchronization via localStorage storage event
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === STORAGE_SYNC_KEY && e.newValue) {
+        try {
+          const payload: RealtimeEvent = JSON.parse(e.newValue);
+          handleIncomingEvent(payload);
+        } catch {
+          // ignore parse errors
+        }
+      }
+    };
+
+    window.addEventListener("storage", handleStorage);
+    return () => {
+      window.removeEventListener("storage", handleStorage);
+    };
+  }, [handleIncomingEvent]);
+
+  // 3. Immediate revalidation on tab focus, visibility change, and online
+  useEffect(() => {
+    if (typeof window === "undefined" || !userId) return;
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        triggerSync();
+      }
+    };
+
+    const onFocus = () => {
+      triggerSync();
+    };
+
+    const onOnline = () => {
+      triggerSync();
+    };
+
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    window.addEventListener("focus", onFocus);
+    window.addEventListener("online", onOnline);
+
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      window.removeEventListener("focus", onFocus);
+      window.removeEventListener("online", onOnline);
+    };
+  }, [userId, triggerSync]);
+
+  // 4. SSE Stream + Adaptive Heartbeat Polling
   useEffect(() => {
     if (!userId) return;
 
@@ -88,10 +195,7 @@ export function useRealtime(
 
       es.onopen = () => {
         reconnectAttempts.current = 0;
-        // Trigger fresh sync on connection/reconnection
-        if (fallbackRef.current) {
-          fallbackRef.current();
-        }
+        triggerSync();
       };
 
       es.addEventListener("message", (e: MessageEvent) => {
@@ -99,7 +203,7 @@ export function useRealtime(
           const payload: RealtimeEvent = JSON.parse(e.data);
           handleIncomingEvent(payload);
 
-          // Broadcast to other browser tabs
+          // Broadcast to other tabs
           if (multiTabChannel) {
             multiTabChannel.postMessage({
               type: "NUTRIRTIME_EVENT",
@@ -123,10 +227,7 @@ export function useRealtime(
         );
         reconnectAttempts.current += 1;
 
-        // Run fallback sync immediately when disconnected
-        if (fallbackRef.current) {
-          fallbackRef.current();
-        }
+        triggerSync();
 
         reconnectTimeoutRef.current = setTimeout(() => {
           connectSSE();
@@ -136,14 +237,16 @@ export function useRealtime(
 
     connectSSE();
 
-    // Controlled background heartbeat fallback (e.g. every 30s)
-    if (fallbackRef.current) {
-      pollTimer = setInterval(() => {
-        if (fallbackRef.current) {
-          fallbackRef.current();
-        }
-      }, pollIntervalMs);
-    }
+    // Fast adaptive heartbeat polling:
+    // If tab is visible: run every pollIntervalMs (default 5000ms = 5s)
+    const runPoll = () => {
+      if (!isMounted) return;
+      if (document.visibilityState === "visible") {
+        triggerSync();
+      }
+    };
+
+    pollTimer = setInterval(runPoll, pollIntervalMs);
 
     return () => {
       isMounted = false;
@@ -158,5 +261,5 @@ export function useRealtime(
         eventSourceRef.current = null;
       }
     };
-  }, [userId, role, handleIncomingEvent, pollIntervalMs]);
+  }, [userId, role, handleIncomingEvent, triggerSync, pollIntervalMs]);
 }

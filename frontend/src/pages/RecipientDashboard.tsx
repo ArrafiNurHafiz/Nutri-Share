@@ -97,10 +97,12 @@ export function RecipientDashboard() {
         toast("Donasi baru tersedia!", { icon: "🍱" });
       } else if (event.event_type === "HANDOVER_COMPLETED") {
         toast.success("Donasi selesai diserahkan!", { icon: "🤝" });
+      } else if (event.event_type === "DELIVERY_ARRIVED") {
+        toast("Status kedatangan diperbarui!", { icon: "📍" });
       }
     },
     loadData,
-    30000,
+    5000,
   );
 
   if (authLoading || !user)

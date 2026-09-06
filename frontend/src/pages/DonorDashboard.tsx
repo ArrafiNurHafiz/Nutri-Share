@@ -115,14 +115,18 @@ export function DonorDashboard() {
       loadDonations();
       if (event.event_type === "CLAIM_APPROVED") {
         toast("Klaim donasi Anda telah diproses!", { icon: "✅" });
+      } else if (event.event_type === "CLAIM_CREATED") {
+        toast("Ada klaim baru untuk donasi Anda!", { icon: "🔔" });
       } else if (event.event_type === "DELIVERY_ARRIVED") {
         toast("Penerima telah tiba di lokasi!", { icon: "📍" });
+      } else if (event.event_type === "HANDOVER_COMPLETED") {
+        toast.success("Serah terima donasi telah selesai!", { icon: "🤝" });
       } else if (event.event_type === "REVIEW_CREATED") {
         toast("Ulasan baru diterima untuk donasi Anda!", { icon: "⭐" });
       }
     },
     loadDonations,
-    30000,
+    5000,
   );
 
   if (authLoading || !user) return null;
