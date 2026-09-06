@@ -1,6 +1,6 @@
-const CACHE_NAME = "nutrishare-v6";
-const STATIC_CACHE = "nutrishare-static-v6";
-const API_CACHE = "nutrishare-api-v6";
+const CACHE_NAME = "nutrishare-v7";
+const STATIC_CACHE = "nutrishare-static-v7";
+const API_CACHE = "nutrishare-api-v7";
 
 const STATIC_ASSETS = [
   "/",
@@ -34,7 +34,21 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
-// Fetch event - network first, fallback to cache
+// Listen for messages from clients (e.g. skipWaiting on update)
+self.addEventListener("message", (event) => {
+  if (event.data?.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
+  if (event.data?.type === "CLEAR_CACHE") {
+    event.waitUntil(
+      caches.keys().then((cacheNames) => {
+        return Promise.all(cacheNames.map((name) => caches.delete(name)));
+      }),
+    );
+  }
+});
+
+// Fetch event handler
 self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
@@ -44,16 +58,57 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // API requests - network first with cache fallback
-  if (url.pathname.startsWith("/api/")) {
+  // 1. Live streaming / Server-Sent Events (SSE) - NEVER intercept or cache
+  // SSE connections must pass through to browser native fetch directly
+  if (
+    url.pathname.startsWith("/api/events") ||
+    url.pathname.endsWith("/stream") ||
+    request.headers.get("accept")?.includes("text/event-stream")
+  ) {
+    return;
+  }
+
+  // 2. Navigation requests (HTML pages) - Network-first, fallback to cache for offline
+  // This ensures new deployments are immediately received without stale chunk errors
+  if (request.mode === "navigate") {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          // Clone the response before caching
-          const responseToCache = response.clone();
-          caches.open(API_CACHE).then((cache) => {
-            cache.put(request, responseToCache);
+          if (response && response.status === 200) {
+            const responseToCache = response.clone();
+            caches.open(STATIC_CACHE).then((cache) => {
+              cache.put(request, responseToCache).catch(() => {});
+              cache.put("/index.html", responseToCache.clone()).catch(() => {});
+            }).catch(() => {});
+          }
+          return response;
+        })
+        .catch(() => {
+          return caches.match("/index.html").then((cached) => {
+            return cached || caches.match("/");
           });
+        }),
+    );
+    return;
+  }
+
+  // 3. API requests - Network first with selective cache fallback for non-auth GET requests
+  if (url.pathname.startsWith("/api/")) {
+    // Never cache dynamic authentication endpoints
+    if (url.pathname.startsWith("/api/auth/")) {
+      return;
+    }
+
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          // Only cache standard 200 OK responses
+          if (response && response.status === 200) {
+            const responseToCache = response.clone();
+            caches.open(API_CACHE).then((cache) => {
+              cache.put(request, responseToCache).catch(() => {});
+            }).catch(() => {});
+          }
           return response;
         })
         .catch(() => {
@@ -63,16 +118,18 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Static assets - cache first, network fallback
+  // 4. Static assets (JS, CSS, images, fonts) - Cache first, network fallback
   event.respondWith(
     caches.match(request).then((cachedResponse) => {
       if (cachedResponse) {
-        // Return cached version and update in background
+        // Return cached version and update in background if online
         fetch(request)
           .then((response) => {
-            caches.open(STATIC_CACHE).then((cache) => {
-              cache.put(request, response);
-            });
+            if (response && response.status === 200) {
+              caches.open(STATIC_CACHE).then((cache) => {
+                cache.put(request, response).catch(() => {});
+              }).catch(() => {});
+            }
           })
           .catch(() => {
             /* ignore network errors */
@@ -82,17 +139,15 @@ self.addEventListener("fetch", (event) => {
 
       return fetch(request)
         .then((response) => {
-          const responseToCache = response.clone();
-          caches.open(STATIC_CACHE).then((cache) => {
-            cache.put(request, responseToCache);
-          });
+          if (response && response.status === 200) {
+            const responseToCache = response.clone();
+            caches.open(STATIC_CACHE).then((cache) => {
+              cache.put(request, responseToCache).catch(() => {});
+            }).catch(() => {});
+          }
           return response;
         })
         .catch(() => {
-          // Return offline fallback for navigation requests
-          if (request.mode === "navigate") {
-            return caches.match("/index.html");
-          }
           return new Response("Offline", { status: 503 });
         });
     }),
