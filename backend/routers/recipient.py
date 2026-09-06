@@ -23,14 +23,23 @@ router = APIRouter()
 async def get_akg(
     session: SessionDep,
     current_user: User = Depends(get_current_user),
+    user_id: int | None = Query(None),
 ):
     if not current_user:
         raise HTTPException(status_code=401, detail="Not logged in")
 
-    user_id = current_user.id
+    target_user_id = current_user.id
+    if current_user.role == "admin" and user_id:
+        target_user_id = user_id
+    elif current_user.role != "recipient" and not user_id:
+        # If admin or non-recipient calls without user_id, find first recipient profile for inspection
+        first_rp = await session.execute(select(RecipientProfile).limit(1))
+        rp_sample = first_rp.scalar_one_or_none()
+        if rp_sample:
+            target_user_id = rp_sample.user_id
 
     profile = await session.execute(
-        select(RecipientProfile).where(RecipientProfile.user_id == user_id)
+        select(RecipientProfile).where(RecipientProfile.user_id == target_user_id)
     )
     profile = profile.scalar_one_or_none()
     if not profile:
@@ -41,7 +50,7 @@ async def get_akg(
 
     result = await session.execute(
         select(Donation).where(
-            Donation.claimed_by == user_id,
+            Donation.claimed_by == target_user_id,
             Donation.status == "completed",
             Donation.completed_at >= today_start.isoformat(),
             Donation.completed_at <= today_end.isoformat(),

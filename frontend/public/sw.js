@@ -1,6 +1,6 @@
-const CACHE_NAME = "nutrishare-v7";
-const STATIC_CACHE = "nutrishare-static-v7";
-const API_CACHE = "nutrishare-api-v7";
+const CACHE_NAME = "nutrishare-v8";
+const STATIC_CACHE = "nutrishare-static-v8";
+const API_CACHE = "nutrishare-api-v8";
 
 const STATIC_ASSETS = [
   "/",
@@ -26,7 +26,14 @@ self.addEventListener("activate", (event) => {
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames
-          .filter((name) => name !== STATIC_CACHE && name !== API_CACHE)
+          .filter((name) => {
+            return (
+              name.startsWith("nutrishare-") &&
+              name !== CACHE_NAME &&
+              name !== STATIC_CACHE &&
+              name !== API_CACHE
+            );
+          })
           .map((name) => caches.delete(name)),
       );
     }),
@@ -55,6 +62,12 @@ self.addEventListener("fetch", (event) => {
 
   // Skip non-GET requests
   if (request.method !== "GET") {
+    return;
+  }
+
+  // Only intercept same-origin requests
+  // External resources (e.g. OpenStreetMap tiles, fonts, third-party CDNs) must be handled natively by browser
+  if (url.origin !== self.location.origin) {
     return;
   }
 

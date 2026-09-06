@@ -57,7 +57,7 @@ export function RecipientDashboard() {
   }, [authLoading, user]);
 
   const loadData = useCallback(async () => {
-    if (!user) return;
+    if (!user || user.role !== "recipient") return;
     try {
       const [data, notifs, mData, transit, history, akgData] =
         await Promise.all([
@@ -82,7 +82,7 @@ export function RecipientDashboard() {
   }, [user]);
 
   useEffect(() => {
-    if (user) loadData();
+    if (user && user.role === "recipient") loadData();
   }, [loadData, user]);
 
   // Real-time synchronization

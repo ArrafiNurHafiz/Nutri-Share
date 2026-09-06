@@ -264,9 +264,17 @@ async def list_active_donations(
 async def list_transit_donations(
     session: SessionDep,
     current_user: User = Depends(get_current_user),
+    user_id: int | None = Query(None),
+    role: str | None = Query(None),
 ):
     uid = current_user.id
     r = current_user.role
+
+    if current_user.role == "admin":
+        if user_id:
+            uid = user_id
+        if role:
+            r = role
 
     if r == "recipient":
         result = await session.execute(
@@ -275,10 +283,16 @@ async def list_transit_donations(
                 Donation.status == "claimed",
             )
         )
-    else:
+    elif r == "donor":
         result = await session.execute(
             select(Donation).where(
                 Donation.donor_id == uid,
+                Donation.status == "claimed",
+            )
+        )
+    else:
+        result = await session.execute(
+            select(Donation).where(
                 Donation.status == "claimed",
             )
         )
@@ -325,13 +339,18 @@ async def list_transit_donations(
 async def list_donation_history(
     session: SessionDep,
     current_user: User = Depends(get_current_user),
+    recipient_id: int | None = Query(None),
 ):
-    if current_user.role != "recipient":
+    if current_user.role not in ("recipient", "admin"):
         raise HTTPException(status_code=403, detail="Access denied")
+
+    target_id = current_user.id
+    if current_user.role == "admin" and recipient_id:
+        target_id = recipient_id
 
     result = await session.execute(
         select(Claim).where(
-            Claim.recipient_id == current_user.id,
+            Claim.recipient_id == target_id,
             Claim.status == "approved",
         )
     )
@@ -495,16 +514,17 @@ async def confirm_arrived(
     session: SessionDep,
     current_user: User = Depends(get_current_user),
 ):
-    if current_user.role != "recipient":
-        raise HTTPException(status_code=403, detail="Only recipients can confirm arrival")
+    if current_user.role not in ("recipient", "admin"):
+        raise HTTPException(status_code=403, detail="Only recipients or admin can confirm arrival")
 
-    d = await session.execute(
-        select(Donation).where(
-            Donation.id == donation_id,
-            Donation.status == "claimed",
-            Donation.claimed_by == current_user.id,
-        )
+    query = select(Donation).where(
+        Donation.id == donation_id,
+        Donation.status == "claimed",
     )
+    if current_user.role == "recipient":
+        query = query.where(Donation.claimed_by == current_user.id)
+
+    d = await session.execute(query)
     d = d.scalar_one_or_none()
     if not d:
         raise HTTPException(status_code=404, detail="Donation not found or status mismatch")
@@ -514,10 +534,11 @@ async def confirm_arrived(
     session.add(d)
 
     # Sync claim status to arrived
+    claim_recipient_id = d.claimed_by
     cl = await session.execute(
         select(Claim).where(
             Claim.donation_id == donation_id,
-            Claim.recipient_id == current_user.id,
+            Claim.recipient_id == claim_recipient_id,
             Claim.status.in_(["approved", "in_transit"]),
         )
     )
@@ -535,11 +556,11 @@ async def confirm_arrived(
         data={
             "donation_id": donation_id,
             "donor_id": d.donor_id,
-            "recipient_id": current_user.id,
+            "recipient_id": claim_recipient_id,
             "status": "arrived",
             "arrived_at": now,
         },
-        target_user_ids=[d.donor_id, current_user.id],
+        target_user_ids=[d.donor_id, claim_recipient_id] if claim_recipient_id else [d.donor_id],
         target_roles=["admin"],
     )
 
@@ -552,16 +573,17 @@ async def complete_donation(
     session: SessionDep,
     current_user: User = Depends(get_current_user),
 ):
-    if current_user.role != "donor":
+    if current_user.role not in ("donor", "admin"):
         raise HTTPException(status_code=403, detail="Access denied")
 
-    d = await session.execute(
-        select(Donation).where(
-            Donation.id == donation_id,
-            Donation.status == "claimed",
-            Donation.donor_id == current_user.id,
-        )
+    query = select(Donation).where(
+        Donation.id == donation_id,
+        Donation.status == "claimed",
     )
+    if current_user.role == "donor":
+        query = query.where(Donation.donor_id == current_user.id)
+
+    d = await session.execute(query)
     d = d.scalar_one_or_none()
     if not d:
         raise HTTPException(status_code=404, detail="Donation not found or status mismatch")
