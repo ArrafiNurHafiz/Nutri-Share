@@ -1,6 +1,6 @@
 import { motion } from "motion/react";
 import { FileText, Cpu, CheckCircle2, Truck } from "lucide-react";
-import { LeafIllustration, WaveConnector } from "./EcoVisuals";
+import { LeafIllustration, CurvedDoodleArrow } from "./EcoVisuals";
 
 const STEPS = [
   {
@@ -69,11 +69,12 @@ export function ProcessSection() {
             A transparent and data-driven process to make sure every nutritious food reaches the right people.
           </motion.p>
 
-          {/* Floating Handwritten Style Badge: Good Food Brighter Lives 💚 */}
-          <div className="hidden lg:block absolute -right-32 top-2 transform rotate-6 pointer-events-none">
-            <span className="font-heading font-extrabold text-sm text-[#059669] tracking-wide bg-white/80 px-4 py-1.5 rounded-full border border-[#A7F3D0] shadow-sm inline-flex items-center gap-1">
-              Good Food Brighter Lives <span className="text-[#10B981]">💚</span>
+          {/* Floating Handwritten Style Badge matching reference: Good Food Brighter Lives 💚 */}
+          <div className="hidden lg:flex flex-col items-center absolute -right-28 top-0 transform rotate-6 pointer-events-none">
+            <span className="font-heading font-extrabold text-sm text-[#059669] tracking-wide bg-transparent px-2 py-1 inline-flex items-center gap-1">
+              Good Food<br/>Brighter Lives <span className="text-[#10B981]">💚</span>
             </span>
+            <CurvedDoodleArrow className="mt-1 -mr-6" />
           </div>
         </div>
 
