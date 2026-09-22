@@ -24,9 +24,9 @@ import toast from "react-hot-toast";
 
 const PRESETS = [
   { id: "makanan_berat", label: "Nasi & Lauk", p: 26, c: 540, name: "Paket Nasi & Lauk Komplit" },
-  { id: "roti_kue", label: "Roti & Pastry", p: 8, c: 260, name: "Roti & Aneka Pastry" },
-  { id: "buah_sayur", label: "Buah & Sayur", p: 4, c: 110, name: "Sayur & Buah Segar" },
-  { id: "lauk_pauk", label: "Lauk Protein", p: 28, c: 340, name: "Olahan Ayam / Daging / Ikan" },
+  { id: "snack", label: "Roti & Pastry", p: 8, c: 260, name: "Roti & Aneka Pastry" },
+  { id: "sayur", label: "Buah & Sayur", p: 4, c: 110, name: "Sayur & Buah Segar" },
+  { id: "lauk_protein", label: "Lauk Protein", p: 28, c: 340, name: "Olahan Ayam / Daging / Ikan" },
 ];
 
 function cleanPhone(p?: string): string {

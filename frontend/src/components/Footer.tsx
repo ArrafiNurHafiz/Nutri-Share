@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
-import type { MouseEvent } from "react";
-import { LeafDeco, TuguJogjaIllustration } from "./sections/EcoVisuals";
-import { Instagram, Linkedin, Youtube, Heart, MapPin } from "lucide-react";
+import type { MouseEvent, SyntheticEvent } from "react";
+import { Instagram, Linkedin, Youtube } from "lucide-react";
+import { TuguJogjaIllustration } from "./sections/EcoVisuals";
 
 const NAV_LINKS = [
   { to: "/", label: "Home" },
@@ -35,66 +35,58 @@ export function Footer() {
   };
 
   return (
-    <footer className="relative bg-[#062319] text-white/80 overflow-hidden border-t border-[#0A3828]">
-      {/* Ambient background Leaf Deco */}
-      <LeafDeco className="absolute bottom-0 right-0 w-80 h-80 opacity-5 text-[#34D399]" />
-
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-12 pb-12 border-b border-white/10 items-start">
+    <footer className="relative bg-[#061F16] text-white/80 overflow-hidden border-t border-[#093527]">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-10 pb-10 border-b border-white/10 items-start">
           {/* Brand Info & Mission */}
-          <div className="lg:col-span-5 space-y-4">
-            <Link to="/" className="flex items-center gap-2">
+          <div className="lg:col-span-5 space-y-3.5">
+            <Link to="/" className="inline-flex items-center gap-2">
               <img
                 src="/images/logoterbaru.webp"
                 alt="NutriShare"
-                width={120}
-                height={44}
-                className="h-9 w-auto bg-white/10 p-1.5 rounded-xl backdrop-blur-md border border-white/20"
+                className="h-8 w-auto object-contain"
               />
-              <span className="text-xl font-extrabold tracking-tight font-heading text-white">
-                NutriShare
-              </span>
             </Link>
 
-            <p className="text-xs sm:text-sm text-white/70 leading-relaxed max-w-sm">
-              Food surplus distribution platform powered by <strong>Hybrid Entropy-TOPSIS</strong> for fair and targeted nutrition allocation in Yogyakarta.
+            <p className="text-xs text-white/70 leading-relaxed max-w-sm">
+              Food surplus distribution platform powered by <strong>Entropy-TOPSIS</strong> for fair and targeted allocation.
             </p>
 
             {/* Social Icons */}
-            <div className="flex items-center gap-3 pt-2">
+            <div className="flex items-center gap-2.5 pt-1">
               <a
                 href="https://instagram.com"
                 target="_blank"
                 rel="noreferrer"
-                className="w-8 h-8 rounded-full bg-white/10 hover:bg-[#10B981] text-white flex items-center justify-center transition-colors"
+                className="w-7 h-7 rounded-full bg-white/10 hover:bg-[#10B981] text-white flex items-center justify-center transition-colors"
                 aria-label="Instagram"
               >
-                <Instagram size={15} />
+                <Instagram size={13} />
               </a>
               <a
                 href="https://linkedin.com"
                 target="_blank"
                 rel="noreferrer"
-                className="w-8 h-8 rounded-full bg-white/10 hover:bg-[#10B981] text-white flex items-center justify-center transition-colors"
+                className="w-7 h-7 rounded-full bg-white/10 hover:bg-[#10B981] text-white flex items-center justify-center transition-colors"
                 aria-label="LinkedIn"
               >
-                <Linkedin size={15} />
+                <Linkedin size={13} />
               </a>
               <a
                 href="https://youtube.com"
                 target="_blank"
                 rel="noreferrer"
-                className="w-8 h-8 rounded-full bg-white/10 hover:bg-[#10B981] text-white flex items-center justify-center transition-colors"
+                className="w-7 h-7 rounded-full bg-white/10 hover:bg-[#10B981] text-white flex items-center justify-center transition-colors"
                 aria-label="YouTube"
               >
-                <Youtube size={15} />
+                <Youtube size={13} />
               </a>
             </div>
           </div>
 
           {/* Navigation Links */}
-          <div className="lg:col-span-2 space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-widest text-[#34D399] font-heading">
+          <div className="lg:col-span-2 space-y-2.5">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-white font-heading">
               Navigation
             </h4>
             <ul className="space-y-2 text-xs">
@@ -103,7 +95,7 @@ export function Footer() {
                   {link.to.includes("#") ? (
                     <a
                       href={link.to}
-                      onClick={(e) => handleAnchor(e, link.to)}
+                      onClick={(e: MouseEvent) => handleAnchor(e, link.to)}
                       className="text-white/70 hover:text-[#34D399] transition-colors cursor-pointer"
                     >
                       {link.label}
@@ -122,8 +114,8 @@ export function Footer() {
           </div>
 
           {/* Join CTA Links */}
-          <div className="lg:col-span-2 space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-widest text-[#34D399] font-heading">
+          <div className="lg:col-span-2 space-y-2.5">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-white font-heading">
               Join
             </h4>
             <ul className="space-y-2 text-xs">
@@ -140,27 +132,24 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Tugu Jogja Eco Badge Illustration */}
-          <div className="lg:col-span-3 bg-white/5 rounded-2xl p-4 border border-white/10 flex items-center gap-4">
-            <TuguJogjaIllustration className="shrink-0" />
-            <div className="space-y-1">
-              <span className="text-[10px] font-bold text-[#34D399] uppercase tracking-wider block">
-                Let's Build
-              </span>
-              <p className="text-xs font-bold text-white leading-snug">
-                a Zero Food Waste Future in DIY
+          {/* Tugu Jogja Vector Artwork */}
+          <div className="lg:col-span-3 flex items-center justify-end">
+            <div className="space-y-1 text-right">
+              <p className="text-[11px] font-semibold text-white/90 inline-flex items-center gap-1">
+                <span className="text-[#34D399]">🌱</span> Let's Build
               </p>
-              <p className="text-[10px] text-white/50">
-                Pangan Bergizi untuk Generasi Indonesia Emas.
+              <p className="text-[11px] font-normal text-white/60">
+                a Zero Food Waste Future
               </p>
+              <TuguJogjaIllustration className="ml-auto opacity-90 mt-1" />
             </div>
           </div>
         </div>
 
         {/* Bottom Copyright & Legal */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/50">
-          <p>&copy; {new Date().getFullYear()} NutriShare. All rights reserved.</p>
-          <div className="flex items-center gap-6">
+        <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-white/50">
+          <p>&copy; 2026 NutriShare. All rights reserved.</p>
+          <div className="flex items-center gap-5">
             <Link to="/support" className="hover:text-white transition-colors">Privacy Policy</Link>
             <Link to="/support" className="hover:text-white transition-colors">Terms of Service</Link>
             <Link to="/support" className="hover:text-white transition-colors">Contact</Link>

@@ -1,8 +1,10 @@
 // AI Nutrition Estimator Engine based on Indonesian Food Composition Database (TKPI Kemenkes RI)
 // Automatically estimates Calories, Protein, Iron, Vitamin C, and Shelf-Life (Hours Valid) from food title & description
 
+export type FoodType = "makanan_berat" | "sayur" | "lauk_protein" | "snack" | "minuman" | "lainnya";
+
 export interface NutritionEstimate {
-  food_type: "makanan_berat" | "roti_kue" | "buah_sayur" | "lauk_pauk" | "lainnya";
+  food_type: FoodType;
   protein_per_portion: number; // in grams
   calorie_per_portion: number; // in kcal
   iron_mg: number; // in mg
@@ -15,7 +17,7 @@ export interface NutritionEstimate {
 
 const NUTRITION_KNOWLEDGE_BASE: Array<{
   keywords: string[];
-  type: "makanan_berat" | "roti_kue" | "buah_sayur" | "lauk_pauk" | "lainnya";
+  type: FoodType;
   protein: number;
   calorie: number;
   iron: number;
@@ -54,10 +56,10 @@ const NUTRITION_KNOWLEDGE_BASE: Array<{
     hours: 6,
     tags: ["Energi Cepat", "Karbohidrat"],
   },
-  // Lauk Pauk & Olahan Daging / Ikan / Telur / Tahu Tempe
+  // Lauk Protein & Olahan Daging / Ikan / Telur / Tahu Tempe
   {
     keywords: ["ayam", "chicken", "ayam goreng", "ayam bakar", "ayam kecap", "nugget"],
-    type: "lauk_pauk",
+    type: "lauk_protein",
     protein: 28,
     calorie: 320,
     iron: 2.5,
@@ -67,7 +69,7 @@ const NUTRITION_KNOWLEDGE_BASE: Array<{
   },
   {
     keywords: ["ikan", "fish", "gurame", "lele", "nila", "salmon", "seafood", "udang", "tuna"],
-    type: "lauk_pauk",
+    type: "lauk_protein",
     protein: 24,
     calorie: 240,
     iron: 1.9,
@@ -77,7 +79,7 @@ const NUTRITION_KNOWLEDGE_BASE: Array<{
   },
   {
     keywords: ["telur", "egg", "dadar", "ceplok", "balado"],
-    type: "lauk_pauk",
+    type: "lauk_protein",
     protein: 14,
     calorie: 180,
     iron: 1.8,
@@ -87,7 +89,7 @@ const NUTRITION_KNOWLEDGE_BASE: Array<{
   },
   {
     keywords: ["tahu", "tempe", "tofu", "bacem", "tempe orek"],
-    type: "lauk_pauk",
+    type: "lauk_protein",
     protein: 18,
     calorie: 190,
     iron: 4.2,
@@ -95,10 +97,10 @@ const NUTRITION_KNOWLEDGE_BASE: Array<{
     hours: 10,
     tags: ["Protein Nabati", "Tinggi Zat Besi"],
   },
-  // Roti, Pastry & Kue
+  // Snack, Roti, Pastry & Kue
   {
-    keywords: ["roti", "bread", "pastry", "croissant", "donut", "donat", "cake", "bolu", "muffin"],
-    type: "roti_kue",
+    keywords: ["roti", "bread", "pastry", "croissant", "donut", "donat", "cake", "bolu", "muffin", "snack"],
+    type: "snack",
     protein: 7,
     calorie: 260,
     iron: 1.2,
@@ -109,7 +111,7 @@ const NUTRITION_KNOWLEDGE_BASE: Array<{
   // Buah & Sayur
   {
     keywords: ["buah", "fruit", "pisang", "apel", "semangka", "jeruk", "pepaya", "salad buah"],
-    type: "buah_sayur",
+    type: "sayur",
     protein: 2,
     calorie: 90,
     iron: 0.6,
@@ -119,13 +121,24 @@ const NUTRITION_KNOWLEDGE_BASE: Array<{
   },
   {
     keywords: ["sayur", "soup", "sop", "capcay", "tumis", "kangkung", "bayam", "salad sayur"],
-    type: "buah_sayur",
+    type: "sayur",
     protein: 5,
     calorie: 110,
     iron: 3.2,
     vitc: 28,
     hours: 5,
     tags: ["Tinggi Mikronutrien", "Antioksidan"],
+  },
+  // Minuman
+  {
+    keywords: ["susu", "milk", "jus", "juice", "minuman", "teh", "smoothie"],
+    type: "minuman",
+    protein: 6,
+    calorie: 140,
+    iron: 0.5,
+    vitc: 15,
+    hours: 8,
+    tags: ["Hidrasi Bergizi", "Kalsium"],
   },
 ];
 
@@ -150,11 +163,12 @@ export function estimateNutritionAI(foodName: string, notes: string = ""): Nutri
 
   // If no specific match, calculate dynamic baseline based on length & word hints
   if (highestScore === 0) {
-    const isSweet = query.includes("manis") || query.includes("kue") || query.includes("coklat");
-    const isMeat = query.includes("daging") || query.includes("sapi") || query.includes("kambing");
+    const isSweet = query.includes("manis") || query.includes("kue") || query.includes("coklat") || query.includes("snack");
+    const isMeat = query.includes("daging") || query.includes("sapi") || query.includes("kambing") || query.includes("ayam") || query.includes("ikan");
+    const isDrink = query.includes("minum") || query.includes("jus") || query.includes("susu");
 
     return {
-      food_type: isMeat ? "lauk_pauk" : isSweet ? "roti_kue" : "makanan_berat",
+      food_type: isMeat ? "lauk_protein" : isDrink ? "minuman" : isSweet ? "snack" : "makanan_berat",
       protein_per_portion: isMeat ? 22 : 10,
       calorie_per_portion: isSweet ? 320 : 380,
       iron_mg: 2.0,

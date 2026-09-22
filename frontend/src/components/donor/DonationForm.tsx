@@ -66,7 +66,7 @@ export function DonationForm(props: Props) {
       label: "Roti & Pastry Bakery",
       sub: "8g protein · 260 kcal",
       name: "Paket Roti & Aneka Pastry",
-      type: "roti_kue",
+      type: "snack",
       protein: "8",
       calorie: "260",
       iron: "1.2",
@@ -77,7 +77,7 @@ export function DonationForm(props: Props) {
       label: "Sayur & Sup Matang",
       sub: "6g protein · 110 kcal",
       name: "Sup Sehat & Sayuran Matang",
-      type: "buah_sayur",
+      type: "sayur",
       protein: "6",
       calorie: "110",
       iron: "3.2",
@@ -88,7 +88,7 @@ export function DonationForm(props: Props) {
       label: "Potongan Buah Segar",
       sub: "2g protein · 90 kcal",
       name: "Potongan Buah Segar",
-      type: "buah_sayur",
+      type: "sayur",
       protein: "2",
       calorie: "90",
       iron: "0.6",
@@ -99,7 +99,7 @@ export function DonationForm(props: Props) {
       label: "Lauk Protein Olahan",
       sub: "26g protein · 320 kcal",
       name: "Paket Lauk Ayam & Ikan Olahan",
-      type: "lauk_pauk",
+      type: "lauk_protein",
       protein: "26",
       calorie: "320",
       iron: "2.2",
@@ -169,17 +169,37 @@ export function DonationForm(props: Props) {
         {/* Step 1: Basic Food Info */}
         {formStep === 1 && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
-            <div>
-              <label className="text-xs font-bold text-stone-700 mb-1 block">
-                Nama Makanan Surplus <span className="text-red-500">*</span>
-              </label>
-              <input
-                placeholder="Contoh: 40 Paket Nasi Ayam Bakar & Tempe"
-                value={form.food_name}
-                onChange={(e) => onSetForm({ ...form, food_name: e.target.value })}
-                className="w-full border border-stone-200 p-3 rounded-xl bg-stone-50 focus:bg-white focus:ring-2 focus:ring-[#2D7A4F]/30 outline-none text-sm font-semibold transition-all"
-                required
-              />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-bold text-stone-700 mb-1 block">
+                  Nama Makanan Surplus <span className="text-red-500">*</span>
+                </label>
+                <input
+                  placeholder="Contoh: 40 Paket Nasi Ayam Bakar & Tempe"
+                  value={form.food_name}
+                  onChange={(e) => onSetForm({ ...form, food_name: e.target.value })}
+                  className="w-full border border-stone-200 p-2.5 rounded-xl bg-stone-50 focus:bg-white focus:ring-2 focus:ring-[#2D7A4F]/30 outline-none text-sm font-semibold transition-all"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-stone-700 mb-1 block">
+                  Kategori Makanan <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={form.food_type || "makanan_berat"}
+                  onChange={(e) => onSetForm({ ...form, food_type: e.target.value })}
+                  className="w-full border border-stone-200 p-2.5 rounded-xl bg-stone-50 focus:bg-white focus:ring-2 focus:ring-[#2D7A4F]/30 outline-none text-sm font-semibold transition-all cursor-pointer"
+                >
+                  <option value="makanan_berat">Makanan Berat (Nasi / Mie / Bento)</option>
+                  <option value="lauk_protein">Lauk Protein (Ayam / Daging / Ikan / Telur)</option>
+                  <option value="sayur">Sayur & Buah Segar</option>
+                  <option value="snack">Snack & Roti / Pastry</option>
+                  <option value="minuman">Minuman Sehat / Susu / Jus</option>
+                  <option value="lainnya">Lainnya</option>
+                </select>
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3">

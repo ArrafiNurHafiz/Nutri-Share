@@ -472,9 +472,10 @@ export function RecipientDashboard() {
                 {[
                   { id: "all", label: "Semua Kategori" },
                   { id: "makanan_berat", label: "Makanan Berat" },
-                  { id: "roti_kue", label: "Roti & Bakery" },
-                  { id: "buah_sayur", label: "Sayur & Buah" },
-                  { id: "lauk_pauk", label: "Lauk & Protein" },
+                  { id: "lauk_protein", label: "Lauk & Protein" },
+                  { id: "sayur", label: "Sayur & Buah" },
+                  { id: "snack", label: "Snack & Pastry" },
+                  { id: "minuman", label: "Minuman" },
                 ].map((c) => (
                   <button
                     key={c.id}
