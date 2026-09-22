@@ -313,19 +313,19 @@ test.describe("Recipient Dashboard", () => {
 test.describe("Full Business Flow", () => {
   test("admin can verify a pending donor", async ({ request }) => {
     const t = Date.now();
-    const testEmail = `e2everify_${t}@test.com`;
+    const testEmail = `mitra_resto_${t}@nutrishare.web.id`;
 
     // Register
     const r1 = await request.post(`${BASE}/api/auth/register/donor`, {
       data: {
-        business_name: "E2E Verify Cafe",
+        business_name: "Restoran Dapur Rasa Nusantara",
         email: testEmail,
-        password: "e2etest123",
-        business_type: "kafe",
-        address: "Jl. E2E Test",
-        latitude: "-7.8",
-        longitude: "110.37",
-        phone: "081111",
+        password: "password123",
+        business_type: "restoran",
+        address: "Jl. Gejayan No. 12, Sleman, Yogyakarta",
+        latitude: "-7.77",
+        longitude: "110.39",
+        phone: "081234567890",
       },
       headers: { "Content-Type": "application/json", Origin: ORIGIN },
     });
@@ -358,7 +358,7 @@ test.describe("Full Business Flow", () => {
     expect(vr.status()).toBe(200);
 
     // Login as verified donor
-    const donorCookie = await getCookieHeader(request, testEmail, "e2etest123");
+    const donorCookie = await getCookieHeader(request, testEmail, "password123");
     expect(donorCookie).toBeTruthy();
   });
 
@@ -373,14 +373,14 @@ test.describe("Full Business Flow", () => {
 
     const r = await request.post(`${BASE}/api/donations`, {
       data: {
-        food_name: `E2E Nasi Goreng ${Date.now()}`,
+        food_name: "Paket Nasi Kotak Rendang Spesial",
         food_type: "makanan_berat",
-        portion_count: 20,
-        protein_per_portion: 8,
-        calorie_per_portion: 350,
-        hours_valid: 24,
-        pickup_latitude: "-7.78",
-        pickup_longitude: "110.37",
+        portion_count: 30,
+        protein_per_portion: 22,
+        calorie_per_portion: 490,
+        hours_valid: 8,
+        pickup_latitude: "-7.600",
+        pickup_longitude: "110.400",
       },
       headers: postHeaders(c),
     });
