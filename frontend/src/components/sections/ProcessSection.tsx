@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { FileText, Cpu, Users, Truck } from "lucide-react";
+import { FileText, Cpu, Users, Truck, Heart } from "lucide-react";
 import { GlossyLeafDecor, CurvedDoodleArrow, StepConnector } from "./EcoVisuals";
 
 const STEPS = [
@@ -35,12 +35,12 @@ export function ProcessSection() {
       {/* Variant 2 (Tropical Duo) on Left */}
       <GlossyLeafDecor
         variant="tropical-duo"
-        className="hidden md:block absolute top-12 -left-6 z-10 w-28 h-28 opacity-90"
+        className="block absolute top-4 sm:top-8 md:top-12 left-2 sm:left-4 md:left-8 z-0 w-14 h-14 sm:w-20 sm:h-20 md:w-28 md:h-28 opacity-80 sm:opacity-90"
       />
       {/* Variant 3 (Sprig with Stem) on Right */}
       <GlossyLeafDecor
         variant="sprig-stem"
-        className="hidden md:block absolute top-48 -right-6 z-10 w-32 h-32 opacity-90 rotate-180"
+        className="block absolute top-20 sm:top-32 md:top-48 right-2 sm:right-4 md:right-8 z-0 w-14 h-14 sm:w-20 sm:h-20 md:w-28 md:h-28 opacity-80 sm:opacity-90"
       />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -76,10 +76,10 @@ export function ProcessSection() {
             A transparent and data-driven process to make sure every nutritious food reaches the right people.
           </motion.p>
 
-          {/* Floating Handwritten Style Badge: Good Food Brighter Lives 💚 */}
+          {/* Floating Handwritten Style Badge: Good Food Brighter Lives */}
           <div className="hidden lg:flex flex-col items-center absolute -right-20 top-2 transform rotate-6 pointer-events-none">
             <span className="font-handwriting font-bold text-2xl text-[#059669] tracking-wide inline-flex items-center gap-1 drop-shadow-sm leading-none">
-              Good Food<br />Brighter Lives <span className="text-[#10B981]">💚</span>
+              Good Food<br />Brighter Lives <Heart size={18} className="fill-[#10B981] text-[#10B981] inline ml-0.5" />
             </span>
             <CurvedDoodleArrow className="mt-1 -mr-4" />
           </div>

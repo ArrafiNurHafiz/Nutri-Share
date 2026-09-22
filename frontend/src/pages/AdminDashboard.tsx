@@ -156,15 +156,15 @@ export function AdminDashboard() {
     (event: RealtimeEvent) => {
       loadData();
       if (event.event_type === "CLAIM_CREATED") {
-        toast("Klaim donasi baru masuk!", { icon: "🔔" });
+        toast("Klaim donasi baru masuk!");
       } else if (event.event_type === "CLAIM_APPROVED") {
-        toast("Klaim donasi disetujui!", { icon: "✅" });
+        toast("Klaim donasi disetujui!");
       } else if (event.event_type === "DONATION_CREATED") {
-        toast("Donasi baru telah dibuat!", { icon: "📦" });
+        toast("Donasi baru telah dibuat!");
       } else if (event.event_type === "DELIVERY_ARRIVED") {
-        toast.success("Kurir telah tiba di lokasi!", { icon: "📍" });
+        toast.success("Kurir telah tiba di lokasi!");
       } else if (event.event_type === "HANDOVER_COMPLETED") {
-        toast.success("Serah terima donasi selesai!", { icon: "🤝" });
+        toast.success("Serah terima donasi selesai!");
       }
     },
     loadData,

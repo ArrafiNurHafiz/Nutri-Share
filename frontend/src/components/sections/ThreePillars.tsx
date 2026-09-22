@@ -54,12 +54,12 @@ export function ThreePillars() {
       {/* Variant 4 (Single Gloss Blade) on Right */}
       <GlossyLeafDecor
         variant="single-gloss"
-        className="hidden md:block absolute top-1/2 -right-8 w-32 h-32 opacity-90 -translate-y-1/2"
+        className="block absolute top-6 sm:top-12 md:top-1/2 right-2 sm:right-4 md:right-6 w-14 h-14 sm:w-20 sm:h-20 md:w-28 md:h-28 opacity-80 sm:opacity-90 md:-translate-y-1/2 z-0"
       />
       {/* Variant 5 (Fanned Trio) on Bottom Left */}
       <GlossyLeafDecor
         variant="fanned-trio"
-        className="hidden md:block absolute -bottom-8 -left-8 w-32 h-32 opacity-90 rotate-45"
+        className="block absolute bottom-4 sm:bottom-6 md:bottom-8 left-2 sm:left-4 md:left-8 w-14 h-14 sm:w-20 sm:h-20 md:w-28 md:h-28 opacity-80 sm:opacity-90 z-0"
       />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

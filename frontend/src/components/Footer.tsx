@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import type { MouseEvent, SyntheticEvent } from "react";
-import { Instagram, Linkedin, Youtube } from "lucide-react";
+import { Instagram, Linkedin, Youtube, Sprout } from "lucide-react";
 import { TuguJogjaIllustration } from "./sections/EcoVisuals";
 
 const NAV_LINKS = [
@@ -135,8 +135,8 @@ export function Footer() {
           {/* Tugu Jogja Vector Artwork */}
           <div className="lg:col-span-3 flex items-center justify-end">
             <div className="space-y-1 text-right">
-              <p className="text-[11px] font-semibold text-white/90 inline-flex items-center gap-1">
-                <span className="text-[#34D399]">🌱</span> Let's Build
+              <p className="text-[11px] font-semibold text-white/90 inline-flex items-center gap-1.5">
+                <Sprout size={13} className="text-[#34D399]" /> Let's Build
               </p>
               <p className="text-[11px] font-normal text-white/60">
                 a Zero Food Waste Future

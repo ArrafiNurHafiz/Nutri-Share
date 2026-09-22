@@ -128,8 +128,7 @@ export function DonationForm(props: Props) {
     setAiConfidence(estimate.confidence_score);
     setKeyNutrients(estimate.key_nutrients);
     toast.success(
-      `✨ AI Menghitung: ${estimate.protein_per_portion}g protein, ${estimate.calorie_per_portion} kkal per porsi!`,
-      { icon: "🤖" },
+      `Estimasi Nutrisi AI: ${estimate.protein_per_portion}g protein, ${estimate.calorie_per_portion} kkal per porsi!`,
     );
   };
 

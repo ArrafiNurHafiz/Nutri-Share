@@ -48,27 +48,27 @@ def generate_match_reasons(raw_c1: float, raw_c2: float, raw_c3: float, raw_c4: 
     """Generate human-readable matching justification for recipients & donors."""
     reasons = []
     if raw_c2 >= 1000:
-        reasons.append("🚨 Prioritas Darurat Aktif (Emergency Boost)")
+        reasons.append("Prioritas Darurat Aktif (Emergency Boost)")
     elif raw_c2 >= 8:
-        reasons.append("⚡ Tingkat urgensi kebutuhan sangat tinggi")
+        reasons.append("Tingkat urgensi kebutuhan sangat tinggi")
 
     if raw_c4 <= 3.0:
-        reasons.append(f"📍 Sangat dekat ({raw_c4:.1f} km) - distribusi kilat")
+        reasons.append(f"Sangat dekat ({raw_c4:.1f} km) - distribusi kilat")
     elif raw_c4 <= 7.0:
-        reasons.append(f"📍 Jarak terjangkau ({raw_c4:.1f} km)")
+        reasons.append(f"Jarak terjangkau ({raw_c4:.1f} km)")
 
     if raw_c1 >= 70:
-        reasons.append(f"🥩 Memenuhi {raw_c1:.0f}% kebutuhan protein harian")
+        reasons.append(f"Memenuhi {raw_c1:.0f}% kebutuhan protein harian")
     elif raw_c1 >= 40:
-        reasons.append(f"🥗 Menyuplai {raw_c1:.0f}% kebutuhan protein")
+        reasons.append(f"Menyuplai {raw_c1:.0f}% kebutuhan protein")
 
     if raw_c5 >= 14:
-        reasons.append(f"⚖️ Pemerataan: Belum menerima donasi {int(raw_c5)} hari")
+        reasons.append(f"Pemerataan: Belum menerima donasi {int(raw_c5)} hari")
     elif raw_c5 >= 7:
-        reasons.append(f"⚖️ Pemerataan: {int(raw_c5)} hari sejak donasi terakhir")
+        reasons.append(f"Pemerataan: {int(raw_c5)} hari sejak donasi terakhir")
 
     if not reasons:
-        reasons.append("✨ Skor kesesuaian logistik & nutrisi optimal")
+        reasons.append("Skor kesesuaian logistik & nutrisi optimal")
 
     return reasons
 
@@ -158,7 +158,10 @@ async def _compute_rankings(session, donation_id, donation, recipients):
 
     for i, rp in enumerate(recipients):
         recipient_ids.append(rp.user_id)
-        c1 = min(100, (total_protein / rp.daily_protein_need) * 100) if rp.daily_protein_need > 0 else 0
+        rp_residents = max(1, getattr(rp, "resident_count", 1) or 1)
+        raw_p_need = rp.daily_protein_need or 50.0
+        prot_target = (raw_p_need * rp_residents) if (raw_p_need < 200 and rp_residents > 1) else raw_p_need
+        c1 = min(100, (total_protein / prot_target) * 100) if prot_target > 0 else 0
         c2 = rp.urgency_score * 1000 if rp.emergency == "active" else rp.urgency_score
         c3 = max((valid_until_ts - now_ts) / HOUR_MS, 0.1)
         c4 = _haversine_km(donation.pickup_latitude, donation.pickup_longitude, rp.latitude, rp.longitude)

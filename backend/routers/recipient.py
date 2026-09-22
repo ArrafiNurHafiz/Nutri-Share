@@ -4,7 +4,7 @@ Mirrors server/routes.ts lines 348-386.
 """
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlmodel import select
@@ -45,18 +45,27 @@ async def get_akg(
     if not profile:
         raise HTTPException(status_code=404, detail="Profile not found")
 
-    today_start = datetime.now(UTC).replace(hour=0, minute=0, second=0, microsecond=0)
-    today_end = today_start.replace(hour=23, minute=59, second=59, microsecond=999999)
+    # Gunakan tanggal hari ini dalam zona waktu lokal Indonesia WIB (UTC+7)
+    now_wib = datetime.now(UTC) + timedelta(hours=7)
+    today_str = now_wib.strftime("%Y-%m-%d")
 
+    # Ambil semua donasi completed milik recipient
     result = await session.execute(
         select(Donation).where(
             Donation.claimed_by == target_user_id,
             Donation.status == "completed",
-            Donation.completed_at >= today_start.isoformat(),
-            Donation.completed_at <= today_end.isoformat(),
         )
     )
-    today_dons = result.scalars().all()
+    all_completed = result.scalars().all()
+
+    # Filter donasi yang diserahterimakan (completed) HARI INI
+    today_dons = []
+    for d in all_completed:
+        if d.completed_at:
+            # Format ISO datetime bisa YYYY-MM-DD...
+            comp_date = d.completed_at[:10]
+            if comp_date == today_str:
+                today_dons.append(d)
 
     totals = {"protein": 0.0, "calories": 0.0, "iron": 0.0, "vitamin_c": 0.0}
     donation_details = []
@@ -76,18 +85,31 @@ async def get_akg(
             "id": d.id,
             "food_name": d.food_name,
             "portion_count": d.portion_count,
-            "protein_total": prot,
-            "calorie_total": cal,
-            "iron_total": fe,
-            "vitamin_c_total": vitc,
+            "protein_total": round(prot, 1),
+            "calorie_total": round(cal, 1),
+            "iron_total": round(fe, 1),
+            "vitamin_c_total": round(vitc, 1),
             "completed_at": d.completed_at,
         })
 
+    # Hitung total kebutuhan panti (seluruh warga binaan)
+    residents = max(1, profile.resident_count or 1)
+    raw_prot = profile.daily_protein_need or 50.0
+    raw_cal = profile.daily_calorie_need or 2000.0
+    raw_fe = profile.daily_iron_need or 12.0
+    raw_vitc = profile.daily_vitamin_c_need or 60.0
+
+    # Jika nilai yang tersimpan adalah per kapita / per individu, kalikan dengan jumlah warga binaan
+    total_prot = raw_prot * residents if (raw_prot < 200 and residents > 1) else raw_prot
+    total_cal = raw_cal * residents if (raw_cal < 5000 and residents > 1) else raw_cal
+    total_fe = raw_fe * residents if (raw_fe < 50 and residents > 1) else raw_fe
+    total_vitc = raw_vitc * residents if (raw_vitc < 200 and residents > 1) else raw_vitc
+
     needs = {
-        "protein": profile.daily_protein_need,
-        "calories": profile.daily_calorie_need,
-        "iron": profile.daily_iron_need,
-        "vitamin_c": profile.daily_vitamin_c_need,
+        "protein": round(total_prot, 1),
+        "calories": round(total_cal, 1),
+        "iron": round(total_fe, 1),
+        "vitamin_c": round(total_vitc, 1),
     }
 
     def _pct(val: float, need: float) -> int:
@@ -104,13 +126,15 @@ async def get_akg(
     overall = round((pct["protein"] + pct["calories"] + pct["iron"] + pct["vitamin_c"]) / 4)
 
     return {
-        "date": today_start.isoformat()[:10],
+        "date": today_str,
+        "resident_count": residents,
         "daily_needs": needs,
         "today_intake": totals,
         "percentages": pct,
         "overall_percentage": overall,
         "donations_today": donation_details,
     }
+
 
 
 @router.post("/recipient/emergency", dependencies=[Depends(rate_limit_dependency(5, 60))])

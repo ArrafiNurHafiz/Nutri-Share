@@ -79,11 +79,11 @@ export function Testimonials() {
       {/* Botanical 3D Leaf Accents - Unique Variants */}
       <GlossyLeafDecor
         variant="sprig-stem"
-        className="hidden md:block absolute top-1/2 -right-8 w-28 h-28 opacity-90 -translate-y-1/2"
+        className="block absolute top-6 sm:top-12 md:top-1/2 right-2 sm:right-4 md:right-8 w-14 h-14 sm:w-20 sm:h-20 md:w-28 md:h-28 opacity-80 sm:opacity-90 md:-translate-y-1/2 z-0"
       />
       <GlossyLeafDecor
         variant="hero-cluster"
-        className="hidden md:block absolute -bottom-6 -left-6 w-28 h-28 opacity-90 rotate-45"
+        className="block absolute bottom-4 sm:bottom-6 md:bottom-8 left-2 sm:left-4 md:left-8 w-14 h-14 sm:w-20 sm:h-20 md:w-28 md:h-28 opacity-80 sm:opacity-90 z-0"
       />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

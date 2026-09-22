@@ -2,7 +2,6 @@ import { useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Leaf, Users, Utensils } from "lucide-react";
 import { motion } from "motion/react";
-import { GlossyLeafDecor } from "./EcoVisuals";
 
 /* ─── Smooth Counter Component ─── */
 function Counter({ target, suffix = "" }: { target: number; suffix?: string }) {
@@ -98,9 +97,6 @@ export function HeroSection({ stats }: { stats?: any }) {
         <div className="absolute inset-0 bg-gradient-to-r from-[#04160F] via-[#061F16]/90 to-transparent w-full lg:w-3/5" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#061F16] via-transparent to-black/30" />
       </div>
-
-      {/* Floating 3D Leaf Top Right - Hero Cluster Variant */}
-      <GlossyLeafDecor variant="hero-cluster" className="hidden lg:block absolute -right-6 top-52 z-20 w-36 h-36" />
 
       {/* Hero Content */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-auto py-8 w-full">

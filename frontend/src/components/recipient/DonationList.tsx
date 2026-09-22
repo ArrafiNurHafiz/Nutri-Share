@@ -21,9 +21,12 @@ function Countdown({ validUntil }: { validUntil: string }) {
   }, [validUntil]);
   return (
     <span
-      className={`font-mono text-xs font-bold ${timeLeft === "Expired" ? "text-danger" : "text-[var(--text-tertiary)]"}`}
+      className={`font-mono text-xs font-bold inline-flex items-center gap-1 ${
+        timeLeft === "Expired" ? "text-danger" : "text-[var(--text-tertiary)]"
+      }`}
     >
-      {timeLeft === "Expired" ? "⏰ Expired" : `⏱ ${timeLeft}`}
+      <Clock size={12} className="shrink-0" />
+      <span>{timeLeft === "Expired" ? "Expired" : timeLeft}</span>
     </span>
   );
 }

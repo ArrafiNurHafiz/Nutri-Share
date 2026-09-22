@@ -427,7 +427,7 @@ export function Support() {
                             : "bg-stone-50 text-stone-600 border-stone-200 hover:bg-stone-100"
                         }`}
                       >
-                        Darurat ⚡
+                        Darurat (Tinggi)
                       </button>
                     </div>
                   </div>

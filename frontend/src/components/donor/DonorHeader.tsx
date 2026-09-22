@@ -1,4 +1,4 @@
-import { Bell, User, LogOut, Plus, Menu } from "lucide-react";
+import { Bell, User, LogOut, Plus, Menu, Star } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { motion, AnimatePresence } from "motion/react";
 import { useState } from "react";
@@ -39,7 +39,7 @@ export function DonorHeader({
             <Menu size={24} />
           </button>
           <h1 className="text-xl md:text-2xl font-black text-brand-dark tracking-tight">
-            Good Morning, {profile?.business_name || user?.name || "Donor"} 👋
+            Good Morning, {profile?.business_name || user?.name || "Donor"}
           </h1>
           <span className="bg-primary-orange/10 text-primary-orange text-[11px] font-extrabold px-2.5 py-0.5 rounded-full border border-primary-orange/20">
             {profile?.business_type || "Pro Donor"}
@@ -53,7 +53,10 @@ export function DonorHeader({
           <span>&middot;</span>
           <span>Real-time logistics synchronization active</span>
           <span>&middot;</span>
-          <span className="text-amber-600 font-bold">★ {avgRating}</span>
+          <span className="text-amber-600 font-bold inline-flex items-center gap-1">
+            <Star size={12} className="fill-current text-amber-500" />
+            {avgRating}
+          </span>
         </div>
       </div>
       <div className="flex items-center gap-2.5 flex-wrap">

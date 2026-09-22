@@ -32,7 +32,7 @@ export function ReviewModal({ donation, onClose, onReviewed }: any) {
           comment,
         }),
       });
-      toast.success("Terima kasih atas ulasan dan apresiasi Anda! ⭐");
+      toast.success("Terima kasih atas ulasan dan apresiasi Anda!");
       onReviewed?.();
       onClose?.();
     } catch (err: any) {

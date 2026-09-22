@@ -126,8 +126,9 @@ export function TransitSection({ transitDonations, onArrived, onTrack }: Props) 
               </div>
 
               {d.donor_address && (
-                <p className="text-[11px] text-stone-500 line-clamp-1">
-                  📍 {d.donor_address}
+                <p className="text-[11px] text-stone-500 line-clamp-1 flex items-center gap-1">
+                  <MapPin size={11} className="shrink-0 text-stone-400" />
+                  <span>{d.donor_address}</span>
                 </p>
               )}
 

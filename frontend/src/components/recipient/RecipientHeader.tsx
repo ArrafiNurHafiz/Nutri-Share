@@ -7,6 +7,7 @@ import {
   LogOut,
   X,
   Menu,
+  Clock,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { NotificationDropdown } from "./NotificationDropdown";
@@ -52,17 +53,16 @@ export function RecipientHeader({
             <Menu size={24} />
           </button>
           <h1 className="text-xl md:text-2xl font-black text-brand-dark tracking-tight">
-            Good Morning, {profile?.institution_name || user?.name || "Partner"}{" "}
-            👋
+            Good Morning, {profile?.institution_name || user?.name || "Partner"}
           </h1>
           {emergency === "active" && (
-            <span className="bg-danger text-white text-[11px] font-extrabold px-2.5 py-0.5 rounded-full animate-pulse shadow-sm">
-              🚨 EMERGENCY ACTIVE
+            <span className="bg-danger text-white text-[11px] font-extrabold px-2.5 py-0.5 rounded-full animate-pulse shadow-sm inline-flex items-center gap-1">
+              <AlertTriangle size={11} className="shrink-0" /> EMERGENCY ACTIVE
             </span>
           )}
           {emergency === "pending" && (
-            <span className="bg-accent text-white text-[11px] font-extrabold px-2.5 py-0.5 rounded-full">
-              ⏳ PENDING VERIFICATION
+            <span className="bg-accent text-white text-[11px] font-extrabold px-2.5 py-0.5 rounded-full inline-flex items-center gap-1">
+              <Clock size={11} className="shrink-0" /> PENDING VERIFICATION
             </span>
           )}
         </div>

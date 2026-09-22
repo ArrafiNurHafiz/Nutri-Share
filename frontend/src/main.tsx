@@ -9,6 +9,35 @@ import { AnimatePresence, motion } from "motion/react";
 import InstallPrompt from "./components/InstallPrompt";
 import "./index.css";
 
+import {
+  Chart as ChartJS,
+  RadialLinearScale,
+  PointElement,
+  LineElement,
+  Filler,
+  Tooltip,
+  Legend,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  ArcElement,
+  Title,
+} from "chart.js";
+
+ChartJS.register(
+  RadialLinearScale,
+  PointElement,
+  LineElement,
+  Filler,
+  Tooltip,
+  Legend,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  ArcElement,
+  Title,
+);
+
 // Handle Vite dynamic import chunk loading errors (e.g. after a new deployment)
 window.addEventListener("vite:preloadError", (event) => {
   event.preventDefault();

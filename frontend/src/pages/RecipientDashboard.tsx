@@ -94,11 +94,11 @@ export function RecipientDashboard() {
     (event: RealtimeEvent) => {
       loadData();
       if (event.event_type === "CLAIM_APPROVED") {
-        toast.success("Klaim donasi makanan Anda berhasil disetujui!", { icon: "🎉" });
+        toast.success("Klaim donasi makanan Anda berhasil disetujui!");
       } else if (event.event_type === "DONATION_CREATED") {
-        toast("Ada donasi surplus baru tersedia!", { icon: "🍱" });
+        toast("Ada donasi surplus baru tersedia!");
       } else if (event.event_type === "HANDOVER_COMPLETED") {
-        toast.success("Serah terima donasi selesai!", { icon: "🤝" });
+        toast.success("Serah terima donasi selesai!");
       }
     },
     loadData,
@@ -115,7 +115,7 @@ export function RecipientDashboard() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ recipient_id: user.id }),
       });
-      toast.success("Donasi berhasil diklaim! Silakan koordinasi penjemputan.", { icon: "✅" });
+      toast.success("Donasi berhasil diklaim! Silakan koordinasi penjemputan.");
       loadData();
       setActiveTab("active");
     } catch (err: any) {
@@ -167,12 +167,20 @@ export function RecipientDashboard() {
   const completedList = historyData.filter((d) => d.status === "completed");
 
   const todayCalories = Math.round(akg?.today_intake?.calories || 0);
-  const targetCalories = Math.round(akg?.daily_needs?.calories || profile?.daily_calorie_need || 0);
+  const targetCalories = Math.round(akg?.daily_needs?.calories || profile?.daily_calorie_need || (profile?.resident_count ? profile.resident_count * 1900 : 66500));
   const caloriePct = targetCalories > 0 ? Math.min(100, Math.round((todayCalories / targetCalories) * 100)) : 0;
 
   const todayProtein = Math.round(akg?.today_intake?.protein || 0);
-  const targetProtein = Math.round(akg?.daily_needs?.protein || profile?.daily_protein_need || 0);
+  const targetProtein = Math.round(akg?.daily_needs?.protein || profile?.daily_protein_need || (profile?.resident_count ? profile.resident_count * 45 : 1575));
   const proteinPct = targetProtein > 0 ? Math.min(100, Math.round((todayProtein / targetProtein) * 100)) : 0;
+
+  const todayIron = Number((akg?.today_intake?.iron || 0).toFixed(1));
+  const targetIron = Math.round(akg?.daily_needs?.iron || (profile?.resident_count ? profile.resident_count * 10 : 350));
+  const ironPct = targetIron > 0 ? Math.min(100, Math.round((todayIron / targetIron) * 100)) : 0;
+
+  const todayVitC = Number((akg?.today_intake?.vitamin_c || 0).toFixed(1));
+  const targetVitC = Math.round(akg?.daily_needs?.vitamin_c || (profile?.resident_count ? profile.resident_count * 50 : 1750));
+  const vitCPct = targetVitC > 0 ? Math.min(100, Math.round((todayVitC / targetVitC) * 100)) : 0;
 
   if (loading) {
     return (
@@ -280,7 +288,7 @@ export function RecipientDashboard() {
                 {profile?.institution_name || user.name}
               </h1>
               <p className="text-xs sm:text-sm text-white/80 leading-relaxed">
-                Prioritas alokasi pangan surplus bernutrisi berbasis algoritma Hybrid Entropy-TOPSIS. Pantau asupan gizi harian dan ajukan klaim donasi.
+                Prioritas alokasi pangan surplus bernutrisi berbasis algoritma Hybrid Entropy-TOPSIS. Pantau asupan gizi harian dan ajukan klaim donasi secara transparan.
               </p>
             </div>
 
@@ -296,7 +304,7 @@ export function RecipientDashboard() {
           </div>
         </section>
 
-        {/* AKG Nutrition Progress Card */}
+        {/* AKG Nutrition 4-Pillar Progress Card */}
         <section className="bg-white rounded-2xl border border-[#E2E8F0] p-6 shadow-xs space-y-5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="space-y-1">
@@ -304,54 +312,99 @@ export function RecipientDashboard() {
                 <span className="text-[11px] font-bold uppercase tracking-wider text-[#2D7A4F] bg-[#ECFDF5] px-2.5 py-0.5 rounded border border-[#A7F3D0]">
                   Target Gizi Harian Kemenkes RI
                 </span>
-                <span className="text-xs text-[#64748B]">({profile?.resident_count ?? 0} Warga Binaan)</span>
+                <span className="text-xs text-[#64748B]">
+                  ({akg?.resident_count || profile?.resident_count || 35} Warga Binaan)
+                </span>
               </div>
               <h2 className="text-lg sm:text-xl font-bold text-[#0F172A]">
-                Pemenuhan Angka Kecukupan Gizi (AKG)
+                Pemenuhan Angka Kecukupan Gizi (AKG) Hari Ini
               </h2>
+              <p className="text-[11px] text-[#64748B]">
+                Reset otomatis setiap 00:00 WIB • Murni menghitung makanan yang diserahterimakan pada hari berjalan.
+              </p>
             </div>
 
-            <div className="flex items-center gap-4 text-xs font-semibold">
-              <div className="px-3 py-2 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl">
-                <span className="text-[#64748B] block text-[10px] uppercase">Energi Kalori</span>
-                <span className="font-bold text-[#0F172A]">{todayCalories} / {targetCalories} kkal ({caloriePct}%)</span>
-              </div>
-              <div className="px-3 py-2 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl">
-                <span className="text-[#64748B] block text-[10px] uppercase">Protein Masuk</span>
-                <span className="font-bold text-[#0F172A]">{todayProtein}g / {targetProtein}g ({proteinPct}%)</span>
-              </div>
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] font-bold text-[#047857] bg-[#ECFDF5] border border-[#A7F3D0] px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+                <ShieldCheck size={14} className="text-[#059669]" />
+                Target Kumulatif Lembaga
+              </span>
             </div>
           </div>
 
-          {/* Progress Bars */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
-            <div className="space-y-1.5">
-              <div className="flex justify-between text-xs font-semibold text-[#475569]">
+          {/* 4 Nutrient Progress Bars */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 pt-1">
+            <div className="p-3.5 bg-[#F8FAF8] rounded-xl border border-[#E2E8F0] space-y-2">
+              <div className="flex justify-between items-center text-xs font-semibold text-[#475569]">
                 <span>Energi Kalori</span>
-                <span>{caloriePct}%</span>
+                <span className="font-bold text-[#0F172A]">{caloriePct}%</span>
               </div>
-              <div className="w-full bg-[#F1F5F9] h-2.5 rounded-full overflow-hidden">
+              <div className="w-full bg-[#E2E8F0] h-2 rounded-full overflow-hidden">
                 <div
-                  className="bg-[#2D7A4F] h-full rounded-full transition-all duration-500"
+                  className="bg-[#D97706] h-full rounded-full transition-all duration-500"
                   style={{ width: `${caloriePct}%` }}
                 />
               </div>
+              <div className="text-[10px] text-[#64748B] flex justify-between font-mono">
+                <span>Masuk: {todayCalories.toLocaleString("id-ID")} kkal</span>
+                <span>Target: {targetCalories.toLocaleString("id-ID")}</span>
+              </div>
             </div>
 
-            <div className="space-y-1.5">
-              <div className="flex justify-between text-xs font-semibold text-[#475569]">
-                <span>Protein</span>
-                <span>{proteinPct}%</span>
+            <div className="p-3.5 bg-[#F8FAF8] rounded-xl border border-[#E2E8F0] space-y-2">
+              <div className="flex justify-between items-center text-xs font-semibold text-[#475569]">
+                <span>Protein (C1)</span>
+                <span className="font-bold text-[#047857]">{proteinPct}%</span>
               </div>
-              <div className="w-full bg-[#F1F5F9] h-2.5 rounded-full overflow-hidden">
+              <div className="w-full bg-[#E2E8F0] h-2 rounded-full overflow-hidden">
                 <div
-                  className="bg-[#2563EB] h-full rounded-full transition-all duration-500"
+                  className="bg-[#10B981] h-full rounded-full transition-all duration-500"
                   style={{ width: `${proteinPct}%` }}
                 />
+              </div>
+              <div className="text-[10px] text-[#64748B] flex justify-between font-mono">
+                <span>Masuk: {todayProtein.toLocaleString("id-ID")}g</span>
+                <span>Target: {targetProtein.toLocaleString("id-ID")}g</span>
+              </div>
+            </div>
+
+            <div className="p-3.5 bg-[#F8FAF8] rounded-xl border border-[#E2E8F0] space-y-2">
+              <div className="flex justify-between items-center text-xs font-semibold text-[#475569]">
+                <span>Zat Besi (Fe)</span>
+                <span className="font-bold text-[#0284C7]">{ironPct}%</span>
+              </div>
+              <div className="w-full bg-[#E2E8F0] h-2 rounded-full overflow-hidden">
+                <div
+                  className="bg-[#0284C7] h-full rounded-full transition-all duration-500"
+                  style={{ width: `${ironPct}%` }}
+                />
+              </div>
+              <div className="text-[10px] text-[#64748B] flex justify-between font-mono">
+                <span>Masuk: {todayIron.toLocaleString("id-ID")}mg</span>
+                <span>Target: {targetIron.toLocaleString("id-ID")}mg</span>
+              </div>
+            </div>
+
+            <div className="p-3.5 bg-[#F8FAF8] rounded-xl border border-[#E2E8F0] space-y-2">
+              <div className="flex justify-between items-center text-xs font-semibold text-[#475569]">
+                <span>Vitamin C</span>
+                <span className="font-bold text-[#7C3AED]">{vitCPct}%</span>
+              </div>
+              <div className="w-full bg-[#E2E8F0] h-2 rounded-full overflow-hidden">
+                <div
+                  className="bg-[#7C3AED] h-full rounded-full transition-all duration-500"
+                  style={{ width: `${vitCPct}%` }}
+                />
+              </div>
+              <div className="text-[10px] text-[#64748B] flex justify-between font-mono">
+                <span>Masuk: {todayVitC.toLocaleString("id-ID")}mg</span>
+                <span>Target: {targetVitC.toLocaleString("id-ID")}mg</span>
               </div>
             </div>
           </div>
         </section>
+
+
 
         {/* Active In-Transit Alert Strip */}
         {transitDonations.length > 0 && (
@@ -521,7 +574,7 @@ export function RecipientDashboard() {
 
                           {isRank1 && (
                             <div className="absolute top-2.5 left-2.5 bg-[#2D7A4F] text-white text-[10px] font-bold px-2.5 py-1 rounded-md shadow-sm border border-emerald-400/30 flex items-center gap-1">
-                              <span>★</span> Rekomendasi TOPSIS #1
+                              <Star size={11} className="fill-current text-amber-300" /> Rekomendasi TOPSIS #1
                             </div>
                           )}
 
@@ -535,25 +588,33 @@ export function RecipientDashboard() {
 
                         <div className="p-4 space-y-3 flex-1 flex flex-col justify-between">
                           <div className="space-y-1.5">
-                            <h3 className="font-bold text-sm text-[#0F172A] leading-snug">
-                              {item.food_name}
-                            </h3>
+                            <div className="flex items-start justify-between gap-2">
+                              <h3 className="font-bold text-sm text-[#0F172A] leading-snug">
+                                {item.food_name}
+                              </h3>
+                              {item.ci_score != null && (
+                                <span className="text-[10px] font-mono font-bold bg-[#ECFDF5] text-[#047857] border border-[#A7F3D0] px-1.5 py-0.5 rounded shrink-0">
+                                  V = {Number(item.ci_score).toFixed(3)}
+                                </span>
+                              )}
+                            </div>
+
                             <p className="text-xs text-[#64748B] flex items-center gap-1">
                               <MapPin size={11} className="text-[#94A3B8] shrink-0" />
                               <span className="truncate">{item.donor_name || "Mitra Donatur"}</span>
                             </p>
 
-                            <div className="flex flex-wrap gap-1.5 pt-1 text-[11px] text-[#475569] font-medium">
-                              {item.protein_per_portion && (
-                                <span className="px-2 py-0.5 bg-[#EFF6FF] text-[#1E40AF] rounded">
-                                  {item.protein_per_portion}g Protein
+                            <div className="flex flex-wrap gap-1.5 pt-1 text-[11px] font-medium">
+                              {item.protein_per_portion ? (
+                                <span className="px-2 py-0.5 bg-[#EFF6FF] text-[#1E40AF] rounded border border-[#BFDBFE]">
+                                  {Math.round(item.protein_per_portion * item.portion_count)}g Protein Total
                                 </span>
-                              )}
-                              {item.calorie_per_portion && (
-                                <span className="px-2 py-0.5 bg-[#FEF3C7] text-[#92400E] rounded">
-                                  {item.calorie_per_portion} kkal
+                              ) : null}
+                              {item.calorie_per_portion ? (
+                                <span className="px-2 py-0.5 bg-[#FEF3C7] text-[#92400E] rounded border border-[#FDE68A]">
+                                  {Math.round(item.calorie_per_portion * item.portion_count)} kkal
                                 </span>
-                              )}
+                              ) : null}
                             </div>
                           </div>
 
@@ -561,11 +622,11 @@ export function RecipientDashboard() {
                             <button
                               type="button"
                               onClick={() => openTopsisAudit(item)}
-                              className="px-2.5 py-2 rounded-lg border border-[#E2E8F0] hover:bg-[#F8FAFC] text-xs font-medium text-[#334155] flex items-center gap-1 transition-colors cursor-pointer"
-                              title="Audit Perankingan TOPSIS"
+                              className="px-2.5 py-2 rounded-lg border border-[#E2E8F0] hover:bg-[#F8FAFC] text-xs font-semibold text-[#0F172A] flex items-center gap-1 transition-colors cursor-pointer"
+                              title="Audit Perankingan TOPSIS & Simulasi AKG"
                             >
                               <BarChart3 size={13} className="text-[#2D7A4F]" />
-                              <span>TOPSIS</span>
+                              <span>Audit TOPSIS</span>
                             </button>
 
                             <button
@@ -592,6 +653,7 @@ export function RecipientDashboard() {
               )}
             </div>
           )}
+
 
           {/* Tab 2: Active Transit */}
           {activeTab === "active" && (

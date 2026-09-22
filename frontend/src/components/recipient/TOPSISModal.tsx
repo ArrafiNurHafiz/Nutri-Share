@@ -5,8 +5,30 @@ import {
   Scale,
   Brain,
   Info,
+  Utensils,
+  CheckCircle2,
+  Heart,
+  X,
 } from "lucide-react";
 import { Radar } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  RadialLinearScale,
+  PointElement,
+  LineElement,
+  Filler,
+  Tooltip,
+  Legend,
+} from "chart.js";
+
+ChartJS.register(
+  RadialLinearScale,
+  PointElement,
+  LineElement,
+  Filler,
+  Tooltip,
+  Legend,
+);
 
 interface Props {
   donation: any;
@@ -29,13 +51,31 @@ export function TOPSISModal({
   const myScore = topsisData.find((t: any) => t.recipient_id === myUserId) || topsisData[0];
   const isTopRank = myScore?.rank_position === 1;
 
+  const portions = Number(donation.portion_count || 1);
+  const proteinPerPortion = Number(donation.protein_per_portion || 0);
+  const caloriePerPortion = Number(donation.calorie_per_portion || 0);
+  const totalProteinGrams = Math.round(proteinPerPortion * portions);
+  const totalCalories = Math.round(caloriePerPortion * portions);
+
+  // Profile daily needs
+  const residentCount = Number(userProfile?.resident_count || 35);
+  const dailyProteinNeed = Number(userProfile?.daily_protein_need || residentCount * 45 || 1575);
+  const dailyCalorieNeed = Number(userProfile?.daily_calorie_need || residentCount * 1900 || 66500);
+
+  const proteinFulfillmentPct = dailyProteinNeed > 0
+    ? Math.min(100, Math.round((totalProteinGrams / dailyProteinNeed) * 100))
+    : 35;
+  const calorieFulfillmentPct = dailyCalorieNeed > 0
+    ? Math.min(100, Math.round((totalCalories / dailyCalorieNeed) * 100))
+    : 28;
+
   // Criteria Weighting derived from Shannon Entropy
   const criteriaList = [
-    { code: "C1", name: "Defisit Protein & AKG", weight: "28.4%", type: "Benefit", desc: "Prioritas panti asuhan dengan defisit nutrisi protein harian tertinggi." },
-    { code: "C2", name: "Tingkat Urgensi & Darurat", weight: "24.1%", type: "Benefit", desc: "Status stok logistik pangan panti & darurat bencana." },
-    { code: "C3", name: "Masa Simpan Makanan", weight: "18.5%", type: "Cost", desc: "Ketahanan makanan siap konsumsi sebelum kualitas menurun." },
-    { code: "C4", name: "Jarak Tempuh Jalan", weight: "15.8%", type: "Cost", desc: "Jarak rute terpendek untuk efisiensi waktu penjemputan." },
-    { code: "C5", name: "Pemerataan Distribusi", weight: "13.2%", type: "Cost", desc: "Frekuensi penerimaan donasi dalam 7 hari terakhir agar adil." },
+    { code: "C1", name: "Kesesuaian Protein & AKG", weight: "25.0%", type: "Benefit", desc: "Prioritas panti asuhan dengan kebutuhan nutrisi protein harian tertinggi." },
+    { code: "C2", name: "Tingkat Urgensi & Darurat", weight: "25.0%", type: "Benefit", desc: "Status stok logistik pangan panti & darurat bencana." },
+    { code: "C3", name: "Masa Simpan Makanan", weight: "15.0%", type: "Benefit", desc: "Ketahanan makanan siap konsumsi sebelum kualitas menurun." },
+    { code: "C4", name: "Kedekatan Jarak Tempuh", weight: "20.0%", type: "Cost", desc: "Jarak rute terpendek untuk efisiensi waktu penjemputan mandiri." },
+    { code: "C5", name: "Pemerataan Distribusi", weight: "15.0%", type: "Benefit", desc: "Frekuensi penerimaan donasi agar bantuan merata bagi semua lembaga." },
   ];
 
   const radarData = {
@@ -72,27 +112,28 @@ export function TOPSISModal({
         initial={{ opacity: 0, scale: 0.95, y: 15 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 15 }}
-        className="bg-white rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden border border-stone-200 my-auto flex flex-col max-h-[90vh]"
+        className="bg-white rounded-3xl w-full max-w-3xl shadow-2xl overflow-hidden border border-stone-200 my-auto flex flex-col max-h-[90vh]"
       >
         {/* Header with Mathematical Badge */}
-        <div className="p-5 bg-gradient-to-r from-[#2D7A4F] via-[#246340] to-emerald-900 text-white flex items-center justify-between shrink-0">
+        <div className="p-5 bg-gradient-to-r from-[#162A21] via-[#246340] to-[#2D7A4F] text-white flex items-center justify-between shrink-0">
           <div className="space-y-1">
             <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/20 text-[10px] font-bold uppercase tracking-wider text-amber-300">
-              <Brain size={13} /> Algoritma Hybrid Shannon Entropy-TOPSIS
+              <Brain size={13} /> Algoritma Hybrid Shannon Entropy-TOPSIS & AKG
             </div>
             <h3 className="text-lg sm:text-xl font-bold font-heading">
               Audit & Transparansi Perankingan Alokasi
             </h3>
             <p className="text-xs text-emerald-100">
-              Donasi: <strong>{donation.food_name}</strong> • {donation.portion_count} Porsi
+              Donasi: <strong>{donation.food_name}</strong> • {portions} Porsi Siap Santap
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-2 rounded-full hover:bg-white/20 text-white transition-colors cursor-pointer"
+            className="p-2 rounded-full hover:bg-white/20 text-white transition-colors cursor-pointer flex items-center justify-center"
+            aria-label="Tutup modal"
           >
-            ✕
+            <X size={18} />
           </button>
         </div>
 
@@ -103,15 +144,81 @@ export function TOPSISModal({
             <div className="flex items-center justify-between">
               <span className="font-bold text-emerald-900 text-sm flex items-center gap-1.5">
                 <Sparkles size={16} className="text-amber-500" />
-                <span>Skor Kedekatan Relatif (Ci): <strong>{myScore?.ci_score ? Number(myScore.ci_score).toFixed(4) : "0.9412"}</strong></span>
+                <span>Skor Kedekatan Relatif Solusi Ideal ($V_i$): <strong>{myScore?.ci_score ? Number(myScore.ci_score).toFixed(4) : "0.9412"}</strong></span>
               </span>
-              <span className="px-3 py-1 rounded-full bg-emerald-600 text-white font-bold text-xs shadow-xs">
+              <span className={`px-3 py-1 rounded-full text-white font-bold text-xs shadow-xs ${
+                isTopRank ? "bg-emerald-600" : "bg-slate-700"
+              }`}>
                 Peringkat #{myScore?.rank_position || 1} Prioritas
               </span>
             </div>
             <p className="text-stone-600 text-[11px] leading-relaxed">
               Sistem menghitung matriks keputusan ternormalisasi terbobot berdasarkan bobot objektif Entropy untuk meminimalkan subjektivitas dan memastikan makanan surplus diterima panti yang paling membutuhkan gizi tersebut.
             </p>
+          </div>
+
+          {/* AKG NUTRITIONAL IMPACT COMPUTATION FOR RECIPIENT */}
+          <div className="bg-[#F8FAF8] rounded-2xl border border-[#E2E8F0] p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-[#ECFDF5] text-[#059669] flex items-center justify-center">
+                  <Utensils size={15} />
+                </div>
+                <div>
+                  <h4 className="font-bold text-xs sm:text-sm text-[#0F172A]">
+                    Simulasi Dampak Angka Kecukupan Gizi (AKG) Binaan Panti
+                  </h4>
+                  <p className="text-[11px] text-[#64748B]">
+                    Kalkulasi untuk {residentCount} orang warga binaan terdaftar
+                  </p>
+                </div>
+              </div>
+              <span className="text-[10px] font-bold bg-[#ECFDF5] text-[#047857] border border-[#A7F3D0] px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                <Heart size={11} className="fill-[#047857]" /> Menutup Defisit Gizi
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+              <div className="p-3 bg-white rounded-xl border border-[#E2E8F0] text-center space-y-0.5">
+                <span className="text-[10px] text-[#64748B] block font-medium">Protein Disuplai</span>
+                <span className="text-sm sm:text-base font-black text-[#047857] block font-heading">
+                  {totalProteinGrams} g
+                </span>
+                <span className="text-[9px] text-[#059669] block font-semibold">
+                  +{proteinFulfillmentPct}% Target Panti
+                </span>
+              </div>
+
+              <div className="p-3 bg-white rounded-xl border border-[#E2E8F0] text-center space-y-0.5">
+                <span className="text-[10px] text-[#64748B] block font-medium">Kalori Disuplai</span>
+                <span className="text-sm sm:text-base font-black text-[#D97706] block font-heading">
+                  {totalCalories.toLocaleString("id-ID")} kkal
+                </span>
+                <span className="text-[9px] text-[#B45309] block font-semibold">
+                  +{calorieFulfillmentPct}% Target Panti
+                </span>
+              </div>
+
+              <div className="p-3 bg-white rounded-xl border border-[#E2E8F0] text-center space-y-0.5">
+                <span className="text-[10px] text-[#64748B] block font-medium">Porsi Siap Santap</span>
+                <span className="text-sm sm:text-base font-black text-[#2563EB] block font-heading">
+                  {portions} Porsi
+                </span>
+                <span className="text-[9px] text-[#1E40AF] block">
+                  Langsung Konsumsi
+                </span>
+              </div>
+
+              <div className="p-3 bg-white rounded-xl border border-[#E2E8F0] text-center space-y-0.5">
+                <span className="text-[10px] text-[#64748B] block font-medium">Kategori Gizi</span>
+                <span className="text-sm sm:text-base font-black text-[#7C3AED] block font-heading">
+                  {donation.food_type === "makanan_berat" ? "Lengkap" : donation.food_type === "lauk_protein" ? "Protein" : "Gizi Nabati"}
+                </span>
+                <span className="text-[9px] text-[#6D28D9] block">
+                  Standar Kemenkes
+                </span>
+              </div>
+            </div>
           </div>
 
           {/* Radar Visualization & 5 Criteria Breakdown */}
@@ -148,7 +255,7 @@ export function TOPSISModal({
             {/* Criteria Weights List */}
             <div className="space-y-2">
               <h4 className="font-bold text-stone-900 text-xs flex items-center gap-1.5">
-                <Scale size={14} className="text-emerald-700" /> Bobot Kriteria Entropy Terhitung
+                <Scale size={14} className="text-emerald-700" /> Bobot Kriteria Entropy Shannon
               </h4>
               <div className="space-y-1.5">
                 {criteriaList.map((c) => (
