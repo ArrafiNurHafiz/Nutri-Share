@@ -1,17 +1,17 @@
 import { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import {
   Package,
-  Activity,
-  TrendingUp,
   Plus,
-  MapPin,
-  Heart,
-  Truck,
-  Users,
-  Phone,
+  Compass,
+  Star,
+  CheckCircle2,
+  MessageCircle,
+  Building2,
+  LogOut,
+  User,
+  ShieldCheck,
 } from "lucide-react";
-import { motion, AnimatePresence } from "motion/react";
 import { api } from "../lib/api";
 import { useRealtime, RealtimeEvent } from "../lib/useRealtime";
 import { useAuth } from "../contexts/AuthContext";
@@ -19,41 +19,36 @@ import { LoadingSpinner } from "../components/LoadingSpinner";
 import { SEO } from "../components/SEO";
 import { LiveTrackingModal } from "../components/LiveTrackingModal";
 import { ProfileModal } from "../components/ProfileModal";
-import {
-  DonorSidebar,
-  DonorHeader,
-  DonorStats,
-  DonationForm,
-  DonationList,
-  ReviewList,
-  ImpactBadges,
-  LogisticsMap,
-  QuickCatalog,
-} from "../components/donor";
+import { DonationForm } from "../components/donor";
 import toast from "react-hot-toast";
+
+const PRESETS = [
+  { id: "makanan_berat", label: "Nasi & Lauk", p: 26, c: 540, name: "Paket Nasi & Lauk Komplit" },
+  { id: "roti_kue", label: "Roti & Pastry", p: 8, c: 260, name: "Roti & Aneka Pastry" },
+  { id: "buah_sayur", label: "Buah & Sayur", p: 4, c: 110, name: "Sayur & Buah Segar" },
+  { id: "lauk_pauk", label: "Lauk Protein", p: 28, c: 340, name: "Olahan Ayam / Daging / Ikan" },
+];
+
+function cleanPhone(p?: string): string {
+  if (!p) return "";
+  let digits = p.replace(/\D/g, "");
+  if (digits.startsWith("0")) digits = "62" + digits.slice(1);
+  return digits;
+}
 
 export function DonorDashboard() {
   const [donations, setDonations] = useState<any[]>([]);
   const [reviews, setReviews] = useState<any[]>([]);
   const [badges, setBadges] = useState<any[]>([]);
-  const [notifications, setNotifications] = useState<any[]>([]);
-  const [mapData, setMapData] = useState<{ donors: any[]; recipients: any[] }>({
-    donors: [],
-    recipients: [],
-  });
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("dashboard");
-  const [filterTab, setFilterTab] = useState("all");
-  const [showForm, setShowForm] = useState(false);
+  const [activeTab, setActiveTab] = useState<"active" | "history" | "reviews">("active");
+  const [showModal, setShowModal] = useState(false);
   const [formStep, setFormStep] = useState(1);
-  const [showCatalog, setShowCatalog] = useState(false);
-  const [uploading, setUploading] = useState(false);
   const [trackingData, setTrackingData] = useState<any>(null);
   const [showProfile, setShowProfile] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const nav = useNavigate();
-  const { user, profile, loading: authLoading, logout, refresh } = useAuth();
+  const { user, profile, loading: authLoading, logout } = useAuth();
 
   const [form, setForm] = useState({
     food_name: "",
@@ -71,33 +66,32 @@ export function DonorDashboard() {
   });
 
   useEffect(() => {
-    if (profile?.latitude)
+    if (profile?.latitude) {
       setForm((f) => ({
         ...f,
-        pickup_latitude: profile.latitude,
-        pickup_longitude: profile.longitude,
+        pickup_latitude: Number(profile.latitude),
+        pickup_longitude: Number(profile.longitude),
       }));
+    }
   }, [profile]);
 
   useEffect(() => {
     if (!authLoading && (!user || user.role !== "donor")) nav("/login");
-  }, [authLoading, user]);
+  }, [authLoading, user, nav]);
 
   const loadDonations = useCallback(async () => {
     if (!user || user.role !== "donor") return;
     try {
-      const [data, donorReviews, notifs, bdgs, mData] = await Promise.all([
-        api.fetchJSON(`/api/donations?donor_id=${user.id}`),
-        api.fetchJSON(`/api/donors/${user.id}/reviews`),
-        api.fetchJSON(`/api/notifications?user_id=${user.id}`),
-        api.fetchJSON(`/api/donors/${user.id}/badges`),
-        api.fetchJSON("/api/map/data").catch(() => ({ donors: [], recipients: [] })),
+      const [data, donorReviews, bdgs] = await Promise.all([
+        api.fetchJSON(`/api/donations?donor_id=${user.id}&limit=500`).catch(() => []),
+        api.fetchJSON(`/api/donors/${user.id}/reviews`).catch(() => []),
+        api.fetchJSON(`/api/donors/${user.id}/badges`).catch(() => []),
       ]);
-      setDonations(data);
-      setReviews(donorReviews);
-      setNotifications(notifs);
-      setBadges(bdgs);
-      if (mData) setMapData(mData);
+      setDonations(data || []);
+      setReviews(donorReviews || []);
+      setBadges(bdgs || []);
+    } catch {
+      // Graceful fallback
     } finally {
       setLoading(false);
     }
@@ -107,23 +101,14 @@ export function DonorDashboard() {
     if (user && user.role === "donor") loadDonations();
   }, [loadDonations, user]);
 
-  // Real-time synchronization
   useRealtime(
     user?.id,
     user?.role,
     (event: RealtimeEvent) => {
       loadDonations();
-      if (event.event_type === "CLAIM_APPROVED") {
-        toast("Klaim donasi Anda telah diproses!", { icon: "✅" });
-      } else if (event.event_type === "CLAIM_CREATED") {
-        toast("Ada klaim baru untuk donasi Anda!", { icon: "🔔" });
-      } else if (event.event_type === "DELIVERY_ARRIVED") {
-        toast("Penerima telah tiba di lokasi!", { icon: "📍" });
-      } else if (event.event_type === "HANDOVER_COMPLETED") {
-        toast.success("Serah terima donasi telah selesai!", { icon: "🤝" });
-      } else if (event.event_type === "REVIEW_CREATED") {
-        toast("Ulasan baru diterima untuk donasi Anda!", { icon: "⭐" });
-      }
+      if (event.event_type === "CLAIM_CREATED") toast("Lembaga mengklaim donasi Anda!", { icon: "🔔" });
+      else if (event.event_type === "DELIVERY_ARRIVED") toast.success("Penjemput telah tiba di lokasi!", { icon: "📍" });
+      else if (event.event_type === "HANDOVER_COMPLETED") toast.success("Serah terima donasi selesai!", { icon: "🤝" });
     },
     loadDonations,
     5000,
@@ -139,426 +124,438 @@ export function DonorDashboard() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...form, donor_id: user.id }),
       });
-      toast.success("Donation published!");
+      toast.success("Donasi makanan siap disalurkan!", { icon: "🍱" });
       loadDonations();
-      setForm({
-        ...form,
-        food_name: "",
-        portion_count: "",
-        protein_per_portion: "",
-        calorie_per_portion: "",
-        iron_mg: "",
-        vitamin_c_mg: "",
-      });
-      setShowForm(false);
+      setShowModal(false);
       setFormStep(1);
     } catch (err: any) {
-      toast.error(err.message || "Failed");
+      toast.error(err.message || "Gagal membuat donasi.");
     }
   };
 
-  const handleComplete = async (donationId: number) => {
-    try {
-      await api.fetchJSON(`/api/donations/${donationId}/complete`, {
-        method: "POST",
-      });
-      toast.success("Completed!");
-      loadDonations();
-    } catch (err: any) {
-      toast.error(err.message || "Failed");
-    }
-  };
+  // Strictly only UNCOMPLETED donations in active view
+  const activeList = donations.filter((d) => d.status === "active" || d.status === "claimed");
+  const inTransitList = donations.filter((d) => d.status === "claimed");
+  const historyList = donations.filter((d) => d.status === "completed");
 
-  const selectFromCatalog = (item: any) => {
-    setForm({
-      ...form,
-      food_name: item.name,
-      food_type: item.type,
-      protein_per_portion: item.protein.toString(),
-      calorie_per_portion: item.calorie.toString(),
-    });
-    setShowCatalog(false);
-    setFormStep(2);
-  };
+  const totalPortionsShared = historyList.reduce((acc, d) => acc + (d.portion_count || 0), 0);
+  const avgRating = reviews.length > 0
+    ? (reviews.reduce((acc: number, r: any) => acc + r.rating, 0) / reviews.length).toFixed(1)
+    : "-";
 
-  const unreadCount = notifications.filter((n: any) => !n.is_read).length;
-  const totalPorsi = donations
-    .filter((d) => d.status !== "expired")
-    .reduce((a, d) => a + (d.portion_count || 0), 0);
-  const avgRating =
-    reviews.length > 0
-      ? (
-          reviews.reduce((a: number, b: any) => a + b.rating, 0) /
-          reviews.length
-        ).toFixed(1)
-      : "N/A";
-
-  const statsItems = [
-    {
-      label: "Total Donations",
-      value: donations.length,
-      icon: Package,
-      color: "text-primary-orange",
-      bg: "bg-primary-orange-bg",
-      sub: "all time",
-    },
-    {
-      label: "Total Portions",
-      value: totalPorsi,
-      icon: TrendingUp,
-      color: "text-brand-accent",
-      bg: "bg-brand-accent/10",
-      sub: "distributed",
-    },
-    {
-      label: "Rating",
-      value: avgRating,
-      icon: Star,
-      color: "text-accent",
-      bg: "bg-accent/10",
-      sub: `${reviews.length} reviews`,
-    },
-    {
-      label: "Active",
-      value: donations.filter((d) => d.status === "active").length,
-      icon: Activity,
-      color: "text-primary-orange",
-      bg: "bg-primary-orange-bg",
-      sub: "pending claim",
-    },
-  ];
-
-  if (loading) return <LoadingSpinner size={36} label="Loading dashboard..." />;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#FDFBF7] flex items-center justify-center">
+        <LoadingSpinner size={32} label="Memuat dashboard..." />
+      </div>
+    );
+  }
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="flex min-h-[100dvh] bg-gradient-to-br from-surface to-surface-container-low text-on-surface"
-    >
-      <SEO title="Donor Dashboard | NutriShare" />
-      <DonorSidebar
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        mobileOpen={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-        onBrowseMap={() => nav("/map")}
-        onSettings={() => setShowProfile(true)}
-        onSupport={() => nav("/contact")}
-      />
+    <div className="min-h-screen bg-[#FDFBF7] text-[#1E293B] font-sans flex flex-col antialiased">
+      <SEO title="Portal Donatur | NutriShare" description="Kelola surplus makanan hotel dan restoran secara terorganisir." />
 
-      <main className="lg:ml-64 flex-1 p-4 lg:p-8 w-full">
-        <DonorHeader
-          user={user}
-          profile={profile}
-          notifications={notifications}
-          unreadCount={unreadCount}
-          onShowProfile={() => setShowProfile(true)}
-          onLogout={async () => {
-            await logout();
-            nav("/");
-          }}
-          onAddDonation={() => {
-            setShowForm(!showForm);
-            setFormStep(1);
-            setShowCatalog(!showForm ? false : showCatalog);
-          }}
-          onMenuClick={() => setSidebarOpen(true)}
-        />
+      {/* Top Navbar */}
+      <header className="sticky top-0 z-30 bg-white/95 border-b border-[#E2E8F0] backdrop-blur-md">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Link to="/" className="flex items-center gap-2">
+              <img src="/images/logoterbaru.webp" alt="NutriShare" className="h-8 w-auto" />
+            </Link>
+            <div className="h-4 w-px bg-[#E2E8F0] hidden sm:block" />
+            <div className="hidden sm:flex items-center gap-1.5 text-xs font-semibold text-[#475569]">
+              <Building2 size={14} className="text-[#2D7A4F]" />
+              <span>{profile?.business_name || user.name}</span>
+            </div>
+          </div>
 
-        {activeTab === "dashboard" && (
-          <div className="flex flex-col gap-6">
-            {/* KPI Cards */}
-            <DonorStats stats={statsItems} />
+          <div className="flex items-center gap-2">
+            <Link
+              to="/peta"
+              className="px-3 py-1.5 rounded-lg border border-[#E2E8F0] hover:bg-[#F8FAFC] text-xs font-semibold text-[#334155] transition-colors flex items-center gap-1.5"
+            >
+              <Compass size={14} className="text-[#2D7A4F]" />
+              <span className="hidden sm:inline">Peta Sebaran</span>
+            </Link>
 
-            {/* Main Command Grid: 8 Cols Main / 4 Cols Side */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-              {/* Left col: Form + Active Donations List */}
-              <div className="lg:col-span-8 flex flex-col gap-6">
-                {/* Collapsible/Direct Creation Form */}
-                <DonationForm
-                  form={form}
-                  formStep={formStep}
-                  uploading={uploading}
-                  showCatalog={showCatalog}
-                  onSetForm={setForm}
-                  onSetStep={setFormStep}
-                  onSetUploading={setUploading}
-                  onSubmit={handleSubmit}
-                  onToggleCatalog={() => setShowCatalog(!showCatalog)}
-                  onSelectCatalog={selectFromCatalog}
-                />
+            <button
+              type="button"
+              onClick={() => {
+                setShowModal(true);
+                setFormStep(1);
+              }}
+              className="px-3.5 py-1.5 rounded-lg bg-[#2D7A4F] hover:bg-[#235F3D] text-white text-xs font-semibold shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
+            >
+              <Plus size={14} />
+              <span>Donasikan Makanan</span>
+            </button>
 
-                {/* Donation Logistics List */}
-                <DonationList
-                  donations={donations}
-                  filterTab={filterTab}
-                  onFilterChange={setFilterTab}
-                  onTrack={setTrackingData}
-                  onComplete={handleComplete}
-                />
+            <button
+              type="button"
+              onClick={() => setShowProfile(true)}
+              className="p-1.5 rounded-lg border border-[#E2E8F0] hover:bg-[#F8FAFC] text-[#475569] transition-colors cursor-pointer"
+              title="Profil"
+            >
+              <User size={15} />
+            </button>
 
-                {/* Reviews & Social Proof */}
-                <ReviewList reviews={reviews} />
-              </div>
+            <button
+              type="button"
+              onClick={async () => {
+                await logout();
+                nav("/");
+              }}
+              className="p-1.5 rounded-lg border border-[#E2E8F0] hover:bg-[#FEF2F2] hover:text-[#DC2626] text-[#64748B] transition-colors cursor-pointer"
+              title="Keluar"
+            >
+              <LogOut size={15} />
+            </button>
+          </div>
+        </div>
+      </header>
 
-              {/* Right col: Side Command Panels */}
-              <div className="lg:col-span-4 flex flex-col gap-6">
-                <QuickCatalog
-                  onSelectCategory={(type, label) => {
+      {/* Main Container */}
+      <main className="max-w-6xl mx-auto w-full px-4 sm:px-6 py-8 space-y-8 flex-1">
+        {/* Top Header Card */}
+        <section className="bg-white rounded-2xl border border-[#E2E8F0] p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="space-y-1.5 max-w-xl">
+            <h1 className="text-xl sm:text-2xl font-bold text-[#0F172A] tracking-tight">
+              {profile?.business_name || user.name}
+            </h1>
+            <p className="text-xs sm:text-sm text-[#64748B] leading-relaxed">
+              Salurkan surplus makanan layak konsumsi dengan pencatatan gizi otomatis & perankingan cerdas TOPSIS.
+            </p>
+
+            <div className="pt-2 flex flex-wrap items-center gap-2">
+              <span className="text-[11px] font-medium text-[#64748B]">Pilihan Cepat:</span>
+              {PRESETS.map((p) => (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => {
                     setForm((f) => ({
                       ...f,
-                      food_name: label,
-                      food_type: type,
+                      food_name: p.name,
+                      food_type: p.id,
+                      protein_per_portion: p.p.toString(),
+                      calorie_per_portion: p.c.toString(),
                     }));
-                    setShowForm(true);
-                    setShowCatalog(true);
-                    setFormStep(1);
-                    setTimeout(() => {
-                      document.getElementById("donation-form")?.scrollIntoView({
-                        behavior: "smooth",
-                        block: "start",
-                      });
-                    }, 100);
+                    setShowModal(true);
+                    setFormStep(2);
                   }}
-                  onAddDonation={() => setShowForm(true)}
-                />
-                <ImpactBadges badges={badges} />
-                <LogisticsMap
-                  inTransitCount={
-                    donations.filter(
-                      (d) => d.status === "claimed" || (d as any).arrived_at,
-                    ).length
-                  }
-                  onTrack={() => {
-                    const activeTransit = donations.find(
-                      (d) => d.status === "claimed" || (d as any).arrived_at,
-                    );
-                    if (activeTransit) {
-                      setTrackingData(activeTransit);
-                    } else {
-                      setActiveTab("donations");
-                      setFilterTab("claimed");
-                      toast("No donation currently in transit", { icon: "ℹ️" });
-                    }
-                  }}
-                />
-              </div>
+                  className="px-2.5 py-1 rounded-md bg-[#F8FAFC] hover:bg-[#F1F5F9] border border-[#E2E8F0] text-xs font-medium text-[#334155] transition-colors cursor-pointer"
+                >
+                  <span>{p.label}</span>
+                </button>
+              ))}
             </div>
           </div>
-        )}
 
-        {activeTab === "donations" && (
-          <div className="mt-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
-            <div className="lg:col-span-8 flex flex-col gap-6">
-              <DonationList
-                donations={donations}
-                filterTab={filterTab}
-                onFilterChange={setFilterTab}
-                onTrack={setTrackingData}
-                onComplete={handleComplete}
-              />
+          {/* Quick Metrics */}
+          <div className="grid grid-cols-3 gap-3 shrink-0 border-t md:border-t-0 md:border-l border-[#E2E8F0] pt-4 md:pt-0 md:pl-6">
+            <div className="text-center md:text-left">
+              <span className="text-[11px] text-[#64748B] font-medium block">Porsi Selesai</span>
+              <span className="text-xl font-bold text-[#0F172A]">{totalPortionsShared}</span>
             </div>
-            <div className="lg:col-span-4 flex flex-col gap-6">
-              <div className="glass p-6 rounded-3xl border border-white/50 shadow-sm bg-gradient-to-br from-brand-medium/10 to-transparent">
-                <h3 className="font-bold text-brand-dark mb-2 flex items-center gap-2">
-                  <Package size={18} className="text-brand-medium" /> Donation
-                  Tips
-                </h3>
-                <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-                  Thank you for your contributions! Pack food securely with
-                  proper temperature controls before the courier arrives.
-                </p>
-              </div>
+            <div className="text-center md:text-left">
+              <span className="text-[11px] text-[#64748B] font-medium block">Penjemputan</span>
+              <span className="text-xl font-bold text-[#2D7A4F]">{inTransitList.length}</span>
+            </div>
+            <div className="text-center md:text-left">
+              <span className="text-[11px] text-[#64748B] font-medium block">Rating Mitra</span>
+              <span className="text-xl font-bold text-[#D97706]">{avgRating}</span>
             </div>
           </div>
-        )}
+        </section>
 
-        {activeTab === "analytics" && (
-          <div className="mt-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
-            <div className="lg:col-span-8 flex flex-col gap-6">
-              <ImpactBadges badges={badges} />
+        {/* In-Transit Alert Strip (Only uncompleted ongoing pickups) */}
+        {inTransitList.length > 0 && (
+          <section className="bg-white rounded-xl border border-[#FCD34D] p-4 shadow-xs space-y-3">
+            <div className="flex items-center justify-between border-b border-[#FEF3C7] pb-2">
+              <span className="text-xs font-bold text-[#92400E] flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-[#D97706] animate-pulse" />
+                {inTransitList.length} Makanan Sedang Dalam Proses Penjemputan Mandiri
+              </span>
+              <span className="text-[11px] text-[#B45309] font-medium">Mitra sedang bergerak ke lokasi</span>
             </div>
-            <div className="lg:col-span-4 flex flex-col gap-6">
-              <div className="glass p-6 rounded-3xl border border-white/50 shadow-sm bg-gradient-to-br from-primary-orange/10 to-transparent">
-                <h3 className="font-bold text-brand-dark mb-2 flex items-center gap-2">
-                  <Activity size={18} className="text-primary-orange" /> Impact
-                  Tracker
-                </h3>
-                <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-                  Every portion you donate diverts edible food from landfills
-                  and nourishes individuals in need.
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
 
-        {activeTab === "recipients" && (
-          <div className="mt-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
-            <div className="lg:col-span-8 flex flex-col gap-6">
-              <div className="glass p-6 rounded-3xl border border-white/50 shadow-sm">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h2 className="text-xl font-bold text-brand-dark flex items-center gap-2">
-                      <Heart size={22} className="text-[#E53935]" /> Mitra Penerima Terverifikasi
-                    </h2>
-                    <p className="text-sm text-[var(--text-secondary)] mt-1">
-                      Daftar panti asuhan, rumah singgah, dan panti lansia di Yogyakarta yang terhubung dengan NutriShare.
-                    </p>
-                  </div>
-                  <span className="text-xs font-bold px-3 py-1.5 rounded-full bg-brand-medium/10 text-brand-medium">
-                    {mapData.recipients.length} Lembaga
-                  </span>
-                </div>
-
-                <div className="grid sm:grid-cols-2 gap-4 mt-6">
-                  {mapData.recipients.length === 0 ? (
-                    <div className="sm:col-span-2 text-center py-10 text-gray-400">
-                      Belum ada lembaga penerima yang terdaftar.
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {inTransitList.map((item) => {
+                const phoneClean = cleanPhone(item.recipient_phone);
+                return (
+                  <div key={item.id} className="p-3 bg-[#FFFBEB] rounded-lg border border-[#FDE68A] flex flex-col justify-between gap-2.5">
+                    <div>
+                      <div className="flex items-start justify-between">
+                        <h4 className="font-bold text-xs text-[#78350F]">{item.food_name}</h4>
+                        <span className="text-[10px] font-semibold text-[#92400E] bg-white px-2 py-0.5 rounded border border-[#FCD34D]">
+                          {item.arrived_at ? "Tiba di Lokasi" : "Dalam Perjalanan"}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-[#92400E] mt-0.5">
+                        {item.portion_count} Porsi • Dijemput: <strong>{item.recipient_name || "Lembaga Penerima"}</strong>
+                      </p>
                     </div>
-                  ) : (
-                    mapData.recipients.map((item: any, idx: number) => {
-                      const r = item.RecipientProfile || item;
-                      return (
-                        <div
-                          key={r.id || idx}
-                          className="bg-white/90 rounded-2xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
+
+                    <div className="flex items-center gap-2 pt-1 border-t border-[#FDE68A]/60">
+                      <button
+                        type="button"
+                        onClick={() => setTrackingData(item)}
+                        className="flex-1 py-1.5 rounded-md bg-[#2D7A4F] hover:bg-[#235F3D] text-white font-medium text-[11px] flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                      >
+                        <Compass size={12} /> Buka Pelacakan Rute
+                      </button>
+                      {phoneClean && (
+                        <a
+                          href={`https://wa.me/${phoneClean}?text=${encodeURIComponent(`Halo pengurus ${item.recipient_name || ""}, kami dari ${profile?.business_name || "donatur"} menginfokan makanan "${item.food_name}" sudah siap diambil.`)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-2.5 py-1.5 rounded-md bg-white border border-[#CBD5E1] text-[#334155] hover:bg-[#F8FAFC] font-medium text-[11px] flex items-center gap-1 transition-colors"
                         >
-                          <div>
-                            <div className="flex items-start justify-between gap-2 mb-2">
-                              <h3 className="font-bold text-brand-dark text-base">
-                                {r.institution_name}
-                              </h3>
-                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 capitalize shrink-0">
-                                {(r.institution_type || "Yayasan").replace(/_/g, " ")}
-                              </span>
-                            </div>
-                            <p className="text-xs text-gray-500 flex items-center gap-1.5 mb-2">
-                              <MapPin size={14} className="text-gray-400 shrink-0" />
-                              <span className="truncate">{r.address || "Yogyakarta"}</span>
-                            </p>
-                            <div className="flex items-center gap-4 text-xs text-gray-600 mt-3 pt-3 border-t border-gray-50">
-                              <span className="flex items-center gap-1">
-                                <Users size={14} className="text-brand-medium" />
-                                <strong>{r.resident_count || 0}</strong> Warga
-                              </span>
-                              {r.phone && (
-                                <span className="flex items-center gap-1 text-gray-400 truncate">
-                                  <Phone size={14} />
-                                  {r.phone}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })
+                          <MessageCircle size={12} className="text-[#2D7A4F]" /> WhatsApp
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
+        {/* Tab Navigation & List */}
+        <section className="space-y-4">
+          <div className="flex items-center gap-1 border-b border-[#E2E8F0] pb-2 text-xs font-semibold">
+            <button
+              type="button"
+              onClick={() => setActiveTab("active")}
+              className={`px-3 py-1.5 rounded-md transition-colors cursor-pointer ${
+                activeTab === "active" ? "bg-[#2D7A4F] text-white" : "text-[#64748B] hover:text-[#0F172A]"
+              }`}
+            >
+              Donasi Berjalan ({activeList.length})
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab("history")}
+              className={`px-3 py-1.5 rounded-md transition-colors cursor-pointer ${
+                activeTab === "history" ? "bg-[#2D7A4F] text-white" : "text-[#64748B] hover:text-[#0F172A]"
+              }`}
+            >
+              Riwayat Selesai ({historyList.length})
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab("reviews")}
+              className={`px-3 py-1.5 rounded-md transition-colors cursor-pointer ${
+                activeTab === "reviews" ? "bg-[#2D7A4F] text-white" : "text-[#64748B] hover:text-[#0F172A]"
+              }`}
+            >
+              Ulasan Lembaga ({reviews.length})
+            </button>
+          </div>
+
+          {/* Active / History Content */}
+          {(activeTab === "active" || activeTab === "history") && (
+            <div className="space-y-3">
+              {(activeTab === "active" ? activeList : historyList).length === 0 ? (
+                <div className="bg-white rounded-xl border border-[#E2E8F0] p-10 text-center text-xs text-[#64748B] space-y-2">
+                  <Package size={24} className="mx-auto text-[#94A3B8]" />
+                  <p className="font-semibold text-[#334155]">
+                    {activeTab === "active" ? "Tidak ada donasi yang sedang berlangsung." : "Belum ada riwayat donasi yang selesai."}
+                  </p>
+                  {activeTab === "active" && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowModal(true);
+                        setFormStep(1);
+                      }}
+                      className="text-xs font-bold text-[#2D7A4F] hover:underline cursor-pointer"
+                    >
+                      + Buat Donasi Makanan Sekarang
+                    </button>
                   )}
                 </div>
-              </div>
-            </div>
-            <div className="lg:col-span-4 flex flex-col gap-6">
-              <div className="glass p-6 rounded-3xl border border-white/50 shadow-sm bg-gradient-to-br from-brand-medium/10 to-transparent">
-                <h3 className="font-bold text-brand-dark mb-2 flex items-center gap-2">
-                  <Heart size={18} className="text-brand-medium" /> Penyaluran Tepat Sasaran
-                </h3>
-                <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-                  NutriShare menggunakan algoritma Entropy-TOPSIS untuk memprioritaskan penyaluran donasi pangan ke panti dan yayasan dengan kebutuhan nutrisi dan urgensi tertinggi.
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                  {(activeTab === "active" ? activeList : historyList).map((item) => {
+                    const isClaimed = item.status === "claimed";
+                    const isDone = item.status === "completed";
 
-        {activeTab === "logistics" && (
-          <div className="mt-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
-            <div className="lg:col-span-8 flex flex-col gap-6">
-              <div className="glass p-6 rounded-3xl border border-white/50 shadow-sm">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h2 className="text-xl font-bold text-brand-dark flex items-center gap-2">
-                      <Truck size={22} className="text-brand-medium" /> Pelacakan Logistik & Kurir
-                    </h2>
-                    <p className="text-sm text-[var(--text-secondary)] mt-1">
-                      Daftar penjemputan donasi yang sedang berlangsung dan konfirmasi serah-terima kurir.
-                    </p>
-                  </div>
+                    return (
+                      <div
+                        key={item.id}
+                        className="bg-white rounded-xl border border-[#E2E8F0] p-4.5 shadow-2xs flex flex-col justify-between gap-3.5 hover:border-[#CBD5E1] transition-colors"
+                      >
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
+                              isDone
+                                ? "bg-[#ECFDF5] text-[#065F46] border border-[#A7F3D0]"
+                                : isClaimed
+                                ? "bg-[#EFF6FF] text-[#1E40AF] border border-[#BFDBFE]"
+                                : "bg-[#F8FAFC] text-[#475569] border border-[#E2E8F0]"
+                            }`}>
+                              {isDone ? "Selesai Diserahkan" : isClaimed ? "Sedang Dijemput" : "Tersedia & Menunggu Klaim"}
+                            </span>
+                            <span className="text-[11px] text-[#94A3B8] font-mono">#{item.id}</span>
+                          </div>
+
+                          <div>
+                            <h3 className="font-bold text-sm text-[#0F172A]">{item.food_name}</h3>
+                            <p className="text-xs text-[#64748B] mt-0.5">
+                              {item.portion_count} Porsi • Masa Simpan: {item.hours_valid || 6} Jam
+                            </p>
+                          </div>
+
+                          <div className="flex items-center gap-2 text-[11px] text-[#475569] font-medium">
+                            <span className="px-2 py-0.5 bg-[#F1F5F9] rounded">Protein: {item.protein_per_portion || 0}g</span>
+                            <span className="px-2 py-0.5 bg-[#F1F5F9] rounded">Kalori: {item.calorie_per_portion || 0} kkal</span>
+                          </div>
+
+                          {item.recipient_name && (
+                            <p className="text-xs text-[#334155] pt-1">
+                              Lembaga Pengambil: <strong>{item.recipient_name}</strong>
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="pt-2.5 border-t border-[#F1F5F9] flex items-center justify-between gap-2">
+                          {isClaimed && (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => setTrackingData(item)}
+                                className="flex-1 py-1.5 rounded-lg bg-[#2D7A4F] hover:bg-[#235F3D] text-white font-semibold text-xs flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                              >
+                                <Compass size={13} /> Pantau & Selesaikan
+                              </button>
+                              {item.recipient_phone && (
+                                <a
+                                  href={`https://wa.me/${cleanPhone(item.recipient_phone)}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="p-1.5 rounded-lg border border-[#E2E8F0] hover:bg-[#F8FAFC] text-[#475569]"
+                                  title="WhatsApp"
+                                >
+                                  <MessageCircle size={15} className="text-[#2D7A4F]" />
+                                </a>
+                              )}
+                            </>
+                          )}
+
+                          {!isClaimed && !isDone && (
+                            <span className="text-xs text-[#64748B] flex items-center gap-1">
+                              <CheckCircle2 size={13} className="text-[#2D7A4F]" />
+                              Terdaftar di Algoritma TOPSIS
+                            </span>
+                          )}
+
+                          {isDone && (
+                            <span className="text-xs text-[#065F46] font-medium flex items-center gap-1">
+                              <ShieldCheck size={14} />
+                              Selesai diserahterimakan ({item.completed_at ? new Date(item.completed_at).toLocaleDateString("id-ID") : "Tervalidasi"})
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-                <DonationList
-                  donations={donations.filter((d) => d.status === "claimed" || (d as any).arrived_at)}
-                  filterTab="claimed"
-                  onFilterChange={() => {}}
-                  onTrack={setTrackingData}
-                  onComplete={handleComplete}
-                />
-              </div>
+              )}
             </div>
-            <div className="lg:col-span-4 flex flex-col gap-6">
-              <LogisticsMap
-                inTransitCount={
-                  donations.filter(
-                    (d) => d.status === "claimed" || (d as any).arrived_at,
-                  ).length
-                }
-                onTrack={() => {
-                  const activeTransit = donations.find(
-                    (d) => d.status === "claimed" || (d as any).arrived_at,
-                  );
-                  if (activeTransit) {
-                    setTrackingData(activeTransit);
-                  } else {
-                    toast("Tidak ada donasi yang sedang dalam perjalanan saat ini.", {
-                      icon: "ℹ️",
-                    });
-                  }
-                }}
-              />
-              <div className="glass p-6 rounded-3xl border border-white/50 shadow-sm bg-gradient-to-br from-primary-orange/10 to-transparent">
-                <h3 className="font-bold text-brand-dark mb-2 flex items-center gap-2">
-                  <Truck size={18} className="text-primary-orange" /> Protokol Penjemputan
-                </h3>
-                <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-                  Pastikan makanan surplus dikemas dengan higienis dan aman sebelum kurir tiba untuk menjaga kualitas dan keamanan pangan bagi penerima.
-                </p>
-              </div>
+          )}
+
+          {/* Reviews Tab */}
+          {activeTab === "reviews" && (
+            <div className="space-y-3">
+              {reviews.length === 0 ? (
+                <div className="bg-white rounded-xl border border-[#E2E8F0] p-8 text-center text-xs text-[#64748B]">
+                  Belum ada ulasan yang diterima dari lembaga penerima.
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {reviews.map((r, i) => (
+                    <div key={i} className="bg-white rounded-xl border border-[#E2E8F0] p-4 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1 text-[#D97706]">
+                          {Array.from({ length: 5 }).map((_, idx) => (
+                            <Star
+                              key={idx}
+                              size={13}
+                              className={idx < r.rating ? "fill-[#D97706] text-[#D97706]" : "text-[#E2E8F0]"}
+                            />
+                          ))}
+                        </div>
+                        <span className="text-[10px] text-[#94A3B8]">{new Date(r.created_at || Date.now()).toLocaleDateString("id-ID")}</span>
+                      </div>
+                      <p className="text-xs text-[#334155] italic">"{r.comment || "Donasi sangat bermanfaat bagi anak-anak panti."}"</p>
+                      <p className="text-[11px] font-semibold text-[#64748B]">— {r.recipient_name || "Lembaga Penerima"}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-          </div>
-        )}
+          )}
+        </section>
       </main>
 
-      <AnimatePresence>
-        {trackingData && (
-          <LiveTrackingModal
-            donation={trackingData}
-            user={user}
-            profile={profile}
-            onClose={() => setTrackingData(null)}
-            onComplete={loadDonations}
-          />
-        )}
-        {showProfile && (
-          <ProfileModal
-            user={user}
-            profile={profile}
-            onClose={() => setShowProfile(false)}
-            onUpdate={() => refresh()}
-          />
-        )}
-      </AnimatePresence>
-    </motion.div>
+      {/* Pop-up Donation Form */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl w-full max-w-lg shadow-xl border border-[#E2E8F0] overflow-hidden my-auto">
+            <div className="p-4 border-b border-[#E2E8F0] flex items-center justify-between">
+              <h3 className="font-bold text-sm text-[#0F172A]">Bagikan Surplus Makanan</h3>
+              <button
+                type="button"
+                onClick={() => setShowModal(false)}
+                className="p-1 rounded-md text-[#64748B] hover:bg-[#F1F5F9] cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="p-5">
+              <DonationForm
+                form={form}
+                formStep={formStep}
+                uploading={false}
+                showCatalog={false}
+                onSetForm={setForm}
+                onSetStep={setFormStep}
+                onSetUploading={() => {}}
+                onSubmit={handleSubmit}
+                onToggleCatalog={() => {}}
+                onSelectCatalog={() => {}}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Live Tracking Modal */}
+      {trackingData && (
+        <LiveTrackingModal
+          donation={trackingData}
+          user={user}
+          profile={profile}
+          onClose={() => setTrackingData(null)}
+          onComplete={loadDonations}
+        />
+      )}
+
+      {/* Profile Modal */}
+      {showProfile && (
+        <ProfileModal
+          user={user}
+          profile={profile}
+          onClose={() => setShowProfile(false)}
+          onUpdate={loadDonations}
+        />
+      )}
+    </div>
   );
 }
 
-function Star(props: any) {
-  return (
-    <svg {...props} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="2"
-        d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
-      />
-    </svg>
-  );
-}
+export default DonorDashboard;

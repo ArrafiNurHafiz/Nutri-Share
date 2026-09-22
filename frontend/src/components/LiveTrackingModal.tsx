@@ -1,18 +1,8 @@
-import { useState, useEffect, Component, type ReactNode } from "react";
-import {
-  MapContainer,
-  TileLayer,
-  Marker,
-  Popup,
-  Polyline,
-  useMap,
-} from "react-leaflet";
-import L from "leaflet";
+import { useState, useEffect, useRef } from "react";
 import {
   X,
   CheckCircle,
   Clock,
-  MapPin,
   Building2,
   Heart,
   MessageCircle,
@@ -21,12 +11,14 @@ import {
   ShieldCheck,
   Phone,
   Star,
+  Layers,
+  Milestone,
 } from "lucide-react";
-import "leaflet/dist/leaflet.css";
-import "../lib/mapIcons";
-import { donorIcon, recipientIcon, courierIcon } from "../lib/mapIcons";
 import { api } from "../lib/api";
 import toast from "react-hot-toast";
+import { createCustomMarkerElement } from "./map/mapcn-styles";
+import { getMapLibre } from "../lib/maplibre";
+import { fetchRoadRoute, type RouteResult } from "../lib/roadRouting";
 
 const SIMULATION_MS = 25000;
 
@@ -43,32 +35,6 @@ function cleanPhone(p?: string): string {
   return digits;
 }
 
-function AutoFitBounds({
-  donorCoords,
-  recipientCoords,
-}: {
-  donorCoords: [number, number];
-  recipientCoords: [number, number];
-}) {
-  const map = useMap();
-
-  useEffect(() => {
-    if (
-      !isNaN(donorCoords[0]) &&
-      !isNaN(donorCoords[1]) &&
-      !isNaN(recipientCoords[0]) &&
-      !isNaN(recipientCoords[1])
-    ) {
-      try {
-        const bounds = L.latLngBounds([donorCoords, recipientCoords]);
-        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
-      } catch {}
-    }
-  }, [map, donorCoords[0], donorCoords[1], recipientCoords[0], recipientCoords[1]]);
-
-  return null;
-}
-
 export function LiveTrackingModal({
   donation,
   user,
@@ -77,37 +43,35 @@ export function LiveTrackingModal({
   onComplete,
   onRate,
 }: any) {
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<any>(null);
+  const courierMarkerRef = useRef<any>(null);
+
   const [data, setData] = useState<any>(donation);
   const [progress, setProgress] = useState(0);
   const [arrivalConfirmed, setArrivalConfirmed] = useState(Boolean(donation.arrived_at));
   const [confirming, setConfirming] = useState(false);
   const [done, setDone] = useState(donation.status === "completed");
-  const [hasMapError, setHasMapError] = useState(false);
+  const [routeInfo, setRouteInfo] = useState<RouteResult | null>(null);
 
   const isDonor = user?.role === "donor" || user?.id === data.donor_id;
 
-  const donorLat = safeNum(
-    data.donor_lat ?? data.pickup_latitude,
-    -7.6,
-  );
-  const donorLon = safeNum(
-    data.donor_lon ?? data.pickup_longitude,
-    110.4,
-  );
+  const donorLat = safeNum(data.donor_lat ?? data.pickup_latitude, -7.7828);
+  const donorLon = safeNum(data.donor_lon ?? data.pickup_longitude, 110.367);
   const recipientLat = safeNum(
     data.recipient_lat ??
       data.recipient_info?.lat ??
       (!isDonor ? (profile?.latitude ?? user?.latitude) : null),
-    -7.85,
+    -7.8012
   );
   const recipientLon = safeNum(
     data.recipient_lon ??
       data.recipient_info?.lon ??
       (!isDonor ? (profile?.longitude ?? user?.longitude) : null),
-    110.33,
+    110.364
   );
 
-  // Fetch latest donation info with enriched profiles
+  // Fetch latest donation status
   useEffect(() => {
     let cancelled = false;
     api
@@ -133,7 +97,7 @@ export function LiveTrackingModal({
     };
   }, [donation.id]);
 
-  // Smooth movement animation
+  // Movement animation
   useEffect(() => {
     if (arrivalConfirmed || done) {
       setProgress(1);
@@ -151,7 +115,7 @@ export function LiveTrackingModal({
     return () => clearInterval(timer);
   }, [arrivalConfirmed, done]);
 
-  // Polling for status updates
+  // Polling for completion
   useEffect(() => {
     if (done) return;
     const poll = setInterval(async () => {
@@ -175,16 +139,127 @@ export function LiveTrackingModal({
     return () => clearInterval(poll);
   }, [done, donation.id, arrivalConfirmed, onComplete, onClose]);
 
-  // Self-pickup: recipient travels from recipient location to donor pickup location
-  const getLat = () => recipientLat + (donorLat - recipientLat) * progress;
-  const getLon = () => recipientLon + (donorLon - recipientLon) * progress;
+  // Initialize Realistic MapLibre with Real Road Routing (OSRM Network)
+  useEffect(() => {
+    let cancelled = false;
+    if (!mapContainerRef.current) return;
 
-  const center: [number, number] = [
-    (donorLat + recipientLat) / 2,
-    (donorLon + recipientLon) / 2,
-  ];
+    Promise.all([
+      getMapLibre(),
+      fetchRoadRoute([recipientLat, recipientLon], [donorLat, donorLon]),
+    ])
+      .then(([maplibregl, route]) => {
+        if (cancelled || !mapContainerRef.current) return;
+        setRouteInfo(route);
 
-  // Action: Confirm arrival at donor pickup point
+        const map = new maplibregl.Map({
+          container: mapContainerRef.current,
+          style: "https://tiles.openfreemap.org/styles/liberty",
+          center: [(donorLon + recipientLon) / 2, (donorLat + recipientLat) / 2],
+          zoom: 13,
+          pitch: 45,
+          bearing: -15,
+          attributionControl: false,
+        });
+
+        map.on("load", () => {
+          mapRef.current = map;
+
+          // Fit bounds to entire road route
+          const bounds = new maplibregl.LngLatBounds();
+          route.coordinates.forEach((coord: [number, number]) => bounds.extend(coord));
+          map.fitBounds(bounds, { padding: 60, duration: 1000 });
+
+          // Add Real Road Polyline Source
+          map.addSource("road-route", {
+            type: "geojson",
+            data: {
+              type: "Feature",
+              properties: {},
+              geometry: {
+                type: "LineString",
+                coordinates: route.coordinates,
+              },
+            },
+          });
+
+          // Glow Layer (Realistic MapCN look)
+          map.addLayer({
+            id: "road-route-glow",
+            type: "line",
+            source: "road-route",
+            layout: { "line-join": "round", "line-cap": "round" },
+            paint: {
+              "line-color": "#2D7A4F",
+              "line-width": 8,
+              "line-opacity": 0.35,
+              "line-blur": 3,
+            },
+          });
+
+          // Core Road Line (Smooth Highway style)
+          map.addLayer({
+            id: "road-route-core",
+            type: "line",
+            source: "road-route",
+            layout: { "line-join": "round", "line-cap": "round" },
+            paint: {
+              "line-color": "#2D7A4F",
+              "line-width": 4.5,
+            },
+          });
+
+          // Donor Marker
+          const donorEl = createCustomMarkerElement("donor", "Donatur (Pickup)");
+          new maplibregl.Marker({ element: donorEl })
+            .setLngLat([donorLon, donorLat])
+            .addTo(map);
+
+          // Recipient Marker
+          const recipEl = createCustomMarkerElement("recipient", "Penerima");
+          new maplibregl.Marker({ element: recipEl })
+            .setLngLat([recipientLon, recipientLat])
+            .addTo(map);
+
+          // Courier Marker
+          const startCoord = route.coordinates[0] || [recipientLon, recipientLat];
+          const courierEl = createCustomMarkerElement("courier", "Penjemput");
+          const cMarker = new maplibregl.Marker({ element: courierEl })
+            .setLngLat(startCoord)
+            .addTo(map);
+
+          courierMarkerRef.current = cMarker;
+        });
+      })
+      .catch(console.error);
+
+    return () => {
+      cancelled = true;
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+      }
+    };
+  }, [donorLat, donorLon, recipientLat, recipientLon]);
+
+  // Interpolate courier along real road geometry
+  useEffect(() => {
+    if (!courierMarkerRef.current || !routeInfo || routeInfo.coordinates.length < 2) return;
+    const coords = routeInfo.coordinates;
+    const totalSegments = coords.length - 1;
+    const targetIdx = Math.min(totalSegments, Math.floor(progress * totalSegments));
+    const nextIdx = Math.min(totalSegments, targetIdx + 1);
+    const segmentProgress = (progress * totalSegments) - targetIdx;
+
+    const currentCoord = coords[targetIdx];
+    const nextCoord = coords[nextIdx];
+
+    const curLng = currentCoord[0] + (nextCoord[0] - currentCoord[0]) * segmentProgress;
+    const curLat = currentCoord[1] + (nextCoord[1] - currentCoord[1]) * segmentProgress;
+
+    courierMarkerRef.current.setLngLat([curLng, curLat]);
+  }, [progress, routeInfo]);
+
   const handleConfirmArrival = async () => {
     setConfirming(true);
     try {
@@ -201,7 +276,6 @@ export function LiveTrackingModal({
     }
   };
 
-  // Action: Donor confirms complete handover
   const handleCompleteHandover = async () => {
     setConfirming(true);
     try {
@@ -222,7 +296,6 @@ export function LiveTrackingModal({
   };
 
   const arrived = arrivalConfirmed || progress >= 1;
-
   const donorPhoneClean = cleanPhone(data.donor_phone);
   const recipientPhoneClean = cleanPhone(data.recipient_phone);
 
@@ -232,11 +305,7 @@ export function LiveTrackingModal({
         {/* Header */}
         <div
           className={`p-4 sm:p-5 flex justify-between items-center text-white transition-colors ${
-            done
-              ? "bg-[#2D7A4F]"
-              : arrived
-                ? "bg-[#1565C0]"
-                : "bg-emerald-800"
+            done ? "bg-[#2D7A4F]" : arrived ? "bg-[#1565C0]" : "bg-emerald-800"
           }`}
         >
           <div className="space-y-1">
@@ -248,12 +317,12 @@ export function LiveTrackingModal({
                 {done
                   ? "Donasi Selesai Diserahkan"
                   : arrived
-                    ? "Penjemput Telah Tiba di Lokasi Donatur"
-                    : "Proses Penjemputan Mandiri (Self-Pickup)"}
+                  ? "Penjemput Telah Tiba di Lokasi Donatur"
+                  : "Pelacakan Rute Jalan Nyata (OSRM Road Network)"}
               </h3>
             </div>
             <p className="text-xs sm:text-sm text-white/80">
-              {data.food_name} • {data.portion_count || 0} Porsi • Metode: Penjemputan Langsung oleh Penerima
+              {data.food_name} • {data.portion_count || 0} Porsi • Metode: Penjemputan Langsung
             </p>
           </div>
           <button
@@ -265,7 +334,7 @@ export function LiveTrackingModal({
           </button>
         </div>
 
-        {/* Coordination & Contact Details Card */}
+        {/* Coordination Details Card */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-4 bg-stone-50 border-b border-stone-200 text-xs">
           {/* Donor Info (Pickup Point) */}
           <div className="p-3.5 bg-white rounded-2xl border border-stone-200 shadow-2xs space-y-2">
@@ -303,7 +372,7 @@ export function LiveTrackingModal({
             )}
           </div>
 
-          {/* Recipient Info (Picking-up Party) */}
+          {/* Recipient Info */}
           <div className="p-3.5 bg-white rounded-2xl border border-stone-200 shadow-2xs space-y-2">
             <div className="flex items-center justify-between">
               <span className="font-bold text-stone-500 uppercase tracking-wider text-[10px] flex items-center gap-1">
@@ -340,85 +409,26 @@ export function LiveTrackingModal({
           </div>
         </div>
 
-        {/* Map Container */}
+        {/* Realistis Map Container (MapCN + OSRM Road Geometry) */}
         <div className="h-[45vh] sm:h-[50vh] w-full bg-stone-100 relative">
-          {hasMapError ? (
-            <div className="h-full w-full flex items-center justify-center text-center p-6 bg-slate-50">
-              <div>
-                <MapPin className="mx-auto mb-2 text-slate-400" size={32} />
-                <p className="font-bold text-slate-700">Peta koordinat sedang disegarkan</p>
-              </div>
+          <div ref={mapContainerRef} className="w-full h-full" />
+
+          {/* Road distance badge */}
+          {routeInfo && (
+            <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-md px-3.5 py-1.5 rounded-xl border border-stone-200 shadow-md flex items-center gap-2 text-xs font-bold text-gray-800">
+              <Milestone size={15} className="text-[#2D7A4F]" />
+              <span>Jarak Jalan: {routeInfo.distanceKm} km (~{routeInfo.durationMin} mnt)</span>
             </div>
-          ) : (
-            <ErrorBoundaryWrapper onError={() => setHasMapError(true)}>
-              <MapContainer
-                center={center}
-                zoom={12}
-                style={{ height: "100%", width: "100%" }}
-              >
-                <AutoFitBounds
-                  donorCoords={[donorLat, donorLon]}
-                  recipientCoords={[recipientLat, recipientLon]}
-                />
-                <TileLayer
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  referrerPolicy="origin"
-                />
-
-                <Marker position={[donorLat, donorLon]} icon={donorIcon}>
-                  <Popup>
-                    <div className="text-xs">
-                      <b className="text-emerald-800">{data.donor_name || "Lokasi Donatur"}</b>
-                      <p className="text-gray-600 mt-0.5">Titik Penjemputan Makanan</p>
-                    </div>
-                  </Popup>
-                </Marker>
-
-                <Marker
-                  position={[recipientLat, recipientLon]}
-                  icon={recipientIcon}
-                >
-                  <Popup>
-                    <div className="text-xs">
-                      <b className="text-blue-800">{data.recipient_name || "Lokasi Penerima"}</b>
-                      <p className="text-gray-600 mt-0.5">Tujuan Distribusi Panti/Yayasan</p>
-                    </div>
-                  </Popup>
-                </Marker>
-
-                <Polyline
-                  positions={[
-                    [donorLat, donorLon],
-                    [recipientLat, recipientLon],
-                  ]}
-                  color="#2D7A4F"
-                  weight={4}
-                  dashArray="6, 8"
-                  opacity={0.7}
-                />
-
-                {!done && (
-                  <Marker
-                    position={[getLat(), getLon()]}
-                    icon={courierIcon}
-                    zIndexOffset={1000}
-                  >
-                    <Popup>
-                      <div className="text-xs">
-                        <b>Penjemput: {data.recipient_name || "Perwakilan Panti"}</b>
-                        <br />
-                        {(progress * 100).toFixed(0)}% Perjalanan
-                      </div>
-                    </Popup>
-                  </Marker>
-                )}
-              </MapContainer>
-            </ErrorBoundaryWrapper>
           )}
 
+          {/* Map style badge */}
+          <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-lg border border-white/60 shadow-xs flex items-center gap-1.5 text-[11px] font-bold text-gray-700">
+            <Layers size={13} className="text-emerald-700" /> MapCN 3D Vector Jalan
+          </div>
+
           {/* Floating Progress Pill */}
-          {!done && !hasMapError && (
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-[1000] bg-white/95 backdrop-blur-md px-5 py-2.5 rounded-full shadow-lg border border-stone-200 flex items-center gap-3">
+          {!done && (
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 bg-white/95 backdrop-blur-md px-5 py-2.5 rounded-full shadow-lg border border-stone-200 flex items-center gap-3">
               <div className="bg-stone-200 w-28 h-2 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-[#2D7A4F] transition-all duration-300"
@@ -432,7 +442,7 @@ export function LiveTrackingModal({
           )}
         </div>
 
-        {/* Action Footer Controls */}
+        {/* Action Controls */}
         <div className="p-4 sm:p-5 bg-white border-t border-stone-200">
           {!arrived && !done && (
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-amber-50 p-4 rounded-2xl border border-amber-200">
@@ -442,7 +452,7 @@ export function LiveTrackingModal({
                 </p>
                 <p className="text-amber-800">
                   {isDonor
-                    ? "Pihak penerima sedang menuju ke tempat Anda untuk mengambil makanan."
+                    ? "Pihak penerima sedang bergerak mengikuti rute jalan menuju resto/hotel Anda."
                     : "Jika Anda sudah sampai di resto/hotel donatur, klik tombol konfirmasi di samping."}
                 </p>
               </div>
@@ -534,16 +544,4 @@ export function LiveTrackingModal({
       </div>
     </div>
   );
-}
-
-class ErrorBoundaryWrapper extends Component<{
-  children: ReactNode;
-  onError: () => void;
-}> {
-  componentDidCatch() {
-    (this as any).props.onError();
-  }
-  render() {
-    return (this as any).props.children;
-  }
 }

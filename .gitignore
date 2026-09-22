@@ -20,3 +20,10 @@ __pycache__/
 *.egg-info/
 *.pyc
 .vercel
+.omc/
+.agents/
+*.db
+graphify-out/
+prd.json
+progress.txt
+

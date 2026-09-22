@@ -89,6 +89,7 @@ function AnimatedRoutes() {
           <Routes location={location}>
             <Route path="/" element={<Home />} />
             <Route path="/map" element={<BrowseMap />} />
+            <Route path="/peta" element={<BrowseMap />} />
             <Route path="/contact" element={<Support />} />
             <Route path="/support" element={<Support />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />

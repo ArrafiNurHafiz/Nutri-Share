@@ -6,10 +6,12 @@ import { motion, AnimatePresence } from "motion/react";
 
 const NAV_ITEMS = [
   { path: "/", label: "Home" },
+  { path: "/map", label: "Peta Sebaran" },
   { path: "#tentang", label: "About" },
   { path: "#cara-kerja", label: "How It Works" },
   { path: "#dampak", label: "Impact" },
   { path: "#pahlawan", label: "Heroes" },
+  { path: "/support", label: "Bantuan" },
 ];
 
 export function Navbar({ onLoginClick }: { onLoginClick?: () => void }) {

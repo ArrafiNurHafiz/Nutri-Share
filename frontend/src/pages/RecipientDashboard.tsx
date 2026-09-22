@@ -1,49 +1,55 @@
 import { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
-import { Activity, Truck, TrendingUp } from "lucide-react";
-import { motion, AnimatePresence } from "motion/react";
+import { useNavigate, Link } from "react-router-dom";
+import {
+  Heart,
+  Package,
+  Clock,
+  MapPin,
+  Truck,
+  Search,
+  MessageCircle,
+  AlertTriangle,
+  User,
+  LogOut,
+  Compass,
+  Star,
+  ShieldCheck,
+  BarChart3,
+  CheckCircle2,
+} from "lucide-react";
 import { api } from "../lib/api";
 import { useRealtime, RealtimeEvent } from "../lib/useRealtime";
 import { useAuth } from "../contexts/AuthContext";
 import { LoadingSpinner } from "../components/LoadingSpinner";
-import { EmptyState } from "../components/EmptyState";
 import { SEO } from "../components/SEO";
 import { ReviewModal } from "../components/ReviewModal";
 import { ProfileModal } from "../components/ProfileModal";
 import { LiveTrackingModal } from "../components/LiveTrackingModal";
-import {
-  RecipientSidebar,
-  RecipientHeader,
-  StatsCards,
-  NutritionTracker,
-  DonationList,
-  TOPSISPanel,
-  ClaimLifecycle,
-  TransitSection,
-  HistorySection,
-  MapView,
-} from "../components/recipient";
+import { TOPSISModal } from "../components/recipient/TOPSISModal";
 import toast from "react-hot-toast";
+
+function cleanPhone(p?: string): string {
+  if (!p) return "";
+  let digits = p.replace(/\D/g, "");
+  if (digits.startsWith("0")) digits = "62" + digits.slice(1);
+  return digits;
+}
 
 export function RecipientDashboard() {
   const [activeDonations, setActiveDonations] = useState<any[]>([]);
-  const [selectedDonation, setSelectedDonation] = useState<number | null>(null);
-  const [topsisData, setTopsisData] = useState<any[]>([]);
-  const [notifications, setNotifications] = useState<any[]>([]);
-  const [mapData, setMapData] = useState<{ donors: any[]; recipients: any[] }>({
-    donors: [],
-    recipients: [],
-  });
   const [transitDonations, setTransitDonations] = useState<any[]>([]);
-  const [trackingData, setTrackingData] = useState<any>(null);
-  const [showProfile, setShowProfile] = useState(false);
+  const [historyData, setHistoryData] = useState<any[]>([]);
   const [akg, setAkg] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [historyData, setHistoryData] = useState<any[]>([]);
-  const [selectedReviewDonation, setSelectedReviewDonation] =
-    useState<any>(null);
-  const [activeTab, setActiveTab] = useState("dashboard");
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [claimingId, setClaimingId] = useState<number | null>(null);
+  const [activeTab, setActiveTab] = useState<"explore" | "active" | "history">("explore");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [trackingData, setTrackingData] = useState<any>(null);
+  const [showProfile, setShowProfile] = useState(false);
+  const [selectedReviewDonation, setSelectedReviewDonation] = useState<any>(null);
+  const [topsisModalDonation, setTopsisModalDonation] = useState<any>(null);
+  const [topsisData, setTopsisData] = useState<any[]>([]);
 
   const nav = useNavigate();
   const { user, profile, loading: authLoading, logout, refresh } = useAuth();
@@ -52,30 +58,27 @@ export function RecipientDashboard() {
   useEffect(() => {
     if (profile) setEmergency(profile.emergency || "none");
   }, [profile]);
+
   useEffect(() => {
     if (!authLoading && (!user || user.role !== "recipient")) nav("/login");
-  }, [authLoading, user]);
+  }, [authLoading, user, nav]);
 
   const loadData = useCallback(async () => {
     if (!user || user.role !== "recipient") return;
     try {
-      const [data, notifs, mData, transit, history, akgData] =
-        await Promise.all([
-          api.fetchJSON(`/api/donations/active?recipient_id=${user.id}`),
-          api.fetchJSON(`/api/notifications?user_id=${user.id}`),
-          api.fetchJSON(`/api/map/data`),
-          api.fetchJSON(
-            `/api/donations/transit?user_id=${user.id}&role=recipient`,
-          ),
-          api.fetchJSON(`/api/donations/history?recipient_id=${user.id}`),
-          api.fetchJSON(`/api/recipient/akg?user_id=${user.id}`),
-        ]);
-      setActiveDonations(data);
-      setNotifications(notifs);
-      setMapData(mData);
-      setTransitDonations(transit);
-      setHistoryData(history);
-      setAkg(akgData);
+      const [data, transit, history, akgData] = await Promise.all([
+        api.fetchJSON(`/api/donations/active?recipient_id=${user.id}`).catch(() => []),
+        api.fetchJSON(`/api/donations/transit?user_id=${user.id}&role=recipient`).catch(() => []),
+        api.fetchJSON(`/api/donations/history?recipient_id=${user.id}`).catch(() => []),
+        api.fetchJSON(`/api/recipient/akg?user_id=${user.id}`).catch(() => null),
+      ]);
+      setActiveDonations(data || []);
+      // Filter out completed donations from active transit
+      setTransitDonations((transit || []).filter((d: any) => d.status === "claimed"));
+      setHistoryData(history || []);
+      setAkg(akgData || null);
+    } catch {
+      // Graceful fallback
     } finally {
       setLoading(false);
     }
@@ -85,95 +88,51 @@ export function RecipientDashboard() {
     if (user && user.role === "recipient") loadData();
   }, [loadData, user]);
 
-  // Real-time synchronization
   useRealtime(
     user?.id,
     user?.role,
     (event: RealtimeEvent) => {
       loadData();
       if (event.event_type === "CLAIM_APPROVED") {
-        toast.success("Klaim donasi Anda telah disetujui!", { icon: "🎉" });
+        toast.success("Klaim donasi makanan Anda berhasil disetujui!", { icon: "🎉" });
       } else if (event.event_type === "DONATION_CREATED") {
-        toast("Donasi baru tersedia!", { icon: "🍱" });
+        toast("Ada donasi surplus baru tersedia!", { icon: "🍱" });
       } else if (event.event_type === "HANDOVER_COMPLETED") {
-        toast.success("Donasi selesai diserahkan!", { icon: "🤝" });
-      } else if (event.event_type === "DELIVERY_ARRIVED") {
-        toast("Status kedatangan diperbarui!", { icon: "📍" });
+        toast.success("Serah terima donasi selesai!", { icon: "🤝" });
       }
     },
     loadData,
     5000,
   );
 
-  if (authLoading || !user)
-    return <LoadingSpinner size={32} label="Loading..." />;
-
-  const handleArrived = async (donationId: number) => {
-    try {
-      await api.fetchJSON(`/api/donations/${donationId}/arrived`, {
-        method: "POST",
-      });
-      toast.success("Arrival confirmed!");
-      loadData();
-    } catch (err: any) {
-      toast.error(err.message || "Failed");
-    }
-  };
-
-  const loadTopsis = async (donationId: number) => {
-    try {
-      setSelectedDonation(donationId);
-      const res = await api.fetchJSON(`/api/topsis/${donationId}`);
-      setTopsisData(Array.isArray(res?.results) ? res.results : []);
-    } catch (err: any) {
-      toast.error(err?.message || "Failed to load TOPSIS data");
-      setTopsisData([]);
-    }
-  };
+  if (authLoading || !user) return null;
 
   const handleClaim = async (donationId: number) => {
+    setClaimingId(donationId);
     try {
       await api.fetchJSON(`/api/donations/${donationId}/claim`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ recipient_id: user.id }),
       });
-      toast.success("Claim submitted!");
+      toast.success("Donasi berhasil diklaim! Silakan koordinasi penjemputan.", { icon: "✅" });
       loadData();
+      setActiveTab("active");
     } catch (err: any) {
-      toast.error(err.message || "Failed");
+      toast.error(err.message || "Gagal mengklaim donasi.");
+    } finally {
+      setClaimingId(null);
     }
   };
 
-  const markRead = async (id: number) => {
-    await api.fetchJSON(`/api/notifications/${id}/read`, { method: "POST" });
-    loadData();
-  };
-
-  const downloadReport = async () => {
+  const openTopsisAudit = async (donation: any) => {
     try {
-      const history = await api.fetchJSON(
-        `/api/donations/history?recipient_id=${user.id}`,
-      );
-      let csv =
-        "data:text/csv;charset=utf-8," +
-        "ID,Food Name,Donor,Protein(g),Status,Completed Date\n";
-      history.forEach((r: any) => {
-        csv += `${r.id},"${r.food_name}","${r.donor_name}",${r.protein},"Completed",${r.completed_at || "-"}\n`;
-      });
-      const link = document.createElement("a");
-      link.setAttribute("href", encodeURI(csv));
-      link.setAttribute(
-        "download",
-        `report_${(profile?.institution_name || "recipient").replace(/\s+/g, "_")}.csv`,
-      );
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      toast.success("Report downloaded!");
+      const res = await api.fetchJSON(`/api/topsis/${donation.id}`);
+      setTopsisData(Array.isArray(res?.results) ? res.results : []);
     } catch {
-      toast.error("Failed");
+      setTopsisData([]);
     }
+    setTopsisModalDonation(donation);
   };
 
   const handleEmergencyToggle = async () => {
@@ -186,292 +145,547 @@ export function RecipientDashboard() {
       setEmergency(res.emergency);
       refresh();
       toast.success(
-        res.emergency === "pending" ? "Emergency sent" : "Cancelled",
+        res.emergency === "pending"
+          ? "Status Darurat Diaktifkan. Panti Anda diprioritaskan di algoritma TOPSIS."
+          : "Status darurat dinonaktifkan.",
       );
     } catch (err: any) {
-      toast.error(err.message || "Failed");
+      toast.error(err.message || "Gagal memperbarui status.");
     }
   };
 
-  const unreadCount = notifications.filter((n: any) => !n.is_read).length;
-  const completedHistory = historyData.filter(
-    (d: any) => d.status === "completed",
-  );
-  const todayCalories = akg?.today_intake.calories || 0;
-  const todayProtein = akg?.today_intake.protein || 0;
+  const filteredExplore = activeDonations
+    .filter((d) => selectedCategory === "all" || d.food_type === selectedCategory)
+    .filter(
+      (d) =>
+        !searchQuery ||
+        d.food_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        d.donor_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        d.pickup_address?.toLowerCase().includes(searchQuery.toLowerCase()),
+    );
 
-  const statsItems = [
-    {
-      label: "Calorie Intake",
-      value: `${todayCalories} cal`,
-      sub: `/${akg?.daily_needs.calories || 0}`,
-      pct: akg?.percentages.calories || 0,
-      color: "text-primary-orange",
-      bg: "bg-primary-orange-bg",
-      icon: "",
-    },
-    {
-      label: "Protein",
-      value: `${todayProtein}g`,
-      sub: `/${akg?.daily_needs.protein || 0}g`,
-      pct: akg?.percentages.protein || 0,
-      color: "text-primary-orange",
-      bg: "bg-primary-orange-bg",
-      icon: "",
-    },
-    {
-      label: "Donations Received",
-      value: `${completedHistory.length}`,
-      sub: "completed",
-      color: "text-accent",
-      bg: "bg-accent/10",
-      icon: "",
-    },
-    {
-      label: "In Transit",
-      value: `${transitDonations.length}`,
-      sub: "en route",
-      color: "text-brand-accent",
-      bg: "bg-brand-accent/10",
-      icon: "",
-    },
-  ];
+  const completedList = historyData.filter((d) => d.status === "completed");
 
-  if (loading) return <LoadingSpinner size={36} label="Loading dashboard..." />;
+  const todayCalories = Math.round(akg?.today_intake?.calories || 0);
+  const targetCalories = Math.round(akg?.daily_needs?.calories || profile?.daily_calorie_need || 0);
+  const caloriePct = targetCalories > 0 ? Math.min(100, Math.round((todayCalories / targetCalories) * 100)) : 0;
+
+  const todayProtein = Math.round(akg?.today_intake?.protein || 0);
+  const targetProtein = Math.round(akg?.daily_needs?.protein || profile?.daily_protein_need || 0);
+  const proteinPct = targetProtein > 0 ? Math.min(100, Math.round((todayProtein / targetProtein) * 100)) : 0;
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#FDFBF7] flex items-center justify-center">
+        <LoadingSpinner size={32} label="Memuat portal penerima..." />
+      </div>
+    );
+  }
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="flex min-h-[100dvh] bg-gradient-to-br from-surface to-surface-container-low text-on-surface"
-    >
-      <SEO title="Recipient Dashboard | NutriShare" />
-      <RecipientSidebar
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        mobileOpen={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-        onBrowseMap={() => nav("/map")}
-        onSettings={() => setShowProfile(true)}
-        onSupport={() => nav("/contact")}
+    <div className="min-h-screen bg-[#FDFBF7] text-[#1E293B] font-sans flex flex-col antialiased">
+      <SEO
+        title="Portal Penerima Manfaat | NutriShare"
+        description="Portal distribusi pangan bernutrisi untuk panti asuhan dan lembaga sosial di Yogyakarta."
       />
 
-      <main className="lg:ml-64 flex-1 p-4 lg:p-8 w-full">
-        <RecipientHeader
-          user={user}
-          profile={profile}
-          emergency={emergency}
-          onEmergencyToggle={handleEmergencyToggle}
-          onDownloadReport={downloadReport}
-          onMenuClick={() => setSidebarOpen(true)}
-          onShowProfile={() => setShowProfile(true)}
-          onLogout={async () => {
-            await logout();
-            nav("/");
-          }}
-          notifications={notifications}
-          unreadCount={unreadCount}
-          onMarkRead={markRead}
-        />
+      {/* Top Navbar */}
+      <header className="sticky top-0 z-30 bg-white/95 border-b border-[#E2E8F0] backdrop-blur-md">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Link to="/" className="flex items-center gap-2">
+              <img src="/images/logoterbaru.webp" alt="NutriShare" className="h-8 w-auto" />
+            </Link>
+            <div className="h-4 w-px bg-[#E2E8F0] hidden sm:block" />
+            <div className="hidden sm:flex items-center gap-1.5 text-xs font-semibold text-[#475569]">
+              <Heart size={14} className="text-[#2D7A4F]" />
+              <span>{profile?.institution_name || user.name}</span>
+            </div>
+          </div>
 
-        {activeTab === "dashboard" && (
-          <div className="flex flex-col gap-6">
-            {/* KPI Cards */}
-            <StatsCards stats={statsItems} />
+          <div className="flex items-center gap-2">
+            {/* Emergency Mode Toggle */}
+            <button
+              type="button"
+              onClick={handleEmergencyToggle}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer ${
+                emergency === "approved" || emergency === "pending"
+                  ? "bg-[#DC2626] text-white"
+                  : "bg-[#FEF2F2] hover:bg-[#FEE2E2] text-[#B91C1C] border border-[#FECACA]"
+              }`}
+              title="Aktifkan status darurat jika stok pangan panti menipis"
+            >
+              <AlertTriangle size={13} />
+              <span>{emergency === "approved" || emergency === "pending" ? "Darurat Aktif" : "Status Darurat"}</span>
+            </button>
 
-            {/* Row 2: Map (8) + Quick Panel (4) */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-              <div className="lg:col-span-7">
-                <MapView
-                  mapData={mapData}
-                  profile={profile}
-                  activeDonations={activeDonations}
+            <Link
+              to="/peta"
+              className="px-3 py-1.5 rounded-lg border border-[#E2E8F0] hover:bg-[#F8FAFC] text-xs font-semibold text-[#334155] transition-colors flex items-center gap-1.5"
+            >
+              <Compass size={14} className="text-[#2D7A4F]" />
+              <span className="hidden sm:inline">Peta Sebaran</span>
+            </Link>
+
+            <button
+              type="button"
+              onClick={() => setShowProfile(true)}
+              className="p-1.5 rounded-lg border border-[#E2E8F0] hover:bg-[#F8FAFC] text-[#475569] transition-colors cursor-pointer"
+              title="Profil & Pengaturan AKG"
+            >
+              <User size={15} />
+            </button>
+
+            <button
+              type="button"
+              onClick={async () => {
+                await logout();
+                nav("/");
+              }}
+              className="p-1.5 rounded-lg border border-[#E2E8F0] hover:bg-[#FEF2F2] hover:text-[#DC2626] text-[#64748B] transition-colors cursor-pointer"
+              title="Keluar"
+            >
+              <LogOut size={15} />
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Flow Container */}
+      <main className="max-w-6xl mx-auto w-full px-4 sm:px-6 py-8 space-y-8 flex-1">
+        {/* AKG Nutrition Progress Card */}
+        <section className="bg-white rounded-2xl border border-[#E2E8F0] p-6 shadow-xs space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#2D7A4F] bg-[#ECFDF5] px-2.5 py-0.5 rounded border border-[#A7F3D0]">
+                  Target Gizi Harian Kemenkes RI
+                </span>
+                <span className="text-xs text-[#64748B]">({profile?.resident_count ?? 0} Warga Binaan)</span>
+              </div>
+              <h2 className="text-lg sm:text-xl font-bold text-[#0F172A]">
+                Pemenuhan Angka Kecukupan Gizi (AKG)
+              </h2>
+            </div>
+
+            <div className="flex items-center gap-4 text-xs font-semibold">
+              <div className="px-3 py-2 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl">
+                <span className="text-[#64748B] block text-[10px] uppercase">Energi Kalori</span>
+                <span className="font-bold text-[#0F172A]">{todayCalories} / {targetCalories} kkal ({caloriePct}%)</span>
+              </div>
+              <div className="px-3 py-2 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl">
+                <span className="text-[#64748B] block text-[10px] uppercase">Protein Masuk</span>
+                <span className="font-bold text-[#0F172A]">{todayProtein}g / {targetProtein}g ({proteinPct}%)</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Progress Bars */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+            <div className="space-y-1.5">
+              <div className="flex justify-between text-xs font-semibold text-[#475569]">
+                <span>Energi Kalori</span>
+                <span>{caloriePct}%</span>
+              </div>
+              <div className="w-full bg-[#F1F5F9] h-2.5 rounded-full overflow-hidden">
+                <div
+                  className="bg-[#2D7A4F] h-full rounded-full transition-all duration-500"
+                  style={{ width: `${caloriePct}%` }}
                 />
               </div>
-              <div className="lg:col-span-5 flex flex-col gap-4 lg:h-[450px]">
-                <div className="flex-1 min-h-0">
-                  <DonationList
-                    donations={activeDonations}
-                    profile={profile}
-                    onClaim={handleClaim}
-                    onTopsis={loadTopsis}
-                    user={user}
-                  />
-                </div>
-                {selectedDonation && (
-                  <div className="bg-white rounded-2xl border border-[var(--border-primary)] p-5 shadow-sm">
-                    <TOPSISPanel
-                      selectedDonation={selectedDonation}
-                      topsisData={topsisData}
-                      userId={user.id}
-                      onClaim={handleClaim}
-                    />
+            </div>
+
+            <div className="space-y-1.5">
+              <div className="flex justify-between text-xs font-semibold text-[#475569]">
+                <span>Protein</span>
+                <span>{proteinPct}%</span>
+              </div>
+              <div className="w-full bg-[#F1F5F9] h-2.5 rounded-full overflow-hidden">
+                <div
+                  className="bg-[#2563EB] h-full rounded-full transition-all duration-500"
+                  style={{ width: `${proteinPct}%` }}
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Active In-Transit Alert Strip */}
+        {transitDonations.length > 0 && (
+          <section className="bg-white rounded-xl border border-[#93C5FD] p-4 shadow-xs space-y-3">
+            <div className="flex items-center justify-between border-b border-[#DBEAFE] pb-2">
+              <span className="text-xs font-bold text-[#1E40AF] flex items-center gap-1.5">
+                <Truck size={15} className="text-[#2563EB]" />
+                {transitDonations.length} Makanan Siap Dijemput di Lokasi Donatur
+              </span>
+              <span className="text-[11px] text-[#3B82F6] font-medium">Ikuti rute jalan penjemputan</span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {transitDonations.map((item) => {
+                const phoneClean = cleanPhone(item.donor_phone);
+                return (
+                  <div
+                    key={item.id}
+                    className="bg-[#EFF6FF] rounded-lg border border-[#BFDBFE] p-3 flex flex-col justify-between gap-2.5"
+                  >
+                    <div>
+                      <div className="flex items-start justify-between">
+                        <h4 className="font-bold text-xs text-[#1E3A8A]">{item.food_name}</h4>
+                        <span className="text-[10px] font-semibold text-[#1E40AF] bg-white px-2 py-0.5 rounded border border-[#93C5FD]">
+                          Siap Diambil
+                        </span>
+                      </div>
+                      <p className="text-xs text-[#1E40AF] mt-0.5">
+                        {item.portion_count} Porsi • Donatur: <strong>{item.donor_name || "Mitra Donatur"}</strong>
+                      </p>
+                      <p className="text-[11px] text-[#60A5FA] mt-0.5 truncate flex items-center gap-1">
+                        <MapPin size={11} /> {item.donor_address || "Yogyakarta"}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-2 pt-1 border-t border-[#BFDBFE]/60">
+                      <button
+                        type="button"
+                        onClick={() => setTrackingData(item)}
+                        className="flex-1 py-1.5 rounded-md bg-[#2D7A4F] hover:bg-[#235F3D] text-white font-medium text-[11px] flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                      >
+                        <Compass size={12} /> Buka Peta Rute Jalan 3D
+                      </button>
+                      {phoneClean && (
+                        <a
+                          href={`https://wa.me/${phoneClean}?text=${encodeURIComponent(
+                            `Halo pihak ${item.donor_name || "donatur"}, kami dari ${profile?.institution_name || "penerima"} mengonfirmasi bahwa kami sedang dalam perjalanan untuk mengambil donasi "${item.food_name}".`,
+                          )}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-2.5 py-1.5 rounded-md bg-white border border-[#CBD5E1] text-[#334155] hover:bg-[#F8FAFC] font-medium text-[11px] flex items-center gap-1 transition-colors"
+                        >
+                          <MessageCircle size={12} className="text-[#2D7A4F]" /> WhatsApp
+                        </a>
+                      )}
+                    </div>
                   </div>
-                )}
-              </div>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
+        {/* Tab Navigation & Content */}
+        <section className="space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#E2E8F0] pb-2">
+            <div className="flex items-center gap-1 text-xs font-semibold">
+              <button
+                type="button"
+                onClick={() => setActiveTab("explore")}
+                className={`px-3 py-1.5 rounded-md transition-colors cursor-pointer ${
+                  activeTab === "explore" ? "bg-[#2D7A4F] text-white" : "text-[#64748B] hover:text-[#0F172A]"
+                }`}
+              >
+                Jelajah Surplus ({activeDonations.length})
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab("active")}
+                className={`px-3 py-1.5 rounded-md transition-colors cursor-pointer ${
+                  activeTab === "active" ? "bg-[#2D7A4F] text-white" : "text-[#64748B] hover:text-[#0F172A]"
+                }`}
+              >
+                Penjemputan Aktif ({transitDonations.length})
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab("history")}
+                className={`px-3 py-1.5 rounded-md transition-colors cursor-pointer ${
+                  activeTab === "history" ? "bg-[#2D7A4F] text-white" : "text-[#64748B] hover:text-[#0F172A]"
+                }`}
+              >
+                Riwayat Diterima ({completedList.length})
+              </button>
             </div>
 
-            {/* Row 3: Nutrition (6) + Claim Status (6) */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-              <div className="lg:col-span-6">
-                <NutritionTracker akg={akg} />
-              </div>
-              <div className="lg:col-span-6 flex flex-col gap-4">
-                <ClaimLifecycle
-                  transitDonations={transitDonations}
-                  onArrived={handleArrived}
-                  onTrack={(d) => setTrackingData(d)}
-                />
-                <TransitSection
-                  transitDonations={transitDonations}
-                  onArrived={handleArrived}
-                  onTrack={(d) => setTrackingData(d)}
-                />
-              </div>
-            </div>
-
-            {/* Row 4: Full width History */}
-            {completedHistory.length > 0 && (
-              <div>
-                <h3 className="text-lg font-bold text-brand-dark mb-4">
-                  Recent History
-                </h3>
-                <HistorySection
-                  completedHistory={completedHistory.slice(0, 6)}
-                  onRate={setSelectedReviewDonation}
+            {activeTab === "explore" && (
+              <div className="relative w-full sm:w-64">
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#94A3B8]" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Cari makanan, resto, hotel..."
+                  className="w-full pl-8 pr-3 py-1.5 bg-white border border-[#E2E8F0] rounded-lg text-xs text-[#1E293B] focus:outline-none focus:border-[#2D7A4F]"
                 />
               </div>
             )}
           </div>
-        )}
 
-        {activeTab === "claims" && (
-          <div className="mt-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
-            <div className="lg:col-span-8 flex flex-col gap-6">
-              <DonationList
-                donations={activeDonations}
-                profile={profile}
-                onClaim={handleClaim}
-                onTopsis={loadTopsis}
-                user={user}
-              />
-            </div>
-            <div className="lg:col-span-4 flex flex-col gap-6">
-              <div className="glass p-6 rounded-3xl border border-white/50 shadow-sm bg-gradient-to-br from-brand-medium/10 to-transparent">
-                <h3 className="font-bold text-brand-dark mb-2 flex items-center gap-2">
-                  <Activity size={18} className="text-brand-medium" /> Claims
-                  Tips
-                </h3>
-                <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-                  Make sure to arrive on time when claiming a donation. Donors
-                  will appreciate your punctuality!
-                  <br />
-                  <br />
-                  Our AI TOPSIS algorithm prioritizes claims based on urgency
-                  and nutritional match.
-                </p>
+          {/* Tab 1: Explore Feed */}
+          {activeTab === "explore" && (
+            <div className="space-y-4">
+              {/* Category Filter Pills */}
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
+                {[
+                  { id: "all", label: "Semua Kategori" },
+                  { id: "makanan_berat", label: "Makanan Berat" },
+                  { id: "roti_kue", label: "Roti & Bakery" },
+                  { id: "buah_sayur", label: "Sayur & Buah" },
+                  { id: "lauk_pauk", label: "Lauk & Protein" },
+                ].map((c) => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={() => setSelectedCategory(c.id)}
+                    className={`px-3 py-1 rounded-md transition-colors whitespace-nowrap cursor-pointer ${
+                      selectedCategory === c.id
+                        ? "bg-[#334155] text-white font-medium"
+                        : "bg-white border border-[#E2E8F0] text-[#64748B] hover:bg-[#F8FAFC]"
+                    }`}
+                  >
+                    {c.label}
+                  </button>
+                ))}
               </div>
-            </div>
-          </div>
-        )}
 
-        {activeTab === "logistics" && (
-          <div className="mt-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
-            <div className="lg:col-span-8 flex flex-col gap-6">
-              <TransitSection
-                transitDonations={transitDonations}
-                onArrived={handleArrived}
-                onTrack={(d) => setTrackingData(d)}
-              />
-              {transitDonations.length === 0 && (
-                <EmptyState
-                  icon={
-                    <svg
-                      className="w-10 h-10"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10l2-1m0 0l2 1m-2-1v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                      />
-                    </svg>
-                  }
-                  title="No Logistics"
-                  description="No donations in transit."
-                />
+              {filteredExplore.length === 0 ? (
+                <div className="bg-white rounded-xl border border-[#E2E8F0] p-10 text-center text-xs text-[#64748B] space-y-2">
+                  <Package size={24} className="mx-auto text-[#94A3B8]" />
+                  <p className="font-semibold text-[#334155]">Belum ada donasi makanan surplus yang tersedia saat ini.</p>
+                  <p className="text-[11px] text-[#64748B]">Restoran dan hotel mitra akan mempublikasikan donasi secara berkala.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filteredExplore.map((item) => {
+                    const isRank1 = item.rank === 1;
+                    const isClaimingThis = claimingId === item.id;
+
+                    return (
+                      <div
+                        key={item.id}
+                        className={`bg-white rounded-xl border overflow-hidden shadow-2xs flex flex-col justify-between transition-colors ${
+                          isRank1 ? "border-[#2D7A4F] ring-1 ring-[#2D7A4F]" : "border-[#E2E8F0] hover:border-[#CBD5E1]"
+                        }`}
+                      >
+                        <div className="relative h-32 bg-[#F1F5F9] overflow-hidden">
+                          <img
+                            src={item.photo_url || "/images/nutrishare_hero_food_plate.webp"}
+                            alt={item.food_name}
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+
+                          {isRank1 && (
+                            <div className="absolute top-2.5 left-2.5 bg-[#2D7A4F] text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-xs">
+                              Rekomendasi TOPSIS #1
+                            </div>
+                          )}
+
+                          <div className="absolute bottom-2 left-2.5 right-2.5 flex items-center justify-between text-white text-[11px] font-semibold">
+                            <span>{item.portion_count} Porsi</span>
+                            <span className="flex items-center gap-1 text-[#A7F3D0]">
+                              <Clock size={11} /> Sisa {item.hours_valid || 6} Jam
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="p-4 space-y-3 flex-1 flex flex-col justify-between">
+                          <div className="space-y-1.5">
+                            <h3 className="font-bold text-sm text-[#0F172A] leading-snug">
+                              {item.food_name}
+                            </h3>
+                            <p className="text-xs text-[#64748B] flex items-center gap-1">
+                              <MapPin size={11} className="text-[#94A3B8] shrink-0" />
+                              <span className="truncate">{item.donor_name || "Mitra Donatur"}</span>
+                            </p>
+
+                            <div className="flex flex-wrap gap-1.5 pt-1 text-[11px] text-[#475569] font-medium">
+                              {item.protein_per_portion && (
+                                <span className="px-2 py-0.5 bg-[#EFF6FF] text-[#1E40AF] rounded">
+                                  {item.protein_per_portion}g Protein
+                                </span>
+                              )}
+                              {item.calorie_per_portion && (
+                                <span className="px-2 py-0.5 bg-[#FEF3C7] text-[#92400E] rounded">
+                                  {item.calorie_per_portion} kkal
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="pt-2.5 border-t border-[#F1F5F9] flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => openTopsisAudit(item)}
+                              className="px-2.5 py-2 rounded-lg border border-[#E2E8F0] hover:bg-[#F8FAFC] text-xs font-medium text-[#334155] flex items-center gap-1 transition-colors cursor-pointer"
+                              title="Audit Perankingan TOPSIS"
+                            >
+                              <BarChart3 size={13} className="text-[#2D7A4F]" />
+                              <span>TOPSIS</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => handleClaim(item.id)}
+                              disabled={isClaimingThis}
+                              className="flex-1 py-2 rounded-lg bg-[#2D7A4F] hover:bg-[#235F3D] text-white font-semibold text-xs shadow-xs transition-colors flex items-center justify-center gap-1 cursor-pointer disabled:opacity-50"
+                            >
+                              {isClaimingThis ? (
+                                <span>Mengonfirmasi...</span>
+                              ) : (
+                                <>
+                                  <Heart size={13} className="fill-white" />
+                                  <span>Ambil Donasi</span>
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               )}
             </div>
-            <div className="lg:col-span-4 flex flex-col gap-6">
-              <div className="glass p-6 rounded-3xl border border-white/50 shadow-sm bg-gradient-to-br from-brand-accent/10 to-transparent">
-                <h3 className="font-bold text-brand-dark mb-2 flex items-center gap-2">
-                  <Truck size={18} className="text-brand-accent" /> Logistics
-                  Tracking
-                </h3>
-                <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-                  Track your inbound donations here. Once the courier arrives,
-                  mark the donation as received to update the donor!
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
+          )}
 
-        {activeTab === "nutrition" && (
-          <div className="mt-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
-            <div className="lg:col-span-8 flex flex-col gap-6">
-              <NutritionTracker akg={akg} />
+          {/* Tab 2: Active Transit */}
+          {activeTab === "active" && (
+            <div className="space-y-3">
+              {transitDonations.length === 0 ? (
+                <div className="bg-white rounded-xl border border-[#E2E8F0] p-10 text-center text-xs text-[#64748B] space-y-1">
+                  <CheckCircle2 size={24} className="mx-auto text-[#2D7A4F]" />
+                  <p className="font-semibold text-[#334155]">Tidak ada penjemputan yang sedang berlangsung.</p>
+                  <p className="text-[11px]">Klaim donasi makanan di tab "Jelajah Surplus" untuk memulai proses penjemputan.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                  {transitDonations.map((item) => (
+                    <div
+                      key={item.id}
+                      className="bg-white rounded-xl border border-[#E2E8F0] p-4.5 shadow-2xs space-y-3"
+                    >
+                      <div className="flex justify-between items-start">
+                        <span className="px-2 py-0.5 rounded bg-[#EFF6FF] text-[#1E40AF] text-[10px] font-bold border border-[#BFDBFE]">
+                          Siap Diambil
+                        </span>
+                        <span className="text-xs text-[#94A3B8] font-mono">#{item.id}</span>
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-sm text-[#0F172A]">{item.food_name}</h4>
+                        <p className="text-xs text-[#64748B] mt-0.5">{item.portion_count} Porsi • Donatur: <strong>{item.donor_name}</strong></p>
+                        <p className="text-[11px] text-[#64748B] mt-1">{item.donor_address || "Yogyakarta"}</p>
+                      </div>
+                      <div className="pt-2 border-t border-[#F1F5F9]">
+                        <button
+                          type="button"
+                          onClick={() => setTrackingData(item)}
+                          className="w-full py-2 rounded-lg bg-[#2D7A4F] hover:bg-[#235F3D] text-white font-semibold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                        >
+                          <Compass size={13} /> Buka Pelacakan Rute Jalan 3D
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-            <div className="lg:col-span-4 flex flex-col gap-6">
-              <div className="glass p-6 rounded-3xl border border-white/50 shadow-sm bg-gradient-to-br from-primary-orange/10 to-transparent">
-                <h3 className="font-bold text-brand-dark mb-2 flex items-center gap-2">
-                  <TrendingUp size={18} className="text-primary-orange" /> AKG
-                  Goals
-                </h3>
-                <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-                  Your nutritional needs are calculated automatically based on
-                  the demographics you provided in your profile.
-                  <br />
-                  <br />
-                  Try to balance your claims across different food types to
-                  reach 100% of your daily goals!
-                </p>
-              </div>
+          )}
+
+          {/* Tab 3: Completed History */}
+          {activeTab === "history" && (
+            <div className="space-y-3">
+              {completedList.length === 0 ? (
+                <div className="bg-white rounded-xl border border-[#E2E8F0] p-10 text-center text-xs text-[#64748B]">
+                  Belum ada riwayat donasi yang selesai diserahterimakan.
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                  {completedList.map((item) => (
+                    <div
+                      key={item.id}
+                      className="bg-white rounded-xl border border-[#E2E8F0] p-4 shadow-2xs flex flex-col justify-between gap-3"
+                    >
+                      <div className="space-y-1">
+                        <div className="flex justify-between items-center text-xs">
+                          <span className="font-bold text-[#065F46] flex items-center gap-1">
+                            <ShieldCheck size={13} /> Selesai Diterima
+                          </span>
+                          <span className="text-[#94A3B8] text-[10px]">
+                            {item.completed_at ? new Date(item.completed_at).toLocaleDateString("id-ID") : "Tervalidasi"}
+                          </span>
+                        </div>
+                        <h4 className="font-bold text-sm text-[#0F172A]">{item.food_name}</h4>
+                        <p className="text-xs text-[#64748B]">
+                          {item.portion_count} Porsi dari <strong>{item.donor_name}</strong>
+                        </p>
+                      </div>
+
+                      <div className="pt-2 border-t border-[#F1F5F9] flex justify-end">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedReviewDonation(item)}
+                          className="px-3 py-1.5 rounded-md border border-[#E2E8F0] hover:bg-[#F8FAFC] text-[#D97706] font-semibold text-xs flex items-center gap-1 transition-colors cursor-pointer"
+                        >
+                          <Star size={13} className="fill-[#D97706]" />
+                          <span>Beri Ulasan Donatur</span>
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-          </div>
-        )}
+          )}
+        </section>
       </main>
 
-      <AnimatePresence>
-        {selectedReviewDonation && (
-          <ReviewModal
-            donation={selectedReviewDonation}
-            onClose={() => setSelectedReviewDonation(null)}
-            onReviewed={loadData}
-          />
-        )}
-        {trackingData && (
-          <LiveTrackingModal
-            donation={trackingData}
-            user={user}
-            profile={profile}
-            onClose={() => setTrackingData(null)}
-            onComplete={loadData}
-            onRate={(d: any) => setSelectedReviewDonation(d)}
-          />
-        )}
-        {showProfile && (
-          <ProfileModal
-            user={user}
-            profile={profile}
-            onClose={() => setShowProfile(false)}
-            onUpdate={() => refresh()}
-          />
-        )}
-      </AnimatePresence>
-    </motion.div>
+      {/* TOPSIS Transparency Modal */}
+      {topsisModalDonation && (
+        <TOPSISModal
+          donation={topsisModalDonation}
+          topsisData={topsisData}
+          userProfile={profile}
+          onClaim={handleClaim}
+          onClose={() => setTopsisModalDonation(null)}
+        />
+      )}
+
+      {/* Review Modal */}
+      {selectedReviewDonation && (
+        <ReviewModal
+          donation={selectedReviewDonation}
+          onClose={() => setSelectedReviewDonation(null)}
+          onReviewed={() => {
+            loadData();
+            setSelectedReviewDonation(null);
+          }}
+        />
+      )}
+
+      {/* Live Tracking Modal */}
+      {trackingData && (
+        <LiveTrackingModal
+          donation={trackingData}
+          user={user}
+          profile={profile}
+          onClose={() => setTrackingData(null)}
+          onComplete={loadData}
+          onRate={(d: any) => setSelectedReviewDonation(d)}
+        />
+      )}
+
+      {/* Profile Modal */}
+      {showProfile && (
+        <ProfileModal
+          user={user}
+          profile={profile}
+          onClose={() => setShowProfile(false)}
+          onUpdate={loadData}
+        />
+      )}
+    </div>
   );
 }
+
+export default RecipientDashboard;

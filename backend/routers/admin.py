@@ -19,6 +19,7 @@ from backend.models import (
     User,
 )
 from backend.schemas import AdminVerifyRequest
+from backend.services.cache import cache
 from backend.services.notifications import notify_user
 from backend.services.realtime import broker
 from backend.services.topsis import run_topsis_all_active
@@ -116,6 +117,8 @@ async def admin_verify_user(
         await run_topsis_all_active()
 
     await log_activity(session, current_user.id, "user_verifikasi", f"User {user_id} diverifikasi")
+    cache.invalidate("public:stats")
+    cache.invalidate_pattern("analytics:")
     return {"message": "User diverifikasi"}
 
 
@@ -235,6 +238,8 @@ async def admin_approve_claim(
     )
 
     await log_activity(session, current_user.id, "klaim_setujui", f"Klaim #{claim_id} disetujui")
+    cache.invalidate("public:stats")
+    cache.invalidate_pattern("analytics:")
     return {"message": "Klaim disetujui"}
 
 

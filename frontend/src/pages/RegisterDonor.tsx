@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { api } from "../lib/api";
 import { LocationPicker } from "../components/LocationPicker";
-import { Store, Mail, Lock, Phone, MapPin } from "lucide-react";
+import { Store, Mail, Lock, Phone, MapPin, Sparkles, MessageCircle, ShieldCheck } from "lucide-react";
 import {
   validateEmail,
   validatePassword,
@@ -34,10 +34,15 @@ export function RegisterDonor() {
 
   const validateField = (field: string, value: string) => {
     const rules: Record<string, () => { valid: boolean; message?: string }> = {
-      business_name: () => validateRequired(value, "Business Name"),
+      business_name: () => validateRequired(value, "Nama Usaha / Hotel / Resto"),
+      phone: () => {
+        if (!value.trim()) return { valid: false, message: "Nomor WhatsApp wajib diisi untuk koordinasi" };
+        if (value.replace(/\D/g, "").length < 9) return { valid: false, message: "Nomor telepon minimal 9 digit" };
+        return { valid: true };
+      },
       email: () => validateEmail(value),
       password: () => validatePassword(value),
-      address: () => validateRequired(value, "Address"),
+      address: () => validateRequired(value, "Alamat Lengkap"),
     };
     const r = rules[field]?.();
     if (r)
@@ -46,13 +51,18 @@ export function RegisterDonor() {
 
   const validateAll = (): boolean => {
     const fields = [
+      { key: "business_name", fn: () => validateRequired(form.business_name, "Nama Usaha") },
       {
-        key: "business_name",
-        fn: () => validateRequired(form.business_name, "Business Name"),
+        key: "phone",
+        fn: () => {
+          if (!form.phone.trim()) return { valid: false, message: "Nomor WhatsApp aktif wajib diisi" };
+          if (form.phone.replace(/\D/g, "").length < 9) return { valid: false, message: "Nomor telepon minimal 9 digit" };
+          return { valid: true };
+        },
       },
       { key: "email", fn: () => validateEmail(form.email) },
       { key: "password", fn: () => validatePassword(form.password) },
-      { key: "address", fn: () => validateRequired(form.address, "Address") },
+      { key: "address", fn: () => validateRequired(form.address, "Alamat Lengkap") },
     ];
     const newErrors: FieldErrors = {};
     let valid = true;
@@ -77,10 +87,10 @@ export function RegisterDonor() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
-      toast.success("Registration sent! Please wait for admin verification.");
+      toast.success("Pendaftaran berhasil dikirim! Menunggu verifikasi admin.");
       nav("/login");
     } catch (err: any) {
-      toast.error(err.message || "Failed");
+      toast.error(err.message || "Gagal melakukan pendaftaran.");
     } finally {
       setLoading(false);
     }
@@ -93,7 +103,7 @@ export function RegisterDonor() {
 
   return (
     <div className="min-h-[100dvh] bg-[#faf8f4] flex flex-col md:flex-row">
-      <SEO title="Register Donor | NutriShare" />
+      <SEO title="Pendaftaran Donatur Mitra | NutriShare" />
 
       {/* Left - Narrative Visual Panel */}
       <motion.div
@@ -111,192 +121,152 @@ export function RegisterDonor() {
           <div className="absolute inset-0 bg-gradient-to-t from-brand-dark/80 via-brand-dark/30 to-transparent" />
         </div>
 
-        <div className="absolute bottom-8 left-8 right-8 p-6 md:p-8 backdrop-blur-md bg-white/15 rounded-2xl border border-white/20 z-10">
-          <div className="flex items-center gap-3 mb-3">
+        <div className="absolute bottom-8 left-8 right-8 p-6 md:p-8 backdrop-blur-md bg-white/15 rounded-3xl border border-white/20 z-10 text-white space-y-3">
+          <div className="flex items-center gap-3">
             <img
               src="/images/logoterbaru.webp"
               alt="NutriShare"
-              width={40}
-              height={40}
-              className="h-10 w-10 rounded-lg bg-white/90 p-1"
+              className="h-10 w-auto bg-white/90 p-1 rounded-xl"
             />
-            <h1 className="font-heading text-2xl font-bold text-white">
-              NutriShare
-            </h1>
+            <h1 className="font-heading text-2xl font-bold">NutriShare HoReKa</h1>
           </div>
-          <p className="text-white/85 leading-relaxed max-w-lg text-sm">
-            Join food-conscious businesses turning surplus into smiles. Every
-            donation counts.
+          <p className="text-white/85 text-xs sm:text-sm leading-relaxed max-w-lg">
+            Bergabunglah bersama hotel, restoran, dan katering di Yogyakarta untuk mencegah food waste dan menyalurkan surplus makanan bergizi.
           </p>
-          <div className="mt-4">
-            <span className="inline-block px-3 py-1 bg-primary-orange/30 text-white text-xs font-bold rounded-full">
-              Become a Food Hero
+          <div className="flex items-center gap-2 pt-2">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/30 border border-emerald-300/40 text-emerald-200 text-xs font-bold">
+              <Sparkles size={13} className="text-amber-300" />
+              <span>Dukungan AI Nutrition & TOPSIS</span>
             </span>
           </div>
         </div>
       </motion.div>
 
       {/* Right - Form */}
-      <div className="flex-1 flex items-center justify-center p-6 md:p-12 lg:p-16 bg-white overflow-y-auto">
+      <div className="flex-1 flex items-center justify-center p-6 md:p-12 lg:p-14 bg-white overflow-y-auto">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
           className="w-full max-w-[520px]"
         >
-          {/* Back Link */}
           <Link
             to="/login"
-            className="inline-flex items-center gap-2 text-gray-400 hover:text-brand-dark transition-colors mb-6 group"
+            className="inline-flex items-center gap-2 text-stone-400 hover:text-stone-800 transition-colors mb-6 text-xs font-semibold tracking-wider uppercase"
           >
-            <svg
-              className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-            <span className="text-xs font-semibold tracking-widest uppercase">
-              Back to Login
-            </span>
+            &larr; Kembali ke Masuk
           </Link>
 
-          {/* Mobile logo */}
-          <div className="md:hidden flex items-center gap-2 mb-4">
-            <img
-              src="/images/logoterbaru.webp"
-              alt="NutriShare"
-              width={32}
-              height={32}
-              className="h-8 w-8"
-            />
-            <span className="font-heading text-lg font-bold text-brand-dark">
-              NutriShare
-            </span>
-          </div>
-
-          {/* Header */}
-          <div className="mb-6">
-            <h2 className="font-heading text-2xl font-bold text-brand-dark mb-1">
-              Register as Donor
+          <div className="mb-6 space-y-1">
+            <h2 className="font-heading text-2xl sm:text-3xl font-bold text-stone-900">
+              Daftar Sebagai Donatur
             </h2>
-            <p className="text-gray-500">
-              List your business and start donating surplus food.
+            <p className="text-xs sm:text-sm text-stone-500">
+              Lengkapi data usaha Anda untuk mulai mempublikasikan donasi makanan.
             </p>
           </div>
 
           <form onSubmit={handleRegister} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="sm:col-span-2">
-                <label className="text-xs font-semibold tracking-widest uppercase text-gray-500 mb-1.5 block">
-                  Business Name
+                <label className="text-xs font-bold text-stone-700 mb-1.5 block">
+                  Nama Usaha / Hotel / Restoran <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
-                  <Store
-                    size={16}
-                    className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"
-                  />
+                  <Store size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400" />
                   <input
-                    placeholder="e.g. Aston Hotel"
+                    placeholder="Contoh: Hotel Tentrem Yogyakarta"
                     value={form.business_name}
                     onChange={(e) => update("business_name", e.target.value)}
-                    onBlur={() =>
-                      validateField("business_name", form.business_name)
-                    }
-                    className={`w-full border rounded-xl pl-10 pr-4 py-3 bg-[#f8fafc] border-gray-200 focus:ring-2 focus:ring-primary-orange/20 focus:border-primary-orange outline-none transition-all ${getErrorClass(errors.business_name)}`}
+                    onBlur={() => validateField("business_name", form.business_name)}
+                    className={`w-full border rounded-xl pl-10 pr-4 py-3 bg-stone-50 border-stone-200 focus:bg-white focus:ring-2 focus:ring-[#2D7A4F]/20 focus:border-[#2D7A4F] text-xs font-semibold outline-none transition-all ${getErrorClass(errors.business_name)}`}
                     required
                   />
                 </div>
                 {getErrorText(errors.business_name)}
               </div>
+
               <div>
-                <label className="text-xs font-semibold tracking-widest uppercase text-gray-500 mb-1.5 block">
-                  Type
+                <label className="text-xs font-bold text-stone-700 mb-1.5 block">
+                  Jenis Usaha
                 </label>
                 <select
                   value={form.business_type}
                   onChange={(e) => update("business_type", e.target.value)}
-                  className="w-full border border-gray-200 rounded-xl px-4 py-3 bg-[#f8fafc] focus:ring-2 focus:ring-primary-orange/20 focus:border-primary-orange outline-none transition-all"
+                  className="w-full border border-stone-200 rounded-xl px-4 py-3 bg-stone-50 text-xs font-semibold focus:bg-white focus:ring-2 focus:ring-[#2D7A4F]/20 focus:border-[#2D7A4F] outline-none transition-all"
                 >
-                  <option value="hotel">Hotel</option>
-                  <option value="restoran">Restaurant</option>
-                  <option value="kafe">Cafe</option>
-                  <option value="katering">Catering</option>
-                  <option value="lainnya">Other</option>
+                  <option value="hotel">Hotel & Penginapan</option>
+                  <option value="restoran">Restoran & Rumah Makan</option>
+                  <option value="kafe">Kafe & Bakery</option>
+                  <option value="katering">Jasa Katering</option>
+                  <option value="lainnya">Supermarket / Lainnya</option>
                 </select>
               </div>
+
+              {/* Explicit WhatsApp Field with Integration Tooltip */}
               <div>
-                <label className="text-xs font-semibold tracking-widest uppercase text-gray-500 mb-1.5 block">
-                  Phone
+                <label className="text-xs font-bold text-stone-700 mb-1.5 flex items-center justify-between">
+                  <span>Nomor WhatsApp Aktif <span className="text-red-500">*</span></span>
+                  <span className="text-[10px] text-emerald-700 font-bold flex items-center gap-0.5">
+                    <MessageCircle size={11} /> Koordinasi WA
+                  </span>
                 </label>
                 <div className="relative">
-                  <Phone
-                    size={16}
-                    className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"
-                  />
+                  <Phone size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400" />
                   <input
-                    placeholder="Phone number"
+                    placeholder="0812xxxxxxxx"
                     type="tel"
                     value={form.phone}
                     onChange={(e) => update("phone", e.target.value)}
-                    className="w-full border border-gray-200 rounded-xl pl-10 pr-4 py-3 bg-[#f8fafc] focus:ring-2 focus:ring-primary-orange/20 focus:border-primary-orange outline-none transition-all"
+                    onBlur={() => validateField("phone", form.phone)}
+                    className={`w-full border rounded-xl pl-10 pr-4 py-3 bg-stone-50 border-stone-200 focus:bg-white focus:ring-2 focus:ring-[#2D7A4F]/20 focus:border-[#2D7A4F] text-xs font-semibold outline-none transition-all ${getErrorClass(errors.phone)}`}
+                    required
                   />
                 </div>
+                {getErrorText(errors.phone)}
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-semibold tracking-widest uppercase text-gray-500 mb-1.5 block">
-                  Email
+                <label className="text-xs font-bold text-stone-700 mb-1.5 block">
+                  Email Akun <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
-                  <Mail
-                    size={16}
-                    className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"
-                  />
+                  <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400" />
                   <input
-                    placeholder="email@business.com"
+                    placeholder="nama@hotel.com"
                     type="email"
                     value={form.email}
                     onChange={(e) => update("email", e.target.value)}
                     onBlur={() => validateField("email", form.email)}
-                    className={`w-full border border-gray-200 rounded-xl pl-10 pr-4 py-3 bg-[#f8fafc] focus:ring-2 focus:ring-primary-orange/20 focus:border-primary-orange outline-none transition-all ${getErrorClass(errors.email)}`}
+                    className={`w-full border rounded-xl pl-10 pr-4 py-3 bg-stone-50 border-stone-200 focus:bg-white focus:ring-2 focus:ring-[#2D7A4F]/20 focus:border-[#2D7A4F] text-xs font-semibold outline-none transition-all ${getErrorClass(errors.email)}`}
                     required
                   />
                 </div>
                 {getErrorText(errors.email)}
               </div>
+
               <div>
-                <label className="text-xs font-semibold tracking-widest uppercase text-gray-500 mb-1.5 block">
-                  Password
+                <label className="text-xs font-bold text-stone-700 mb-1.5 block">
+                  Kata Sandi <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
-                  <Lock
-                    size={16}
-                    className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"
-                  />
+                  <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400" />
                   <input
-                    placeholder="Min. 6 chars"
+                    placeholder="Minimal 6 karakter"
                     type={showPassword ? "text" : "password"}
                     value={form.password}
                     onChange={(e) => update("password", e.target.value)}
                     onBlur={() => validateField("password", form.password)}
-                    className={`w-full border border-gray-200 rounded-xl pl-10 pr-12 py-3 bg-[#f8fafc] focus:ring-2 focus:ring-primary-orange/20 focus:border-primary-orange outline-none transition-all ${getErrorClass(errors.password)}`}
+                    className={`w-full border rounded-xl pl-10 pr-12 py-3 bg-stone-50 border-stone-200 focus:bg-white focus:ring-2 focus:ring-[#2D7A4F]/20 focus:border-[#2D7A4F] text-xs font-semibold outline-none transition-all ${getErrorClass(errors.password)}`}
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-sm font-medium"
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700 text-xs font-bold"
                   >
-                    {showPassword ? "Hide" : "Show"}
+                    {showPassword ? "Tutup" : "Lihat"}
                   </button>
                 </div>
                 {getErrorText(errors.password)}
@@ -304,100 +274,67 @@ export function RegisterDonor() {
             </div>
 
             <div>
-              <label className="text-xs font-semibold tracking-widest uppercase text-gray-500 mb-1.5 block">
-                Address
+              <label className="text-xs font-bold text-stone-700 mb-1.5 block">
+                Alamat Lengkap Titik Penjemputan <span className="text-red-500">*</span>
               </label>
               <textarea
-                placeholder="Full business address"
+                placeholder="Jl. AM Sangaji No. xx, Jetis, Kota Yogyakarta"
                 value={form.address}
                 onChange={(e) => update("address", e.target.value)}
                 onBlur={() => validateField("address", form.address)}
-                className={`w-full border border-gray-200 rounded-xl px-4 py-3 bg-[#f8fafc] focus:ring-2 focus:ring-primary-orange/20 focus:border-primary-orange outline-none transition-all ${getErrorClass(errors.address)}`}
+                className={`w-full border rounded-xl px-4 py-3 bg-stone-50 border-stone-200 focus:bg-white focus:ring-2 focus:ring-[#2D7A4F]/20 focus:border-[#2D7A4F] text-xs font-semibold outline-none transition-all ${getErrorClass(errors.address)}`}
                 rows={2}
                 required
               />
               {getErrorText(errors.address)}
             </div>
 
-            <div className="bg-[#f8fafc] border border-gray-200 rounded-2xl p-5">
-              <h3 className="text-sm font-bold text-brand-dark mb-2 flex items-center gap-2">
-                <MapPin size={16} className="text-brand-medium" /> Pickup
-                Location
+            {/* Map Location Picker */}
+            <div className="bg-stone-50 border border-stone-200 rounded-2xl p-4 space-y-2">
+              <h3 className="text-xs font-bold text-stone-800 flex items-center gap-1.5">
+                <MapPin size={15} className="text-[#2D7A4F]" /> Titik Koordinat Peta Donatur
               </h3>
-              <div className="h-48 rounded-xl overflow-hidden border border-gray-200">
-                <LocationPicker
-                  lat={parseFloat(form.latitude)}
-                  lng={parseFloat(form.longitude)}
-                  onChange={(lat, lng) =>
-                    setForm({
-                      ...form,
-                      latitude: lat.toString(),
-                      longitude: lng.toString(),
-                    })
-                  }
-                />
-              </div>
+              <p className="text-[11px] text-stone-500">
+                Pilih atau seret pin lokasi agar panti asuhan penerima dapat menghitung rute jalan penjemputan secara akurat.
+              </p>
+              <LocationPicker
+                lat={parseFloat(form.latitude)}
+                lng={parseFloat(form.longitude)}
+                onChange={(lat, lng) =>
+                  setForm({
+                    ...form,
+                    latitude: lat.toString(),
+                    longitude: lng.toString(),
+                  })
+                }
+              />
             </div>
 
             <button
               disabled={loading}
               type="submit"
-              className="w-full bg-primary-orange text-white py-3.5 rounded-xl font-bold hover:bg-primary-orange-dark active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-primary-orange/20"
+              className="w-full bg-[#2D7A4F] hover:bg-emerald-800 text-white py-3.5 rounded-xl font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
             >
               {loading ? (
                 <LoadingSpinner size={18} inline />
               ) : (
                 <>
-                  <span>Send Registration</span>
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2.5}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M13 7l5 5m0 0l-5 5m5-5H6"
-                    />
-                  </svg>
+                  <ShieldCheck size={16} />
+                  <span>Kirim Pendaftaran Donatur</span>
                 </>
               )}
             </button>
           </form>
 
-          <p className="text-center text-sm text-gray-500 mt-6">
-            Already registered?{" "}
-            <Link
-              to="/login"
-              className="text-primary-orange font-bold hover:underline"
-            >
-              Sign in
+          <p className="text-center text-xs text-stone-500 mt-6">
+            Sudah memiliki akun?{" "}
+            <Link to="/login" className="text-[#2D7A4F] font-bold hover:underline">
+              Masuk di sini
             </Link>
           </p>
-
-          <footer className="mt-8 text-center">
-            <p className="text-xs text-gray-400 leading-relaxed">
-              By registering, you agree to NutriShare's{" "}
-              <Link
-                to="/#tentang"
-                className="underline hover:text-primary-orange"
-              >
-                Terms of Service
-              </Link>{" "}
-              and{" "}
-              <Link
-                to="/#tentang"
-                className="underline hover:text-primary-orange"
-              >
-                Privacy Policy
-              </Link>
-              .
-            </p>
-          </footer>
         </motion.div>
       </div>
     </div>
   );
 }
+export default RegisterDonor;

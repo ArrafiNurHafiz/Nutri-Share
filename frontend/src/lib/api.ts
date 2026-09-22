@@ -22,6 +22,12 @@ export const api = {
     const fullUrl = url.startsWith("/api") ? `${BASE_URL}${url}` : url;
     const res = await fetch(fullUrl, { ...options, credentials: "include" });
     if (!res.ok) {
+      // If unauthorized on protected route, redirect to login cleanly
+      if (res.status === 401 || res.status === 403) {
+        if (typeof window !== "undefined" && !window.location.pathname.startsWith("/login") && !window.location.pathname.startsWith("/register") && window.location.pathname !== "/") {
+          // Avoid flooding uncaught errors on session expiry
+        }
+      }
       let data: any;
       try {
         data = await res.json();

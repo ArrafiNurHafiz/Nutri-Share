@@ -22,6 +22,7 @@ from backend.models import (
     User,
 )
 from backend.schemas import CreateDonationRequest
+from backend.services.cache import cache
 from backend.services.notifications import notify_user
 from backend.services.realtime import broker
 from backend.services.topsis import calculate_topsis_for_donation
@@ -123,6 +124,8 @@ async def create_donation(
     )
 
     await log_activity(session, current_user.id, "donasi_buat", f"Published {body.food_name} ({body.portion_count} portions)")
+    cache.invalidate("public:stats")
+    cache.invalidate_pattern("analytics:")
     return {"message": "Donation published successfully!"}
 
 
@@ -131,50 +134,30 @@ async def list_donations(
     session: SessionDep,
     current_user: User = Depends(get_current_user),
     donor_id: int | None = Query(None),
+    status: str | None = Query(None),
     page: int = Query(1, ge=1),
-    limit: int = Query(20, ge=1, le=100),
+    limit: int = Query(100, ge=1, le=500),
 ):
     offset = (page - 1) * limit
+    query = select(Donation)
+
     if current_user.role == "donor":
-        result = await session.execute(
-            select(Donation)
-            .where(Donation.donor_id == current_user.id)
-            .order_by(Donation.id.desc())
-            .offset(offset)
-            .limit(limit)
-        )
+        query = query.where(Donation.donor_id == current_user.id)
     elif current_user.role == "admin":
         if donor_id:
-            result = await session.execute(
-                select(Donation)
-                .where(Donation.donor_id == donor_id)
-                .order_by(Donation.id.desc())
-                .offset(offset)
-                .limit(limit)
-            )
-        else:
-            result = await session.execute(
-                select(Donation)
-                .order_by(Donation.id.desc())
-                .offset(offset)
-                .limit(limit)
-            )
+            query = query.where(Donation.donor_id == donor_id)
     else:
         if donor_id:
-            result = await session.execute(
-                select(Donation)
-                .where(Donation.donor_id == donor_id)
-                .order_by(Donation.id.desc())
-                .offset(offset)
-                .limit(limit)
-            )
+            query = query.where(Donation.donor_id == donor_id)
+
+    if status:
+        if status == "active_or_claimed":
+            query = query.where(Donation.status.in_(["active", "claimed"]))
         else:
-            result = await session.execute(
-                select(Donation)
-                .order_by(Donation.id.desc())
-                .offset(offset)
-                .limit(limit)
-            )
+            query = query.where(Donation.status == status)
+
+    query = query.order_by(Donation.id.desc()).offset(offset).limit(limit)
+    result = await session.execute(query)
     donations = result.scalars().all()
 
     # Batch load recipient profiles to avoid N+1 queries
@@ -378,7 +361,7 @@ async def list_donation_history(
     result = await session.execute(
         select(Claim).where(
             Claim.recipient_id == target_id,
-            Claim.status == "approved",
+            Claim.status.in_(["approved", "completed", "arrived"]),
         )
     )
     claims = result.scalars().all()
@@ -694,4 +677,6 @@ async def complete_donation(
     )
 
     await log_activity(session, current_user.id, "donasi_selesai", f"Donasi #{donation_id} selesai")
+    cache.invalidate("public:stats")
+    cache.invalidate_pattern("analytics:")
     return {"message": "Handover confirmed successfully"}

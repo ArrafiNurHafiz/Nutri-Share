@@ -1,13 +1,5 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import {
-  MapContainer,
-  TileLayer,
-  Marker,
-  Popup,
-  useMap,
-} from "react-leaflet";
-import "leaflet/dist/leaflet.css";
 import {
   Search,
   ArrowLeft,
@@ -16,27 +8,20 @@ import {
   Package,
   MapPin,
   Phone,
-  Filter,
-  Users,
   Compass,
 } from "lucide-react";
 import { SEO } from "../components/SEO";
 import { api } from "../lib/api";
-import { donorIcon, recipientIcon, locationIcon } from "../lib/mapIcons";
 import { LoadingSpinner } from "../components/LoadingSpinner";
-
-function MapController({ center }: { center: [number, number] | null }) {
-  const map = useMap();
-  useEffect(() => {
-    if (center) {
-      map.flyTo(center, 15, { duration: 1.2 });
-    }
-  }, [center, map]);
-  return null;
-}
+import { MapCNContainer } from "../components/map/MapCNContainer";
+import { createCustomMarkerElement } from "../components/map/mapcn-styles";
+import { getMapLibre } from "../lib/maplibre";
 
 export function BrowseMap() {
   const navigate = useNavigate();
+  const mapInstanceRef = useRef<any>(null);
+  const markersRef = useRef<any[]>([]);
+
   const [mapData, setMapData] = useState<{
     donors: any[];
     recipients: any[];
@@ -49,7 +34,6 @@ export function BrowseMap() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState<"all" | "donor" | "recipient" | "donation">("all");
-  const [selectedLocation, setSelectedLocation] = useState<[number, number] | null>(null);
 
   useEffect(() => {
     async function loadData() {
@@ -68,8 +52,6 @@ export function BrowseMap() {
     }
     loadData();
   }, []);
-
-  const defaultCenter: [number, number] = [-7.797068, 110.370529]; // Yogyakarta center
 
   const validDonors = useMemo(() => {
     return (mapData.donors || [])
@@ -116,14 +98,94 @@ export function BrowseMap() {
     return [...donationsList, ...donorsList, ...recipientsList];
   }, [validDonors, validRecipients, validDonations, filterType, searchQuery]);
 
+  // Sync Markers to MapLibre Canvas
+  const updateMapMarkers = async () => {
+    const map = mapInstanceRef.current;
+    if (!map) return;
+
+    const maplibregl = await getMapLibre();
+
+    // Clear old markers
+    markersRef.current.forEach((m) => m.remove());
+    markersRef.current = [];
+
+    // Add new filtered markers
+    filteredItems.forEach((item: any) => {
+      const lat = Number(item.latitude);
+      const lng = Number(item.longitude);
+      if (!lat || !lng) return;
+
+      const isDonor = item.kind === "donor";
+      const isRecip = item.kind === "recipient";
+
+      const el = createCustomMarkerElement(
+        isDonor ? "donor" : isRecip ? "recipient" : "donation"
+      );
+
+      const name = isDonor
+        ? item.business_name
+        : isRecip
+        ? item.institution_name
+        : item.food_name;
+
+      const badge = isDonor
+        ? `<span style="font-size:10px; font-weight:bold; color:#065f46; background:#ecfdf5; padding:2px 8px; border-radius:9999px; text-transform:uppercase;">${item.business_type || "Donatur"}</span>`
+        : isRecip
+        ? `<span style="font-size:10px; font-weight:bold; color:#1e40af; background:#eff6ff; padding:2px 8px; border-radius:9999px; text-transform:uppercase;">${(item.institution_type || "Penerima").replace(/_/g, " ")}</span>`
+        : `<span style="font-size:10px; font-weight:bold; color:#991b1b; background:#fef2f2; padding:2px 8px; border-radius:9999px; text-transform:uppercase;">Donasi Aktif</span>`;
+
+      const popupHtml = `
+        <div style="padding:4px; font-family:inherit; min-width:180px;">
+          ${badge}
+          <h4 style="font-weight:700; font-size:13px; color:#1f2937; margin:6px 0 2px;">${name}</h4>
+          <p style="font-size:11px; color:#6b7280; margin:0; line-height:1.4;">${item.address || "D.I. Yogyakarta"}</p>
+          ${
+            item.portion_count
+              ? `<div style="margin-top:6px; padding-top:6px; border-top:1px solid #f3f4f6; font-size:11px; font-weight:600; color:#2D7A4F;">Tersedia: ${item.portion_count} Porsi</div>`
+              : ""
+          }
+          ${
+            item.phone
+              ? `<p style="font-size:10px; color:#9ca3af; margin-top:4px;">Telp: ${item.phone}</p>`
+              : ""
+          }
+        </div>
+      `;
+
+      const popup = new maplibregl.Popup({ offset: 25, closeButton: false }).setHTML(popupHtml);
+
+      const marker = new maplibregl.Marker({ element: el })
+        .setLngLat([lng, lat])
+        .setPopup(popup)
+        .addTo(map);
+
+      markersRef.current.push(marker);
+    });
+  };
+
+  useEffect(() => {
+    updateMapMarkers();
+  }, [filteredItems]);
+
+  const handleFlyTo = (lat: number, lng: number) => {
+    if (!mapInstanceRef.current) return;
+    mapInstanceRef.current.flyTo({
+      center: [lng, lat],
+      zoom: 15,
+      pitch: 45,
+      duration: 1500,
+      essential: true,
+    });
+  };
+
   return (
     <div className="flex flex-col h-screen bg-[#F7F4EE] overflow-hidden">
       <SEO
-        title="Peta Sebaran Mitra & Donasi | NutriShare"
-        description="Jelajahi peta interaktif sebaran hotel, restoran, panti asuhan, dan donasi surplus pangan di Yogyakarta."
+        title="Peta Realistis Sebaran Mitra & Donasi | NutriShare"
+        description="Jelajahi peta interaktif 3D realistis sebaran hotel, restoran, panti asuhan, dan donasi surplus pangan di Yogyakarta."
       />
 
-      {/* Top Navbar */}
+      {/* Top Header */}
       <header className="h-16 bg-white border-b border-gray-200 px-4 md:px-6 flex items-center justify-between shrink-0 z-20 shadow-xs">
         <div className="flex items-center gap-3">
           <button
@@ -137,7 +199,7 @@ export function BrowseMap() {
           </Link>
           <div className="h-4 w-px bg-gray-200 hidden sm:block" />
           <h1 className="text-sm md:text-base font-bold text-gray-800 flex items-center gap-2">
-            <Compass size={18} className="text-[#2D7A4F]" /> Peta Sebaran Mitra & Donasi
+            <Compass size={18} className="text-[#2D7A4F]" /> Peta Sebaran Realistis (MapCN)
           </h1>
         </div>
 
@@ -157,11 +219,11 @@ export function BrowseMap() {
         </div>
       </header>
 
-      {/* Main Container */}
+      {/* Main Map + Sidebar Area */}
       <div className="flex-1 flex flex-col md:flex-row relative overflow-hidden">
         {/* Sidebar Panel */}
         <div className="w-full md:w-96 bg-white border-r border-gray-200 flex flex-col shrink-0 z-10 shadow-sm max-h-[40vh] md:max-h-full">
-          {/* Search and Filters */}
+          {/* Search & Filters */}
           <div className="p-4 border-b border-gray-100 space-y-3">
             <div className="relative">
               <Search
@@ -258,7 +320,7 @@ export function BrowseMap() {
                     key={`${item.kind}-${item.id || idx}`}
                     onClick={() => {
                       if (item.latitude && item.longitude) {
-                        setSelectedLocation([Number(item.latitude), Number(item.longitude)]);
+                        handleFlyTo(Number(item.latitude), Number(item.longitude));
                       }
                     }}
                     className="p-3 bg-white border border-gray-100 rounded-xl hover:border-[#2D7A4F]/40 hover:shadow-xs cursor-pointer transition-all flex items-start justify-between gap-3 group"
@@ -294,115 +356,23 @@ export function BrowseMap() {
           </div>
         </div>
 
-        {/* Map Area */}
+        {/* Vector Map Container */}
         <div className="flex-1 h-full w-full relative">
-          <MapContainer
-            center={defaultCenter}
+          <MapCNContainer
+            center={[-7.797068, 110.370529]}
             zoom={12}
-            style={{ height: "100%", width: "100%" }}
-          >
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-            <MapController center={selectedLocation} />
-
-            {/* Donors */}
-            {(filterType === "all" || filterType === "donor") &&
-              validDonors.map((donor: any) => (
-                <Marker
-                  key={`donor-${donor.id}`}
-                  position={[Number(donor.latitude), Number(donor.longitude)]}
-                  icon={donorIcon}
-                >
-                  <Popup>
-                    <div className="p-1 min-w-[180px]">
-                      <span className="text-[10px] uppercase font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
-                        {donor.business_type || "Donor"}
-                      </span>
-                      <h4 className="font-bold text-sm text-gray-800 mt-1">
-                        {donor.business_name}
-                      </h4>
-                      <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
-                        <MapPin size={12} /> {donor.address || "Yogyakarta"}
-                      </p>
-                      {donor.phone && (
-                        <p className="text-xs text-gray-500 mt-0.5 flex items-center gap-1">
-                          <Phone size={12} /> {donor.phone}
-                        </p>
-                      )}
-                      <div className="mt-2 pt-2 border-t border-gray-100 text-[11px] text-gray-600 font-semibold">
-                        Total Donasi: {donor.total_donations || 0} kali
-                      </div>
-                    </div>
-                  </Popup>
-                </Marker>
-              ))}
-
-            {/* Recipients */}
-            {(filterType === "all" || filterType === "recipient") &&
-              validRecipients.map((recip: any) => (
-                <Marker
-                  key={`recip-${recip.id}`}
-                  position={[Number(recip.latitude), Number(recip.longitude)]}
-                  icon={recipientIcon}
-                >
-                  <Popup>
-                    <div className="p-1 min-w-[180px]">
-                      <span className="text-[10px] uppercase font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full">
-                        {(recip.institution_type || "Penerima").replace(/_/g, " ")}
-                      </span>
-                      <h4 className="font-bold text-sm text-gray-800 mt-1">
-                        {recip.institution_name}
-                      </h4>
-                      <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
-                        <MapPin size={12} /> {recip.address || "Yogyakarta"}
-                      </p>
-                      {recip.resident_count && (
-                        <p className="text-xs text-gray-500 mt-0.5 flex items-center gap-1">
-                          <Users size={12} /> {recip.resident_count} Warga / Anak Asuh
-                        </p>
-                      )}
-                      {recip.phone && (
-                        <p className="text-xs text-gray-500 mt-0.5 flex items-center gap-1">
-                          <Phone size={12} /> {recip.phone}
-                        </p>
-                      )}
-                    </div>
-                  </Popup>
-                </Marker>
-              ))}
-
-            {/* Active Donations */}
-            {(filterType === "all" || filterType === "donation") &&
-              validDonations.map((don: any) => (
-                <Marker
-                  key={`don-${don.id}`}
-                  position={[Number(don.pickup_latitude), Number(don.pickup_longitude)]}
-                  icon={locationIcon}
-                >
-                  <Popup>
-                    <div className="p-1 min-w-[180px]">
-                      <span className="text-[10px] uppercase font-bold text-red-700 bg-red-50 px-2 py-0.5 rounded-full">
-                        Donasi Tersedia
-                      </span>
-                      <h4 className="font-bold text-sm text-gray-800 mt-1">
-                        {don.food_name}
-                      </h4>
-                      <p className="text-xs text-gray-500 mt-1">
-                        Jumlah: <strong>{don.portion_count} porsi</strong>
-                      </p>
-                      <p className="text-[11px] text-gray-400 mt-0.5">
-                        Kalori: {don.calorie_per_portion} kkal · Protein: {don.protein_per_portion}g
-                      </p>
-                    </div>
-                  </Popup>
-                </Marker>
-              ))}
-          </MapContainer>
+            pitch={35}
+            bearing={-10}
+            styleKey="liberty"
+            onMapReady={(map) => {
+              mapInstanceRef.current = map;
+              updateMapMarkers();
+            }}
+          />
         </div>
       </div>
     </div>
   );
 }
+
 export default BrowseMap;

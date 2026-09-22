@@ -46,42 +46,26 @@ function Counter({ target, suffix = "" }: { target: number; suffix?: string }) {
 }
 
 export function HeroSection({ stats }: { stats: any }) {
-  const impactItems = stats
-    ? [
-        {
-          icon: Leaf,
-          value: stats.food_waste_kg ?? 1200,
-          suffix: "+ kg",
-          label: "Food Waste Saved",
-        },
-        {
-          icon: Users,
-          value: stats.people_helped ?? 850,
-          suffix: "",
-          label: "Children & Elderly Helped",
-        },
-        {
-          icon: TrendingUp,
-          value: stats.total_portions ?? 5400,
-          suffix: "+",
-          label: "Portions Distributed",
-        },
-      ]
-    : [
-        { icon: Leaf, value: 1200, suffix: "+ kg", label: "Food Waste Saved" },
-        {
-          icon: Users,
-          value: 850,
-          suffix: "",
-          label: "Children & Elderly Helped",
-        },
-        {
-          icon: TrendingUp,
-          value: 5400,
-          suffix: "+",
-          label: "Portions Distributed",
-        },
-      ];
+  const impactItems = [
+    {
+      icon: Leaf,
+      value: stats?.food_waste_kg ?? 0,
+      suffix: " kg",
+      label: "Food Waste Saved",
+    },
+    {
+      icon: Users,
+      value: stats?.people_helped ?? 0,
+      suffix: " Orang",
+      label: "Penerima Manfaat Terbantu",
+    },
+    {
+      icon: TrendingUp,
+      value: stats?.total_portions ?? 0,
+      suffix: " Porsi",
+      label: "Porsi Makanan Tersalurkan",
+    },
+  ];
 
   return (
     <section className="relative bg-[#161d1f] min-h-[100dvh] flex flex-col items-center overflow-hidden">

@@ -12,37 +12,6 @@ interface Review {
   donor_name: string | null;
 }
 
-// Fallback jika API belum mengembalikan data
-const FALLBACK = [
-  {
-    id: 1,
-    rating: 5,
-    comment:
-      "NutriShare changed how we donate surplus. Just upload, and it's immediately distributed. The algorithm ensures it reaches those who truly need it.",
-    created_at: "",
-    recipient_name: "Beneficiary",
-    donor_name: "Hotel Grand Keisha",
-  },
-  {
-    id: 2,
-    rating: 5,
-    comment:
-      "The donations we receive are pre-calculated for nutrition. The children get the intake they need.",
-    created_at: "",
-    recipient_name: "Orphanage",
-    donor_name: "Padang Sederhana Restaurant",
-  },
-  {
-    id: 3,
-    rating: 5,
-    comment:
-      "All transactions are tracked from publication to handover. Monthly impact reports are now easy.",
-    created_at: "",
-    recipient_name: "Admin NutriShare",
-    donor_name: "Katering Sri Rejeki",
-  },
-];
-
 function initials(name: string) {
   const parts = name.trim().split(/\s+/).filter(Boolean);
   const first = parts[0]?.[0] ?? "?";
@@ -111,9 +80,8 @@ export function Testimonials() {
     };
   }, []);
 
-  const items: Review[] = reviews.length ? reviews : FALLBACK;
-  // Duplikat agar marquee tampil kontinu tanpa celah
-  const doubled = [...items, ...items];
+  const items: Review[] = reviews;
+  const doubled = items.length > 0 ? [...items, ...items] : [];
 
   return (
     <section id="pahlawan" className="py-24 bg-[#f4fafd] overflow-hidden">
@@ -136,28 +104,38 @@ export function Testimonials() {
           </p>
         </motion.div>
 
-        {/* Marquee */}
-        <div
-          className="relative"
-          style={{
-            maskImage:
-              "linear-gradient(to right, transparent, black 8%, black 92%, transparent)",
-            WebkitMaskImage:
-              "linear-gradient(to right, transparent, black 8%, black 92%, transparent)",
-          }}
-        >
-          <div className="flex gap-6 overflow-hidden py-2">
-            <div className="flex gap-6 shrink-0 marquee-track min-w-full">
-              {doubled.map((r, i) => (
-                <ReviewCard key={`${r.id}-${i}`} r={r} />
-              ))}
+        {items.length > 0 ? (
+          <div
+            className="relative"
+            style={{
+              maskImage:
+                "linear-gradient(to right, transparent, black 8%, black 92%, transparent)",
+              WebkitMaskImage:
+                "linear-gradient(to right, transparent, black 8%, black 92%, transparent)",
+            }}
+          >
+            <div className="flex gap-6 overflow-hidden py-2">
+              <div className="flex gap-6 shrink-0 marquee-track min-w-full">
+                {doubled.map((r, i) => (
+                  <ReviewCard key={`${r.id}-${i}`} r={r} />
+                ))}
+              </div>
             </div>
           </div>
-        </div>
+        ) : (
+          <div className="text-center py-12 bg-white rounded-2xl border border-gray-100 max-w-lg mx-auto shadow-xs">
+            <p className="text-sm font-semibold text-gray-700">Belum ada ulasan publik</p>
+            <p className="text-xs text-gray-500 mt-1">
+              Ulasan nyata dari lembaga penerima manfaat akan ditampilkan di sini setelah donasi berhasil disalurkan.
+            </p>
+          </div>
+        )}
 
-        <p className="text-center text-xs text-gray-400 mt-6">
-          Showing the latest reviews from recipients, updated automatically.
-        </p>
+        {items.length > 0 && (
+          <p className="text-center text-xs text-gray-400 mt-6">
+            Showing the latest reviews from recipients, updated automatically.
+          </p>
+        )}
       </div>
     </section>
   );

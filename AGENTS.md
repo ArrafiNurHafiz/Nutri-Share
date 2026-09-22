@@ -2,7 +2,47 @@
 
 Platform distribusi surplus pangan yang menghubungkan donor (hotel/restoran/kafe) dengan penerima terverifikasi (panti asuhan/rumah singgah/panti lansia) di Yogyakarta.
 
-## Tech
+## Core Behavioral Guidelines (Karpathy Guidelines)
+
+Pedoman perilaku untuk meminimalkan kesalahan umum coding LLM (diadaptasi dari *Andrej Karpathy's observations*). Pedoman ini mengutamakan kehati-hatian (*caution*) di atas kecepatan (*speed*).
+
+### 1. Think Before Coding
+**Jangan berasumsi. Jangan menyembunyikan kebingungan. Paparkan trade-off.**
+- Nyatakan asumsi secara eksplisit sebelum implementasi. Jika ragu, tanyakan.
+- Jika ada beberapa opsi pendekatan atau interpretasi, jelaskan trade-offnya — jangan memilih diam-diam.
+- Jika ada pendekatan yang jauh lebih sederhana, sampaikan dan beri saran perbaikan.
+- Jika ada spesifikasi atau kebutuhan yang tidak jelas, berhenti dan tanyakan secara spesifik.
+
+### 2. Simplicity First
+**Tulis kode minimal yang menyelesaikan masalah. Jangan ada kode spekulatif.**
+- Jangan menambah fitur di luar yang diminta.
+- Jangan membuat abstraksi atau helper berlebih untuk kode yang hanya dipakai sekali.
+- Jangan menambah fleksibilitas/konfigurasi yang tidak dibutuhkan.
+- Hindari error handling untuk skenario yang tidak mungkin terjadi.
+- Jika kode bisa diselesaikan dalam 50 baris alih-alih 200 baris, pilih dan tulis yang 50 baris.
+
+### 3. Surgical Changes
+**Hanya sentuh berkas/baris yang wajib diubah. Bersihkan hanya apa yang kita buat.**
+- Jangan "memperbaiki" kode, komentar, atau formatting di sekitar yang tidak terkait dengan task.
+- Jangan me-refactor kode yang tidak rusak.
+- Ikuti gaya dan konvensi kode yang sudah ada (*naming convention*, struktur, pola).
+- Jika menemukan dead code yang sudah ada sebelumnya, sebutkan saja tanpa menghapusnya langsung tanpa izin.
+- Hapus import, variabel, atau fungsi yang menjadi tidak terpakai akibat perubahan yang baru saja dibuat.
+- *Aturan utama:* Setiap baris yang diubah harus memiliki alasan langsung yang bersumber dari permintaan user.
+
+### 4. Goal-Driven Execution
+**Tentukan kriteria sukses yang dapat diverifikasi. Uji sampai tuntas.**
+- Ubah task menjadi tujuan yang terverifikasi (misal: buat/jalankan test yang mereproduksi bug atau memvalidasi fitur baru).
+- Untuk task multi-langkah, buat rencana singkat berformat:
+  ```
+  1. [Langkah] → Verifikasi: [Perintah / Pemeriksaan]
+  2. [Langkah] → Verifikasi: [Perintah / Pemeriksaan]
+  ```
+- Jalankan verifikasi (linting, test suite, eksekusi perintah) sebelum menyatakan pekerjaan selesai.
+
+---
+
+## Tech Stack
 
 - **Frontend:** React 19 + Vite 6 + Tailwind v4 + react-router-dom v7 (BrowserRouter)
 - **Backend:** Python 3.12+ + FastAPI + SQLModel + Supabase PostgreSQL (asyncpg)
@@ -21,7 +61,7 @@ Platform distribusi surplus pangan yang menghubungkan donor (hotel/restoran/kafe
 | `.venv/bin/pytest backend/tests/`                         | Run backend tests                       |
 | `cd frontend && npm run lint`                             | TypeScript type checking                |
 
-No CI pipeline configured.
+*Catatan: Tidak ada CI pipeline otomatis; verifikasi dijalankan secara lokal.*
 
 ## Structure
 
@@ -60,18 +100,18 @@ docs/              Documentation and PRDs
 
 - `@/` maps to frontend root (e.g. `@/components/Button`)
 - Backend uses Python module imports (`from backend.routers import auth`)
-- Tailwind v4 uses `@tailwindcss/vite` plugin — no postcss.config.js needed
+- Tailwind v4 uses `@tailwindcss/vite` plugin — no `postcss.config.js` needed
 - Vite proxies `/api` and `/uploads` to backend on port 3000
 
-## Env
+## Environment Variables
 
-```
-DATABASE_URL=       Supabase PostgreSQL connection string
-JWT_SECRET=         Secret key for JWT signing (min 32 chars)
-ADMIN_SECRET_KEY=   Secret key for admin registration
-SUPABASE_URL=       Supabase project URL
-SUPABASE_ANON_KEY=  Supabase anonymous key
-SUPABASE_SERVICE_KEY= Supabase service role key (for file uploads)
+```env
+DATABASE_URL=          Supabase PostgreSQL connection string
+JWT_SECRET=            Secret key for JWT signing (min 32 chars)
+ADMIN_SECRET_KEY=      Secret key for admin registration
+SUPABASE_URL=          Supabase project URL
+SUPABASE_ANON_KEY=     Supabase anonymous key
+SUPABASE_SERVICE_KEY=  Supabase service role key (for file uploads)
 ```
 
 ## Routes
@@ -86,19 +126,18 @@ SUPABASE_SERVICE_KEY= Supabase service role key (for file uploads)
 | `/recipient`          | RecipientDashboard.tsx |
 | `/admin`              | AdminDashboard.tsx     |
 
-## Styles
+## Styles & UI
 
 Custom `@theme` tokens in `frontend/src/index.css` for three font families:
-
 - `--font-sans`: Inter (body)
 - `--font-heading`: Space Grotesk (headings)
 - `--font-mono`: JetBrains Mono (data)
 
-Color palette: Natural green (#047857) + warm gold accent (#d4893b) + warm neutrals.
-Dark mode via CSS variable overrides.
+- **Color palette:** Natural green (`#047857`) + warm gold accent (`#d4893b`) + warm neutrals.
+- **Dark mode:** CSS variable overrides.
 
-## Notes
+## Notes & Rules
 
-- UI language: Indonesian throughout (labels, toasts).
-- Leaflet maps for donor/recipient locations.
-- First admin must be created via POST `/api/auth/register/admin` with `ADMIN_SECRET_KEY`.
+- **UI Language:** Bahasa Indonesia untuk seluruh label, form, toast, dan notifikasi.
+- **Maps:** Leaflet maps untuk visualisasi lokasi donor dan penerima.
+- **First Admin:** Dibuat via `POST /api/auth/register/admin` menggunakan `ADMIN_SECRET_KEY`.

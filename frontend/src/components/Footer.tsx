@@ -3,10 +3,12 @@ import type { MouseEvent } from "react";
 
 const NAV_LINKS = [
   { to: "/", label: "Home" },
+  { to: "/map", label: "Peta Sebaran Mitra" },
   { to: "#tentang", label: "About" },
   { to: "#cara-kerja", label: "How It Works" },
   { to: "#dampak", label: "Impact" },
   { to: "#pahlawan", label: "Heroes" },
+  { to: "/support", label: "Pusat Bantuan & Kontak" },
 ];
 
 const JOIN_LINKS = [
