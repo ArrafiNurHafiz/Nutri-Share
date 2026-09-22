@@ -4,3 +4,4 @@ export { ThreePillars } from "./ThreePillars";
 export { RecognitionSection } from "./RecognitionSection";
 export { Testimonials } from "./Testimonials";
 export { CTASection } from "./CTASection";
+export { LeafDeco, WaveConnector, TuguJogjaIllustration } from "./EcoVisuals";

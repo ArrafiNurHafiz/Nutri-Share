@@ -27,7 +27,7 @@ export default function Home() {
       setTopDonors(d);
       setStats(s);
     } catch {
-      /* defaults used inside sections */
+      /* fallback defaults used */
     }
   }, []);
 
@@ -38,9 +38,9 @@ export default function Home() {
   const handleLoginClick = () => navigate("/login");
 
   return (
-    <div className="min-h-[100dvh] bg-white text-gray-800 font-sans overflow-x-hidden">
+    <div className="min-h-[100dvh] bg-white text-[#0F172A] font-sans overflow-x-hidden antialiased selection:bg-[#10B981]/20 selection:text-[#065F46]">
       <Navbar onLoginClick={handleLoginClick} />
-      <SEO title="Nutri-Share | Your Surplus Food, Their Nutrition" />
+      <SEO title="NutriShare | Your Surplus Food, Their Nutrition" />
 
       <HeroSection stats={stats} />
       <ProcessSection />
