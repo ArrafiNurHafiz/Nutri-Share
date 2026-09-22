@@ -39,7 +39,7 @@ export function Login() {
     if (!validate()) return;
     setLoading(true);
     try {
-      const res = await login(email, password);
+      const res = await login(email.trim(), password);
       toast.success("Logged in successfully!");
       if (res.user.role === "admin") nav("/admin");
       else if (res.user.role === "donor") nav("/donor");

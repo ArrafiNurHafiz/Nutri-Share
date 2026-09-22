@@ -84,10 +84,11 @@ async def login(
     session: SessionDep,
     response: Response,
 ):
-    result = await session.execute(select(User).where(User.email == body.email))
+    clean_email = body.email.strip().lower()
+    result = await session.execute(select(User).where(User.email == clean_email))
     user = result.scalar_one_or_none()
     if not user or not verify_password(body.password, user.password):
-        logger.debug("login_failed", email=body.email, user_found=user is not None)
+        logger.debug("login_failed", email=clean_email, user_found=user is not None)
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     logger.debug("login_check", email=user.email, status=user.status, role=user.role)
