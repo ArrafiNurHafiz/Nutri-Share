@@ -598,7 +598,7 @@ async def complete_donation(
     session: SessionDep,
     current_user: User = Depends(get_current_user),
 ):
-    if current_user.role not in ("donor", "admin"):
+    if current_user.role not in ("donor", "recipient", "admin"):
         raise HTTPException(status_code=403, detail="Access denied")
 
     query = select(Donation).where(
@@ -607,6 +607,8 @@ async def complete_donation(
     )
     if current_user.role == "donor":
         query = query.where(Donation.donor_id == current_user.id)
+    elif current_user.role == "recipient":
+        query = query.where(Donation.claimed_by == current_user.id)
 
     d = await session.execute(query)
     d = d.scalar_one_or_none()
