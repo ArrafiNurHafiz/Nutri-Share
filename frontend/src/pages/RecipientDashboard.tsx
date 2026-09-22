@@ -253,6 +253,49 @@ export function RecipientDashboard() {
 
       {/* Main Flow Container */}
       <main className="max-w-6xl mx-auto w-full px-4 sm:px-6 py-8 space-y-8 flex-1">
+        {/* Aesthetic Ambient Hero Banner */}
+        <section className="relative rounded-3xl overflow-hidden bg-[#162A21] text-white p-6 sm:p-8 border border-[#2D7A4F]/30 shadow-md">
+          <div className="absolute inset-0 z-0 opacity-25">
+            <img
+              src="/images/charity-kids.webp"
+              alt=""
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#0F1E17] via-[#162A21]/90 to-transparent" />
+          </div>
+
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="space-y-2 max-w-xl">
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#A7F3D0] bg-white/10 px-3 py-1 rounded-full border border-white/15 backdrop-blur-md">
+                  Portal Lembaga Penerima
+                </span>
+                {emergency !== "none" && (
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-white bg-[#DC2626] px-2.5 py-1 rounded-full animate-pulse shadow-sm">
+                    Status Darurat Aktif
+                  </span>
+                )}
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight font-heading text-white">
+                {profile?.institution_name || user.name}
+              </h1>
+              <p className="text-xs sm:text-sm text-white/80 leading-relaxed">
+                Prioritas alokasi pangan surplus bernutrisi berbasis algoritma Hybrid Entropy-TOPSIS. Pantau asupan gizi harian dan ajukan klaim donasi.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-3 self-start md:self-auto bg-white/10 backdrop-blur-md p-3.5 rounded-2xl border border-white/15">
+              <div className="w-10 h-10 rounded-xl bg-[#2D7A4F] flex items-center justify-center text-white">
+                <Heart size={20} />
+              </div>
+              <div>
+                <span className="text-[10px] text-white/70 uppercase font-bold tracking-wider block">Kebutuhan Binaan</span>
+                <span className="text-sm font-extrabold text-white">{profile?.resident_count ?? 0} Orang</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* AKG Nutrition Progress Card */}
         <section className="bg-white rounded-2xl border border-[#E2E8F0] p-6 shadow-xs space-y-5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -467,23 +510,23 @@ export function RecipientDashboard() {
                           isRank1 ? "border-[#2D7A4F] ring-1 ring-[#2D7A4F]" : "border-[#E2E8F0] hover:border-[#CBD5E1]"
                         }`}
                       >
-                        <div className="relative h-32 bg-[#F1F5F9] overflow-hidden">
+                        <div className="relative h-36 bg-[#F1F5F9] overflow-hidden">
                           <img
-                            src={item.photo_url || "/images/nutrishare_hero_food_plate.webp"}
+                            src={item.photo_url || "/images/fresh-food.webp"}
                             alt={item.food_name}
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
                           />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
                           {isRank1 && (
-                            <div className="absolute top-2.5 left-2.5 bg-[#2D7A4F] text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-xs">
-                              Rekomendasi TOPSIS #1
+                            <div className="absolute top-2.5 left-2.5 bg-[#2D7A4F] text-white text-[10px] font-bold px-2.5 py-1 rounded-md shadow-sm border border-emerald-400/30 flex items-center gap-1">
+                              <span>★</span> Rekomendasi TOPSIS #1
                             </div>
                           )}
 
                           <div className="absolute bottom-2 left-2.5 right-2.5 flex items-center justify-between text-white text-[11px] font-semibold">
-                            <span>{item.portion_count} Porsi</span>
-                            <span className="flex items-center gap-1 text-[#A7F3D0]">
+                            <span className="bg-black/40 backdrop-blur-md px-2 py-0.5 rounded text-white">{item.portion_count} Porsi</span>
+                            <span className="flex items-center gap-1 bg-black/40 backdrop-blur-md px-2 py-0.5 rounded text-[#A7F3D0]">
                               <Clock size={11} /> Sisa {item.hours_valid || 6} Jam
                             </span>
                           </div>

@@ -216,54 +216,73 @@ export function DonorDashboard() {
 
       {/* Main Container */}
       <main className="max-w-6xl mx-auto w-full px-4 sm:px-6 py-8 space-y-8 flex-1">
-        {/* Top Header Card */}
-        <section className="bg-white rounded-2xl border border-[#E2E8F0] p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-1.5 max-w-xl">
-            <h1 className="text-xl sm:text-2xl font-bold text-[#0F172A] tracking-tight">
-              {profile?.business_name || user.name}
-            </h1>
-            <p className="text-xs sm:text-sm text-[#64748B] leading-relaxed">
-              Salurkan surplus makanan layak konsumsi dengan pencatatan gizi otomatis & perankingan cerdas TOPSIS.
-            </p>
-
-            <div className="pt-2 flex flex-wrap items-center gap-2">
-              <span className="text-[11px] font-medium text-[#64748B]">Pilihan Cepat:</span>
-              {PRESETS.map((p) => (
-                <button
-                  key={p.id}
-                  type="button"
-                  onClick={() => {
-                    setForm((f) => ({
-                      ...f,
-                      food_name: p.name,
-                      food_type: p.id,
-                      protein_per_portion: p.p.toString(),
-                      calorie_per_portion: p.c.toString(),
-                    }));
-                    setShowModal(true);
-                    setFormStep(2);
-                  }}
-                  className="px-2.5 py-1 rounded-md bg-[#F8FAFC] hover:bg-[#F1F5F9] border border-[#E2E8F0] text-xs font-medium text-[#334155] transition-colors cursor-pointer"
-                >
-                  <span>{p.label}</span>
-                </button>
-              ))}
-            </div>
+        {/* Aesthetic Ambient Hero Banner for Donor */}
+        <section className="relative rounded-3xl overflow-hidden bg-[#0F2418] text-white p-6 sm:p-8 border border-[#2D7A4F]/30 shadow-md">
+          <div className="absolute inset-0 z-0 opacity-25">
+            <img
+              src="/images/fresh-food.webp"
+              alt=""
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#091710] via-[#0F2418]/90 to-transparent" />
           </div>
 
-          {/* Quick Metrics */}
-          <div className="grid grid-cols-3 gap-3 shrink-0 border-t md:border-t-0 md:border-l border-[#E2E8F0] pt-4 md:pt-0 md:pl-6">
-            <div className="text-center md:text-left">
-              <span className="text-[11px] text-[#64748B] font-medium block">Porsi Selesai</span>
-              <span className="text-xl font-bold text-[#0F172A]">{totalPortionsShared}</span>
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="space-y-2 max-w-xl">
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#A7F3D0] bg-white/10 px-3 py-1 rounded-full border border-white/15 backdrop-blur-md">
+                  Portal Mitra Donatur (HoReKa)
+                </span>
+                <span className="text-[11px] font-semibold text-[#6EE7B7] flex items-center gap-1">
+                  <Star size={12} className="text-[#FBBF24] fill-[#FBBF24]" /> Rating {avgRating}
+                </span>
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight font-heading text-white">
+                {profile?.business_name || user.name}
+              </h1>
+              <p className="text-xs sm:text-sm text-white/80 leading-relaxed">
+                Pusat manajemen distribusi surplus pangan hotel, restoran, dan katering Anda secara aman, termonitor, dan tepat sasaran.
+              </p>
+
+              <div className="pt-2 flex flex-wrap items-center gap-2">
+                <span className="text-[11px] font-medium text-white/70">Pilihan Cepat:</span>
+                {PRESETS.map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => {
+                      setForm((f) => ({
+                        ...f,
+                        food_name: p.name,
+                        food_type: p.id,
+                        protein_per_portion: p.p.toString(),
+                        calorie_per_portion: p.c.toString(),
+                      }));
+                      setShowModal(true);
+                      setFormStep(2);
+                    }}
+                    className="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 border border-white/15 text-xs font-semibold text-white transition-colors cursor-pointer backdrop-blur-md"
+                  >
+                    <span>{p.label}</span>
+                  </button>
+                ))}
+              </div>
             </div>
-            <div className="text-center md:text-left">
-              <span className="text-[11px] text-[#64748B] font-medium block">Penjemputan</span>
-              <span className="text-xl font-bold text-[#2D7A4F]">{inTransitList.length}</span>
-            </div>
-            <div className="text-center md:text-left">
-              <span className="text-[11px] text-[#64748B] font-medium block">Rating Mitra</span>
-              <span className="text-xl font-bold text-[#D97706]">{avgRating}</span>
+
+            {/* Quick Metrics Card Overlay */}
+            <div className="grid grid-cols-3 gap-3 shrink-0 bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/15">
+              <div className="text-center">
+                <span className="text-[10px] text-white/70 font-bold uppercase tracking-wider block">Porsi Selesai</span>
+                <span className="text-xl font-extrabold text-white">{totalPortionsShared}</span>
+              </div>
+              <div className="text-center border-x border-white/15 px-2">
+                <span className="text-[10px] text-white/70 font-bold uppercase tracking-wider block">Dijemput</span>
+                <span className="text-xl font-extrabold text-[#6EE7B7]">{inTransitList.length}</span>
+              </div>
+              <div className="text-center">
+                <span className="text-[10px] text-white/70 font-bold uppercase tracking-wider block">Ulasan</span>
+                <span className="text-xl font-extrabold text-[#FCD34D]">{reviews.length}</span>
+              </div>
             </div>
           </div>
         </section>
@@ -389,76 +408,89 @@ export function DonorDashboard() {
                         key={item.id}
                         className="bg-white rounded-xl border border-[#E2E8F0] p-4.5 shadow-2xs flex flex-col justify-between gap-3.5 hover:border-[#CBD5E1] transition-colors"
                       >
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
+                        <div
+                          className="relative h-32 bg-[#F1F5F9] overflow-hidden rounded-t-xl"
+                        >
+                          <img
+                            src={item.photo_url || "/images/fresh-food.webp"}
+                            alt={item.food_name}
+                            className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                          <div className="absolute top-2.5 left-2.5">
+                            <span className={`text-[10px] font-bold px-2.5 py-1 rounded shadow-xs ${
                               isDone
                                 ? "bg-[#ECFDF5] text-[#065F46] border border-[#A7F3D0]"
                                 : isClaimed
                                 ? "bg-[#EFF6FF] text-[#1E40AF] border border-[#BFDBFE]"
-                                : "bg-[#F8FAFC] text-[#475569] border border-[#E2E8F0]"
+                                : "bg-white/90 text-[#475569] border border-[#E2E8F0]"
                             }`}>
                               {isDone ? "Selesai Diserahkan" : isClaimed ? "Sedang Dijemput" : "Tersedia & Menunggu Klaim"}
                             </span>
-                            <span className="text-[11px] text-[#94A3B8] font-mono">#{item.id}</span>
                           </div>
-
-                          <div>
-                            <h3 className="font-bold text-sm text-[#0F172A]">{item.food_name}</h3>
-                            <p className="text-xs text-[#64748B] mt-0.5">
-                              {item.portion_count} Porsi • Masa Simpan: {item.hours_valid || 6} Jam
-                            </p>
+                          <div className="absolute top-2.5 right-2.5 text-[11px] text-white/90 font-mono bg-black/40 px-2 py-0.5 rounded">
+                            #{item.id}
                           </div>
-
-                          <div className="flex items-center gap-2 text-[11px] text-[#475569] font-medium">
-                            <span className="px-2 py-0.5 bg-[#F1F5F9] rounded">Protein: {item.protein_per_portion || 0}g</span>
-                            <span className="px-2 py-0.5 bg-[#F1F5F9] rounded">Kalori: {item.calorie_per_portion || 0} kkal</span>
+                          <div className="absolute bottom-2 left-2.5 right-2.5 flex items-center justify-between text-white text-[11px] font-semibold">
+                            <span className="bg-black/40 px-2 py-0.5 rounded">{item.portion_count} Porsi</span>
+                            <span className="bg-black/40 px-2 py-0.5 rounded text-[#A7F3D0]">Sisa {item.hours_valid || 6} Jam</span>
                           </div>
-
-                          {item.recipient_name && (
-                            <p className="text-xs text-[#334155] pt-1">
-                              Lembaga Pengambil: <strong>{item.recipient_name}</strong>
-                            </p>
-                          )}
                         </div>
 
-                        <div className="pt-2.5 border-t border-[#F1F5F9] flex items-center justify-between gap-2">
-                          {isClaimed && (
-                            <>
-                              <button
-                                type="button"
-                                onClick={() => setTrackingData(item)}
-                                className="flex-1 py-1.5 rounded-lg bg-[#2D7A4F] hover:bg-[#235F3D] text-white font-semibold text-xs flex items-center justify-center gap-1 transition-colors cursor-pointer"
-                              >
-                                <Compass size={13} /> Pantau & Selesaikan
-                              </button>
-                              {item.recipient_phone && (
-                                <a
-                                  href={`https://wa.me/${cleanPhone(item.recipient_phone)}`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="p-1.5 rounded-lg border border-[#E2E8F0] hover:bg-[#F8FAFC] text-[#475569]"
-                                  title="WhatsApp"
+                        <div className="p-4 space-y-2 flex-1 flex flex-col justify-between">
+                          <div>
+                            <h3 className="font-bold text-sm text-[#0F172A]">{item.food_name}</h3>
+                            <div className="flex items-center gap-2 text-[11px] text-[#475569] font-medium mt-2">
+                              <span className="px-2 py-0.5 bg-[#F1F5F9] rounded">Protein: {item.protein_per_portion || 0}g</span>
+                              <span className="px-2 py-0.5 bg-[#F1F5F9] rounded">Kalori: {item.calorie_per_portion || 0} kkal</span>
+                            </div>
+
+                            {item.recipient_name && (
+                              <p className="text-xs text-[#334155] pt-2 flex items-center gap-1">
+                                <span className="text-[#64748B]">Pengambil:</span>
+                                <strong>{item.recipient_name}</strong>
+                              </p>
+                            )}
+                          </div>
+
+                          <div className="pt-2.5 border-t border-[#F1F5F9] flex items-center justify-between gap-2">
+                            {isClaimed && (
+                              <>
+                                <button
+                                  type="button"
+                                  onClick={() => setTrackingData(item)}
+                                  className="flex-1 py-1.5 rounded-lg bg-[#2D7A4F] hover:bg-[#235F3D] text-white font-semibold text-xs flex items-center justify-center gap-1 transition-colors cursor-pointer"
                                 >
-                                  <MessageCircle size={15} className="text-[#2D7A4F]" />
-                                </a>
-                              )}
-                            </>
-                          )}
+                                  <Compass size={13} /> Pantau & Selesaikan
+                                </button>
+                                {item.recipient_phone && (
+                                  <a
+                                    href={`https://wa.me/${cleanPhone(item.recipient_phone)}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="p-1.5 rounded-lg border border-[#E2E8F0] hover:bg-[#F8FAFC] text-[#475569]"
+                                    title="WhatsApp"
+                                  >
+                                    <MessageCircle size={15} className="text-[#2D7A4F]" />
+                                  </a>
+                                )}
+                              </>
+                            )}
 
-                          {!isClaimed && !isDone && (
-                            <span className="text-xs text-[#64748B] flex items-center gap-1">
-                              <CheckCircle2 size={13} className="text-[#2D7A4F]" />
-                              Terdaftar di Algoritma TOPSIS
-                            </span>
-                          )}
+                            {!isClaimed && !isDone && (
+                              <span className="text-xs text-[#64748B] flex items-center gap-1">
+                                <CheckCircle2 size={13} className="text-[#2D7A4F]" />
+                                Terdaftar di Algoritma TOPSIS
+                              </span>
+                            )}
 
-                          {isDone && (
-                            <span className="text-xs text-[#065F46] font-medium flex items-center gap-1">
-                              <ShieldCheck size={14} />
-                              Selesai diserahterimakan ({item.completed_at ? new Date(item.completed_at).toLocaleDateString("id-ID") : "Tervalidasi"})
-                            </span>
-                          )}
+                            {isDone && (
+                              <span className="text-xs text-[#065F46] font-medium flex items-center gap-1">
+                                <ShieldCheck size={14} />
+                                Selesai diserahterimakan ({item.completed_at ? new Date(item.completed_at).toLocaleDateString("id-ID") : "Tervalidasi"})
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
                     );
