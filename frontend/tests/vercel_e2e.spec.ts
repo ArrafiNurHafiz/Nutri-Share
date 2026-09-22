@@ -1,14 +1,14 @@
 import { test, expect } from "@playwright/test";
 
-const BASE = "https://nutrishare-web.vercel.app";
+const BASE = "https://nutrishare.web.id";
 
 const ACCOUNTS = {
-  admin: { email: "arrafinur3@gmail.com", password: "11223344" },
-  donor: { email: "arrafinur2@gmail.com", password: "11223344" },
-  recipient: { email: "arrafinur1@gmail.com", password: "11223344" },
+  admin: { email: "arrafinur3@gmail.com", password: "password123" },
+  donor: { email: "arrafinur2@gmail.com", password: "password123" },
+  recipient: { email: "arrafinur1@gmail.com", password: "password123" },
 };
 
-const ORIGIN = "https://nutrishare-web.vercel.app";
+const ORIGIN = "https://nutrishare.web.id";
 
 /** Get auth cookie from login API */
 async function getCookieHeader(
@@ -42,7 +42,7 @@ async function loginViaApi(page: any, email: string, password: string) {
         {
           name: "nutrishare_token",
           value: tokenMatch[1],
-          domain: "nutrishare-web.vercel.app",
+          domain: "nutrishare.web.id",
           path: "/",
           httpOnly: true,
           secure: true,
@@ -169,8 +169,8 @@ test.describe("Admin Dashboard", () => {
 
   test("admin dashboard loads with user data", async ({ page }) => {
     await page.goto(`${BASE}/admin`);
-    await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(3000);
+    await page.waitForLoadState("domcontentloaded");
+    await page.waitForTimeout(2000);
     await expect(page.locator("body")).toBeVisible();
   });
 
@@ -208,8 +208,8 @@ test.describe("Admin Dashboard", () => {
       if (msg.type() === "error") errors.push(msg.text());
     });
     await page.goto(`${BASE}/admin`);
-    await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(3000);
+    await page.waitForLoadState("domcontentloaded");
+    await page.waitForTimeout(2000);
     expect(filterConsoleErrors(errors).length).toBe(0);
   });
 });
@@ -224,8 +224,8 @@ test.describe("Donor Dashboard", () => {
 
   test("donor dashboard loads", async ({ page }) => {
     await page.goto(`${BASE}/donor`);
-    await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(3000);
+    await page.waitForLoadState("domcontentloaded");
+    await page.waitForTimeout(2000);
     await expect(page.locator("body")).toBeVisible();
   });
 
@@ -276,8 +276,8 @@ test.describe("Recipient Dashboard", () => {
 
   test("recipient dashboard loads", async ({ page }) => {
     await page.goto(`${BASE}/recipient`);
-    await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(3000);
+    await page.waitForLoadState("domcontentloaded");
+    await page.waitForTimeout(2000);
     await expect(page.locator("body")).toBeVisible();
   });
 
@@ -301,8 +301,8 @@ test.describe("Recipient Dashboard", () => {
       if (msg.type() === "error") errors.push(msg.text());
     });
     await page.goto(`${BASE}/recipient`);
-    await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(3000);
+    await page.waitForLoadState("domcontentloaded");
+    await page.waitForTimeout(2000);
     expect(filterConsoleErrors(errors).length).toBe(0);
   });
 });
@@ -501,7 +501,7 @@ test.describe("SPA Routing", () => {
     test(`${path} loads`, async ({ page }) => {
       const resp = await page.goto(`${BASE}${path}`);
       expect(resp?.status()).toBe(200);
-      await page.waitForLoadState("networkidle");
+      await page.waitForLoadState("domcontentloaded");
       await expect(page.locator("body")).toBeVisible();
     });
   }

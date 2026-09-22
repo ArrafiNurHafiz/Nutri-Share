@@ -7,7 +7,7 @@ export default defineConfig({
   retries: 0,
   reporter: "list",
   use: {
-    baseURL: "https://nutrishare-web.vercel.app",
+    baseURL: "https://nutrishare.web.id",
     headless: true,
     ignoreHTTPSErrors: true,
   },
