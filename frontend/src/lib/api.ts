@@ -24,8 +24,15 @@ export const api = {
     if (!res.ok) {
       // If unauthorized on protected route, redirect to login cleanly
       if (res.status === 401 || res.status === 403) {
-        if (typeof window !== "undefined" && !window.location.pathname.startsWith("/login") && !window.location.pathname.startsWith("/register") && window.location.pathname !== "/") {
-          // Avoid flooding uncaught errors on session expiry
+        if (
+          typeof window !== "undefined" &&
+          !window.location.pathname.startsWith("/login") &&
+          !window.location.pathname.startsWith("/register") &&
+          !window.location.pathname.startsWith("/forgot-password") &&
+          !window.location.pathname.startsWith("/reset-password") &&
+          window.location.pathname !== "/"
+        ) {
+          window.location.href = "/login";
         }
       }
       let data: any;
