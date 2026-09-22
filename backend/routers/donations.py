@@ -143,12 +143,8 @@ async def list_donations(
 
     if current_user.role == "donor":
         query = query.where(Donation.donor_id == current_user.id)
-    elif current_user.role == "admin":
-        if donor_id:
-            query = query.where(Donation.donor_id == donor_id)
-    else:
-        if donor_id:
-            query = query.where(Donation.donor_id == donor_id)
+    elif current_user.role in ("admin", "recipient") and donor_id:
+        query = query.where(Donation.donor_id == donor_id)
 
     if status:
         if status == "active_or_claimed":
