@@ -205,7 +205,7 @@ export function ProfileModal({ user, profile, onClose, onUpdate }: any) {
 
                   {isRecipient && (
                     <div className="sm:col-span-2">
-                      <label className="font-bold text-stone-700 mb-1.5 block">Nama Panti Asuhan / Lembaga</label>
+                      <label className="font-bold text-stone-700 mb-1.5 block">Shelter / Institution Name</label>
                       <input
                         value={form.institution_name}
                         onChange={(e) => setForm({ ...form, institution_name: e.target.value })}
@@ -217,9 +217,9 @@ export function ProfileModal({ user, profile, onClose, onUpdate }: any) {
 
                   <div>
                     <label className="font-bold text-stone-700 mb-1.5 flex items-center justify-between">
-                      <span>Nomor WhatsApp Aktif <span className="text-red-500">*</span></span>
+                      <span>Active WhatsApp Number <span className="text-red-500">*</span></span>
                       <span className="text-[10px] text-emerald-700 font-bold flex items-center gap-0.5">
-                        <MessageCircle size={11} /> Koordinasi WA
+                        <MessageCircle size={11} /> WA Dispatch
                       </span>
                     </label>
                     <div className="relative">
@@ -236,7 +236,7 @@ export function ProfileModal({ user, profile, onClose, onUpdate }: any) {
                   </div>
 
                   <div>
-                    <label className="font-bold text-stone-700 mb-1.5 block">Email Akun</label>
+                    <label className="font-bold text-stone-700 mb-1.5 block">Account Email</label>
                     <div className="relative">
                       <Mail size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" />
                       <input
@@ -251,7 +251,7 @@ export function ProfileModal({ user, profile, onClose, onUpdate }: any) {
                 </div>
 
                 <div>
-                  <label className="font-bold text-stone-700 mb-1.5 block">Alamat Lengkap</label>
+                  <label className="font-bold text-stone-700 mb-1.5 block">Complete Address</label>
                   <textarea
                     rows={2}
                     value={form.address}

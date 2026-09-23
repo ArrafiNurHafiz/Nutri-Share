@@ -244,67 +244,68 @@ export function AdminDashboard() {
   };
 
   const pieData = {
-    labels: ["Panti Asuhan", "Rumah Singgah", "Lembaga Sosial / Lainnya"],
+    labels: ["Children Orphanages", "Halfway Shelters", "Elderly Homes / Others"],
     datasets: [
       {
-        label: "Sebaran",
+        label: "Distribution",
         data: [
           users.recipients.filter((x: any) => x.institution_type === "panti_asuhan").length,
           users.recipients.filter((x: any) => x.institution_type === "rumah_singgah").length,
           users.recipients.filter(
             (x: any) =>
               x.institution_type === "lainnya" ||
-              x.institution_type === "lembaga_sosial",
+              x.institution_type === "lembaga_sosial" ||
+              x.institution_type === "panti_lansia",
           ).length,
         ],
-        backgroundColor: ["#2D7A4F", "#059669", "#D97706"],
+        backgroundColor: ["#059669", "#10B981", "#D97706"],
       },
     ],
   };
 
   const tabs = [
-    { id: "overview" as TabId, label: "Overview & Metrik", icon: Layers },
-    { id: "verifikasi" as TabId, label: "Verifikasi & Klaim", icon: Shield, count: totalPending },
-    { id: "data" as TabId, label: "Data Mitra & Penerima", icon: Database },
-    { id: "aktivitas" as TabId, label: "Log Aktivitas", icon: Activity },
+    { id: "overview" as TabId, label: "Overview & Metrics", icon: Layers },
+    { id: "verifikasi" as TabId, label: "Verification & Claims", icon: Shield, count: totalPending },
+    { id: "data" as TabId, label: "Partners & Shelters Data", icon: Database },
+    { id: "aktivitas" as TabId, label: "Activity Logs", icon: Activity },
   ];
 
   const statCards = [
     {
-      label: "Total Mitra Donatur",
+      label: "Total Donor Partners",
       value: stats.donors || 0,
       icon: Heart,
-      color: "text-[#2D7A4F]",
+      color: "text-[#059669]",
       bg: "bg-[#ECFDF5]",
       border: "border-[#A7F3D0]",
-      desc: "Hotel, Resto & Kafe terdaftar",
+      desc: "Hotels, Restaurants & Catering registered",
     },
     {
-      label: "Lembaga Penerima",
+      label: "Beneficiary Shelters",
       value: stats.recipients || 0,
       icon: Users,
       color: "text-[#2563EB]",
       bg: "bg-[#EFF6FF]",
       border: "border-[#BFDBFE]",
-      desc: "Panti asuhan & rumah singgah",
+      desc: "Orphanages & nursing homes",
     },
     {
-      label: "Donasi Aktif & Berjalan",
+      label: "Active & In-Transit Donations",
       value: stats.active_donations || 0,
       icon: Package,
       color: "text-[#D97706]",
       bg: "bg-[#FFFBEB]",
       border: "border-[#FDE68A]",
-      desc: "Siap disalurkan via TOPSIS",
+      desc: "Dispatched via TOPSIS allocation",
     },
     {
-      label: "Donasi Selesai",
+      label: "Completed Donations",
       value: stats.completed_donations || 0,
       icon: CheckCircle,
       color: "text-[#059669]",
       bg: "bg-[#F0FDF4]",
       border: "border-[#BBF7D0]",
-      desc: "Tersalurkan ke penerima",
+      desc: "Successfully distributed to recipients",
     },
   ];
 
