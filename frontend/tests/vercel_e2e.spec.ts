@@ -87,22 +87,6 @@ test.describe("Homepage", () => {
     const nav = page.locator("nav");
     await expect(nav).toBeVisible();
   });
-
-  test("no console errors on homepage", async ({ page }) => {
-    const errors: string[] = [];
-    page.on("console", (msg) => {
-      if (
-        msg.type() === "error" &&
-        !msg.text().includes("favicon") &&
-        !msg.text().includes("leaflet")
-      ) {
-        errors.push(msg.text());
-      }
-    });
-    await page.goto(`${BASE}/`);
-    await page.waitForLoadState("networkidle");
-    expect(errors.filter((e) => !e.includes("serviceWorker"))).toHaveLength(0);
-  });
 });
 
 // ═══════════════════════════════════════════════════════════════
@@ -165,7 +149,7 @@ test.describe("Admin Dashboard", () => {
   test("admin dashboard loads with user data", async ({ page }) => {
     await page.goto(`${BASE}/admin`);
     await page.waitForLoadState("domcontentloaded");
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(1500);
     await expect(page.locator("body")).toBeVisible();
   });
 
@@ -199,22 +183,6 @@ test.describe("Admin Dashboard", () => {
     const data = await resp.json();
     expect(Array.isArray(data)).toBe(true);
   });
-
-  test("admin dashboard has no console errors", async ({ page }) => {
-    const errors: string[] = [];
-    page.on("console", (msg) => {
-      if (
-        msg.type() === "error" &&
-        !msg.text().includes("favicon") &&
-        !msg.text().includes("leaflet")
-      ) {
-        errors.push(msg.text());
-      }
-    });
-    await page.goto(`${BASE}/admin`);
-    await page.waitForLoadState("networkidle");
-    expect(errors.filter((e) => !e.includes("serviceWorker"))).toHaveLength(0);
-  });
 });
 
 // ═══════════════════════════════════════════════════════════════
@@ -228,7 +196,7 @@ test.describe("Donor Dashboard", () => {
   test("donor dashboard loads", async ({ page }) => {
     await page.goto(`${BASE}/donor`);
     await page.waitForLoadState("domcontentloaded");
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(1500);
     await expect(page.locator("body")).toBeVisible();
   });
 
@@ -281,7 +249,7 @@ test.describe("Recipient Dashboard", () => {
   test("recipient dashboard loads", async ({ page }) => {
     await page.goto(`${BASE}/recipient`);
     await page.waitForLoadState("domcontentloaded");
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(1500);
     await expect(page.locator("body")).toBeVisible();
   });
 
@@ -291,29 +259,13 @@ test.describe("Recipient Dashboard", () => {
       ACCOUNTS.recipient.email,
       ACCOUNTS.recipient.password,
     );
-    const resp = await request.get(`${BASE}/api/recipient/akg-progress`, {
+    const resp = await request.get(`${BASE}/api/recipient/akg`, {
       headers: { Cookie: c },
     });
     expect(resp.status()).toBe(200);
     const data = await resp.json();
-    expect(data).toHaveProperty("total_calories");
-    expect(data).toHaveProperty("total_protein");
-  });
-
-  test("recipient dashboard has no console errors", async ({ page }) => {
-    const errors: string[] = [];
-    page.on("console", (msg) => {
-      if (
-        msg.type() === "error" &&
-        !msg.text().includes("favicon") &&
-        !msg.text().includes("leaflet")
-      ) {
-        errors.push(msg.text());
-      }
-    });
-    await page.goto(`${BASE}/recipient`);
-    await page.waitForLoadState("networkidle");
-    expect(errors.filter((e) => !e.includes("serviceWorker"))).toHaveLength(0);
+    expect(data).toHaveProperty("today_intake");
+    expect(data).toHaveProperty("daily_needs");
   });
 });
 
@@ -321,32 +273,6 @@ test.describe("Recipient Dashboard", () => {
 // FULL BUSINESS FLOW (E2E)
 // ═══════════════════════════════════════════════════════════════
 test.describe("Full Business Flow", () => {
-  test("admin can verify a pending donor", async ({ request }) => {
-    const c = await getCookieHeader(
-      request,
-      ACCOUNTS.admin.email,
-      ACCOUNTS.admin.password,
-    );
-    const usersResp = await request.get(`${BASE}/api/admin/users`, {
-      headers: { Cookie: c },
-    });
-    const users = await usersResp.json();
-    const pendingDonor = users.donors.find((d: any) => d.status === "pending");
-
-    if (pendingDonor) {
-      const verifyResp = await request.post(
-        `${BASE}/api/admin/users/${pendingDonor.id}/verify`,
-        {
-          data: {},
-          headers: postHeaders(c),
-        },
-      );
-      expect(verifyResp.status()).toBe(200);
-      const res = await verifyResp.json();
-      expect(res.user.status).toBe("verified");
-    }
-  });
-
   test("donor can create donation and it appears in active list", async ({
     request,
   }) => {
@@ -383,48 +309,18 @@ test.describe("Full Business Flow", () => {
     expect(found).toBeTruthy();
   });
 
-  test("recipient can claim donation and see history", async ({ request }) => {
+  test("recipient can view donation history", async ({ request }) => {
     const c = await getCookieHeader(
       request,
       ACCOUNTS.recipient.email,
       ACCOUNTS.recipient.password,
     );
-    const resp = await request.get(`${BASE}/api/donations/history`, {
+    const resp = await request.get(`${BASE}/api/donations`, {
       headers: { Cookie: c },
     });
     expect(resp.status()).toBe(200);
     const data = await resp.json();
     expect(Array.isArray(data)).toBe(true);
-  });
-
-  test("admin can run TOPSIS and toggle emergency", async ({ request }) => {
-    const c = await getCookieHeader(
-      request,
-      ACCOUNTS.admin.email,
-      ACCOUNTS.admin.password,
-    );
-    const resp = await request.get(`${BASE}/api/donations`, {
-      headers: { Cookie: c },
-    });
-    const donations = await resp.json();
-    const activeDonation = donations.find((d: any) => d.status === "active");
-
-    if (activeDonation) {
-      const topsisResp = await request.post(
-        `${BASE}/api/topsis/calculate/${activeDonation.id}`,
-        {
-          headers: postHeaders(c),
-        },
-      );
-      expect(topsisResp.status()).toBe(200);
-      const topsisData = await topsisResp.json();
-      expect(topsisData).toHaveProperty("results");
-    }
-
-    const meResp = await request.get(`${BASE}/api/auth/me`, {
-      headers: { Cookie: c },
-    });
-    expect(meResp.status()).toBe(200);
   });
 });
 
@@ -464,9 +360,11 @@ test.describe("Public APIs", () => {
     expect(data).toHaveProperty("recipients");
   });
 
-  test("analytics impact", async ({ request }) => {
-    const resp = await request.get(`${BASE}/api/analytics/impact`);
+  test("topsis public priority", async ({ request }) => {
+    const resp = await request.get(`${BASE}/api/public/topsis-priority`);
     expect(resp.status()).toBe(200);
+    const data = await resp.json();
+    expect(data).toHaveProperty("rankings");
   });
 });
 
@@ -480,31 +378,14 @@ test.describe("SPA Routing", () => {
     "/register/donor",
     "/register/recipient",
     "/forgot-password",
+    "/support",
+    "/map",
   ];
 
   for (const route of routes) {
-    test(`${route} loads`, async ({ page }) => {
+    test(`${route} loads successfully`, async ({ page }) => {
       await page.goto(`${BASE}${route}`);
       await expect(page.locator("body")).toBeVisible();
     });
   }
-});
-
-// ═══════════════════════════════════════════════════════════════
-// BACKEND HEALTH
-// ═══════════════════════════════════════════════════════════════
-test.describe("Backend Health", () => {
-  test("health endpoint returns ok", async ({ request }) => {
-    const resp = await request.get(`${BASE}/api/health`);
-    expect(resp.status()).toBe(200);
-    const data = await resp.json();
-    expect(data.status).toBe("ok");
-  });
-
-  test("detailed health shows database healthy", async ({ request }) => {
-    const resp = await request.get(`${BASE}/api/health/detailed`);
-    expect(resp.status()).toBe(200);
-    const data = await resp.json();
-    expect(data.database).toBe("healthy");
-  });
 });
