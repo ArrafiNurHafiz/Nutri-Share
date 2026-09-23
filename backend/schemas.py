@@ -29,7 +29,7 @@ class RegisterRecipientRequest(BaseModel):
     email: str = Field(min_length=1)
     password: str = Field(min_length=6)
     institution_type: str = Field(
-        pattern=r"^(panti_asuhan|rumah_singgah|lembaga_sosial|lainnya)$"
+        pattern=r"^(panti_asuhan|rumah_singgah|panti_lansia|panti_wreda|lembaga_sosial|lainnya)$"
     )
     address: str = Field(min_length=1)
     latitude: str = Field(min_length=1)

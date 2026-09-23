@@ -344,15 +344,23 @@ export function ProfileModal({ user, profile, onClose, onUpdate }: any) {
                 </p>
                 <div className="h-56 rounded-2xl overflow-hidden border border-stone-200">
                   <LocationPicker
-                    lat={parseFloat(form.latitude)}
-                    lng={parseFloat(form.longitude)}
+                    lat={parseFloat(form.latitude) || -7.7956}
+                    lng={parseFloat(form.longitude) || 110.3695}
                     onChange={(lat: number, lng: number) =>
-                      setForm({
-                        ...form,
+                      setForm((prev) => ({
+                        ...prev,
                         latitude: lat.toString(),
                         longitude: lng.toString(),
-                      })
+                      }))
                     }
+                    onAddressSelect={(detectedAddr) => {
+                      if (detectedAddr) {
+                        setForm((prev) => ({
+                          ...prev,
+                          address: detectedAddr,
+                        }));
+                      }
+                    }}
                   />
                 </div>
               </div>

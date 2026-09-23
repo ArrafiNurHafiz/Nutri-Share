@@ -295,18 +295,27 @@ export function RegisterDonor() {
                 <MapPin size={15} className="text-[#2D7A4F]" /> Titik Koordinat Peta Donatur
               </h3>
               <p className="text-[11px] text-stone-500">
-                Pilih atau seret pin lokasi agar panti asuhan penerima dapat menghitung rute jalan penjemputan secara akurat.
+                Pilih atau seret pin lokasi agar panti asuhan penerima dapat menghitung rute jalan penjemputan secara akurat. Alamat di atas akan otomatis disesuaikan.
               </p>
               <LocationPicker
-                lat={parseFloat(form.latitude)}
-                lng={parseFloat(form.longitude)}
+                lat={parseFloat(form.latitude) || -7.7956}
+                lng={parseFloat(form.longitude) || 110.3695}
                 onChange={(lat, lng) =>
-                  setForm({
-                    ...form,
+                  setForm((prev) => ({
+                    ...prev,
                     latitude: lat.toString(),
                     longitude: lng.toString(),
-                  })
+                  }))
                 }
+                onAddressSelect={(detectedAddr) => {
+                  if (detectedAddr) {
+                    setForm((prev) => ({
+                      ...prev,
+                      address: detectedAddr,
+                    }));
+                    setErrors((prev) => ({ ...prev, address: undefined }));
+                  }
+                }}
               />
             </div>
 

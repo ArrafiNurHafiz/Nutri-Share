@@ -197,7 +197,7 @@ export function RegisterRecipient() {
 
               <div>
                 <label className="text-xs font-bold text-stone-700 mb-1.5 block">
-                  Jenis Lembaga
+                  Jenis Lembaga <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={form.institution_type}
@@ -208,6 +208,7 @@ export function RegisterRecipient() {
                   <option value="rumah_singgah">Rumah Singgah</option>
                   <option value="panti_lansia">Panti Wreda / Lansia</option>
                   <option value="lembaga_sosial">Yayasan Sosial Lainnya</option>
+                  <option value="lainnya">Lainnya</option>
                 </select>
               </div>
 
@@ -294,7 +295,7 @@ export function RegisterRecipient() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700 text-xs font-bold"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700 text-xs font-bold cursor-pointer"
                 >
                   {showPassword ? "Tutup" : "Lihat"}
                 </button>
@@ -307,7 +308,7 @@ export function RegisterRecipient() {
                 Alamat Lengkap Lembaga <span className="text-red-500">*</span>
               </label>
               <textarea
-                placeholder="Jl. Kaliurang KM 7, Sinduharjo, Ngaglik, Sleman"
+                placeholder="Jl. Kaliurang KM 7, Sinduharjo, Ngaglik, Sleman (atau pilih titik peta di bawah)"
                 value={form.address}
                 onChange={(e) => update("address", e.target.value)}
                 onBlur={() => validateField("address", form.address)}
@@ -324,18 +325,27 @@ export function RegisterRecipient() {
                 <MapPin size={15} className="text-[#2D7A4F]" /> Titik Koordinat Peta Panti
               </h3>
               <p className="text-[11px] text-stone-500">
-                Pilih lokasi panti agar algoritma TOPSIS dapat mengukur jarak tempuh rute jalan secara otomatis.
+                Pilih atau seret pin lokasi panti. Alamat di atas akan otomatis disesuaikan dengan titik yang dipilih.
               </p>
               <LocationPicker
-                lat={parseFloat(form.latitude)}
-                lng={parseFloat(form.longitude)}
+                lat={parseFloat(form.latitude) || -7.8089}
+                lng={parseFloat(form.longitude) || 110.3741}
                 onChange={(lat, lng) =>
-                  setForm({
-                    ...form,
+                  setForm((prev) => ({
+                    ...prev,
                     latitude: lat.toString(),
                     longitude: lng.toString(),
-                  })
+                  }))
                 }
+                onAddressSelect={(detectedAddr) => {
+                  if (detectedAddr) {
+                    setForm((prev) => ({
+                      ...prev,
+                      address: detectedAddr,
+                    }));
+                    setErrors((prev) => ({ ...prev, address: undefined }));
+                  }
+                }}
               />
             </div>
 
