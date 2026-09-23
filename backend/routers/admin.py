@@ -308,27 +308,32 @@ async def admin_delete_user(
         raise HTTPException(status_code=400, detail="Tidak bisa menghapus admin")
 
     try:
-        # Get donation IDs for cleanup
-        donation_ids = await session.execute(
-            select(Donation.id).where(Donation.donor_id == user_id)
-        )
-        donation_ids_list = donation_ids.scalars().all()
+        if user.role == "donor":
+            # Get donation IDs for cleanup
+            donation_ids = await session.execute(
+                select(Donation.id).where(Donation.donor_id == user_id)
+            )
+            donation_ids_list = donation_ids.scalars().all()
 
-        for did in donation_ids_list:
-            await session.execute(text("DELETE FROM claims WHERE donation_id = :did"), {"did": did})
-            await session.execute(text("DELETE FROM topsis_results WHERE donation_id = :did"), {"did": did})
-            await session.execute(text("DELETE FROM reviews WHERE donation_id = :did"), {"did": did})
-            await session.execute(text("DELETE FROM notifications WHERE related_donation_id = :did"), {"did": did})
+            for did in donation_ids_list:
+                await session.execute(text("DELETE FROM claims WHERE donation_id = :did"), {"did": did})
+                await session.execute(text("DELETE FROM topsis_results WHERE donation_id = :did"), {"did": did})
+                await session.execute(text("DELETE FROM reviews WHERE donation_id = :did"), {"did": did})
+                await session.execute(text("DELETE FROM notifications WHERE related_donation_id = :did"), {"did": did})
 
-        await session.execute(text("DELETE FROM claims WHERE recipient_id = :uid"), {"uid": user_id})
-        await session.execute(text("DELETE FROM topsis_results WHERE recipient_id = :uid"), {"uid": user_id})
-        await session.execute(text("DELETE FROM reviews WHERE donor_id = :uid"), {"uid": user_id})
-        await session.execute(text("DELETE FROM reviews WHERE recipient_id = :uid"), {"uid": user_id})
+            await session.execute(text("DELETE FROM donations WHERE donor_id = :uid"), {"uid": user_id})
+            await session.execute(text("DELETE FROM donor_profiles WHERE user_id = :uid"), {"uid": user_id})
+            await session.execute(text("DELETE FROM reviews WHERE donor_id = :uid"), {"uid": user_id})
+        elif user.role == "recipient":
+            await session.execute(text("DELETE FROM claims WHERE recipient_id = :uid"), {"uid": user_id})
+            await session.execute(text("DELETE FROM topsis_results WHERE recipient_id = :uid"), {"uid": user_id})
+            await session.execute(text("DELETE FROM reviews WHERE recipient_id = :uid"), {"uid": user_id})
+            # Preserve donor donations: reset active/in-progress claims, detach recipient on completed
+            await session.execute(text("UPDATE donations SET claimed_by = NULL, status = 'active' WHERE claimed_by = :uid AND status != 'completed'"), {"uid": user_id})
+            await session.execute(text("UPDATE donations SET claimed_by = NULL WHERE claimed_by = :uid AND status = 'completed'"), {"uid": user_id})
+            await session.execute(text("DELETE FROM recipient_profiles WHERE user_id = :uid"), {"uid": user_id})
+
         await session.execute(text("DELETE FROM notifications WHERE user_id = :uid"), {"uid": user_id})
-        await session.execute(text("DELETE FROM donations WHERE donor_id = :uid"), {"uid": user_id})
-        await session.execute(text("DELETE FROM donations WHERE claimed_by = :uid"), {"uid": user_id})
-        await session.execute(text("DELETE FROM donor_profiles WHERE user_id = :uid"), {"uid": user_id})
-        await session.execute(text("DELETE FROM recipient_profiles WHERE user_id = :uid"), {"uid": user_id})
         await session.execute(text("DELETE FROM activity_logs WHERE user_id = :uid"), {"uid": user_id})
         await session.execute(text("DELETE FROM users WHERE id = :uid"), {"uid": user_id})
         await session.commit()

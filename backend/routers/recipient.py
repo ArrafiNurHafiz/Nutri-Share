@@ -29,14 +29,16 @@ async def get_akg(
         raise HTTPException(status_code=401, detail="Not logged in")
 
     target_user_id = current_user.id
-    if current_user.role == "admin" and user_id:
-        target_user_id = user_id
-    elif current_user.role != "recipient" and not user_id:
-        # If admin or non-recipient calls without user_id, find first recipient profile for inspection
-        first_rp = await session.execute(select(RecipientProfile).limit(1))
-        rp_sample = first_rp.scalar_one_or_none()
-        if rp_sample:
-            target_user_id = rp_sample.user_id
+    if current_user.role == "admin":
+        if user_id:
+            target_user_id = user_id
+        else:
+            first_rp = await session.execute(select(RecipientProfile).limit(1))
+            rp_sample = first_rp.scalar_one_or_none()
+            if rp_sample:
+                target_user_id = rp_sample.user_id
+    elif current_user.role != "recipient":
+        raise HTTPException(status_code=403, detail="Access denied")
 
     profile = await session.execute(
         select(RecipientProfile).where(RecipientProfile.user_id == target_user_id)

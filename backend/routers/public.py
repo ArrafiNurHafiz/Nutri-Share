@@ -36,14 +36,25 @@ async def public_stats(session: SessionDep):
         )
     )
     total_portions = completed.scalar_one() or 0
-    food_waste_kg = total_portions * 3  # ~0.3 kg per portion → integer display
+    food_waste_kg = round(total_portions * 0.3, 1)
 
     people = await session.execute(
         text(
-            "SELECT COUNT(DISTINCT claimed_by) FROM donations WHERE status = 'completed'"
+            """
+            SELECT COALESCE(SUM(rp.resident_count), 0)
+            FROM recipient_profiles rp
+            WHERE rp.user_id IN (
+                SELECT DISTINCT claimed_by FROM donations WHERE status = 'completed' AND claimed_by IS NOT NULL
+            )
+            """
         )
     )
     people_helped = people.scalar_one() or 0
+    if people_helped == 0:
+        p_fallback = await session.execute(
+            text("SELECT COUNT(DISTINCT claimed_by) FROM donations WHERE status = 'completed'")
+        )
+        people_helped = p_fallback.scalar_one() or 0
 
     partners = await session.execute(
         select(User).where(User.role == "donor", User.status == "verified")

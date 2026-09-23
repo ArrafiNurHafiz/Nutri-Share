@@ -41,6 +41,8 @@ function cleanPhone(p?: string): string {
   if (!p) return "";
   let digits = p.replace(/\D/g, "");
   if (digits.startsWith("0")) digits = "62" + digits.slice(1);
+  else if (digits.startsWith("8")) digits = "62" + digits;
+  if (digits.startsWith("622") || digits.length < 9) return "";
   return digits;
 }
 

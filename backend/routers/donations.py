@@ -44,6 +44,8 @@ async def create_donation(
 ):
     if current_user.role != "donor":
         raise HTTPException(status_code=403, detail="Access denied")
+    if current_user.status != "verified":
+        raise HTTPException(status_code=403, detail="Akun donatur belum diverifikasi oleh admin.")
 
     now = datetime.now(UTC)
 
@@ -475,6 +477,8 @@ async def claim_donation(
 ):
     if current_user.role != "recipient":
         raise HTTPException(status_code=403, detail="Access denied")
+    if current_user.status != "verified":
+        raise HTTPException(status_code=403, detail="Akun lembaga penerima belum diverifikasi oleh admin.")
 
     # Validate donation exists and check expiration
     d_check = await session.execute(select(Donation).where(Donation.id == donation_id))
