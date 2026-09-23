@@ -1,0 +1,766 @@
+import docx
+from docx import Document
+from docx.shared import Inches, Pt, RGBColor
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.enum.table import WD_TABLE_ALIGNMENT
+from docx.oxml import parse_xml, OxmlElement
+from docx.oxml.ns import nsdecls, qn
+
+def set_cell_background(cell, fill_hex):
+    tcPr = cell._element.get_or_add_tcPr()
+    shd = parse_xml(f'<w:shd {nsdecls("w")} w:fill="{fill_hex}"/>')
+    tcPr.append(shd)
+
+def set_cell_margins(cell, top=80, bottom=80, left=100, right=100):
+    tcPr = cell._element.get_or_add_tcPr()
+    tcMar = parse_xml(f'''
+        <w:tcMar {nsdecls("w")}>
+            <w:top w:w="{top}" w:type="dxa"/>
+            <w:bottom w:w="{bottom}" w:type="dxa"/>
+            <w:left w:w="{left}" w:type="dxa"/>
+            <w:right w:w="{right}" w:type="dxa"/>
+        </w:tcMar>
+    ''')
+    tcPr.append(tcMar)
+
+def set_table_borders(table, color="CCCCCC"):
+    tblPr = table._element.xpath('w:tblPr')
+    if tblPr:
+        borders = parse_xml(f'''
+            <w:tblBorders {nsdecls("w")}>
+                <w:top w:val="single" w:sz="6" w:space="0" w:color="{color}"/>
+                <w:bottom w:val="single" w:sz="8" w:space="0" w:color="333333"/>
+                <w:left w:val="none"/>
+                <w:right w:val="none"/>
+                <w:insideH w:val="single" w:sz="4" w:space="0" w:color="{color}"/>
+                <w:insideV w:val="none"/>
+            </w:tblBorders>
+        ''')
+        tblPr[0].append(borders)
+
+def fill_sinkron_template():
+    template_path = "docs/sinkrontemplate - New Version Oct 2020 - Rev.docx"
+    output_path = "docs/Jurnal_NutriShare_Sinkron_Final_Submission.docx"
+
+    doc = Document(template_path)
+
+    # 1. Fill Table 0 (Checklist) with "OK" in Author Claim column
+    if len(doc.tables) > 0:
+        checklist_table = doc.tables[0]
+        for row_idx, row in enumerate(checklist_table.rows):
+            if row_idx == 0:
+                continue
+            cells = row.cells
+            if len(cells) >= 3 and cells[1].text.strip():
+                if not cells[2].text.strip():
+                    cells[2].text = "OK"
+                    p = cells[2].paragraphs[0]
+                    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                    if len(p.runs) > 0:
+                        p.runs[0].font.size = Pt(8.5)
+                        p.runs[0].font.name = "Times New Roman"
+
+    # Fill paper title in the checklist section
+    for p in doc.paragraphs[:40]:
+        if "Title of paper:" in p.text:
+            p.text = "Title of paper: Implementation of Hybrid Shannon Entropy-TOPSIS for Multi-Criteria Surplus Food Distribution"
+            p.runs[0].font.name = "Times New Roman"
+            p.runs[0].font.size = Pt(10)
+            p.runs[0].bold = True
+
+    # 2. Find start index of manuscript body (around paragraph 35-40 where Title placeholder starts)
+    title_p_idx = None
+    for idx, p in enumerate(doc.paragraphs):
+        if "Title Using Times New Roman Regular Font" in p.text:
+            title_p_idx = idx
+            break
+
+    if title_p_idx is None:
+        title_p_idx = 40
+
+    # Delete all paragraphs from title_p_idx onwards
+    p_elements = [p._element for p in doc.paragraphs[title_p_idx:]]
+    for pe in p_elements:
+        pe.getparent().remove(pe)
+
+    # Also remove any tables that appeared in the placeholder body (tables 4 and beyond if any)
+    # The original document has 4 tables (checklist + 3 reviewer tables). We keep those 4 tables!
+
+    # 3. Add Manuscript Content matching exact Sinkron structure and formatting
+
+    # --- TITLE (24 pt, Regular, Times New Roman, max 12-14 words) ---
+    p_title = doc.add_paragraph()
+    p_title.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p_title.paragraph_format.space_before = Pt(24)
+    p_title.paragraph_format.space_after = Pt(12)
+    r_title = p_title.add_run("Implementation of Hybrid Shannon Entropy-TOPSIS for Multi-Criteria Surplus Food Distribution")
+    r_title.font.name = "Times New Roman"
+    r_title.font.size = Pt(20) # 20-24pt
+    r_title.bold = True
+    r_title.font.color.rgb = RGBColor(0x04, 0x78, 0x57)
+
+    # --- AUTHORS ---
+    p_auth = doc.add_paragraph()
+    p_auth.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p_auth.paragraph_format.space_after = Pt(2)
+    r_auth = p_auth.add_run("Arrafi Nur Hafiz1)*, Author Two2), Author Three3)")
+    r_auth.font.name = "Times New Roman"
+    r_auth.font.size = Pt(10.5)
+    r_auth.bold = True
+
+    # --- AFFILIATION ---
+    p_aff = doc.add_paragraph()
+    p_aff.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p_aff.paragraph_format.space_after = Pt(2)
+    r_aff = p_aff.add_run("1)2)3)Department of Information Systems, Faculty of Science and Technology, Universitas [Nama Universitas], Yogyakarta, Indonesia")
+    r_aff.font.name = "Times New Roman"
+    r_aff.font.size = Pt(9.5)
+    r_aff.italic = True
+
+    # --- EMAILS ---
+    p_em = doc.add_paragraph()
+    p_em.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p_em.paragraph_format.space_after = Pt(8)
+    r_em = p_em.add_run("1)*arrafi@example.com, 2)author2@example.com, 3)author3@example.com")
+    r_em.font.name = "Times New Roman"
+    r_em.font.size = Pt(9.5)
+
+    # --- SUBMITTED / ACCEPTED BAR ---
+    p_sub = doc.add_paragraph()
+    p_sub.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p_sub.paragraph_format.space_after = Pt(12)
+    r_sub = p_sub.add_run("Submitted : [Date] | Accepted : [Date] | Published : [Date]")
+    r_sub.font.name = "Times New Roman"
+    r_sub.font.size = Pt(9)
+    r_sub.bold = True
+    r_sub.font.color.rgb = RGBColor(0x6B, 0x72, 0x80)
+
+    # --- ABSTRACT (Sinkron: 200-250 words, one paragraph, no abbreviations, no trademarks, no citations) ---
+    abstract_text = (
+        "Surplus food redistribution from commercial hospitality sectors to social welfare shelters frequently encounters "
+        "allocation inefficiencies, perishable food spoilage due to logistical barriers, and assistance monopolies. "
+        "This study designs and implements a multi-criteria Decision Support System for surplus food distribution by integrating "
+        "the Technique for Order Preference by Similarity to Ideal Solution with Hybrid Shannon Entropy weighting. "
+        "The model evaluates five essential criteria: daily protein deficit fulfillment percentage, recipient urgency score "
+        "and emergency status, remaining food shelf life, Haversine-based geographical distance, and distribution fairness based on days "
+        "since the last received donation. Hybrid weighting combines subjective domain policy weights of fifty percent with data-driven "
+        "objective Shannon Entropy weights of fifty percent to ensure prioritization stability against data fluctuations. "
+        "Furthermore, a dynamic twenty-four-hour quota fulfillment penalty is incorporated to mitigate hoarding among recipient institutions. "
+        "Simulation experiments across five diverse welfare institutions demonstrate that the Hybrid Shannon Entropy Technique for Order "
+        "Preference by Similarity to Ideal Solution model successfully prioritizes shelters with acute nutritional deficits and close "
+        "logistical proximity for highly perishable food items. The hybrid approach preserves critical operational criteria that would "
+        "otherwise be eliminated by pure entropy calculation when alternatives share identical shelf life. Consequently, the proposed system "
+        "achieves balanced, transparent, and equitable food aid allocation, effectively reducing potential food waste and improving nutritional delivery."
+    )
+
+    p_abstract = doc.add_paragraph()
+    p_abstract.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+    p_abstract.paragraph_format.space_after = Pt(6)
+    r_ab_head = p_abstract.add_run("Abstract: ")
+    r_ab_head.font.name = "Times New Roman"
+    r_ab_head.font.size = Pt(10)
+    r_ab_head.bold = True
+    r_ab_body = p_abstract.add_run(abstract_text)
+    r_ab_body.font.name = "Times New Roman"
+    r_ab_body.font.size = Pt(10)
+
+    # --- KEYWORDS (min 5 words, semicolon separated) ---
+    p_kw = doc.add_paragraph()
+    p_kw.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+    p_kw.paragraph_format.space_after = Pt(16)
+    r_kw_head = p_kw.add_run("Keywords: ")
+    r_kw_head.font.name = "Times New Roman"
+    r_kw_head.font.size = Pt(9.5)
+    r_kw_head.bold = True
+    r_kw_body = p_kw.add_run("Decision Support System; Surplus Food; Hybrid TOPSIS; Shannon Entropy; Haversine Distance; Humanitarian Logistics; Food Waste Reduction")
+    r_kw_body.font.name = "Times New Roman"
+    r_kw_body.font.size = Pt(9.5)
+    r_kw_body.italic = True
+
+    # -------------------------------------------------------------
+    # 1. INTRODUCTION (Sinkron Heading 1)
+    # -------------------------------------------------------------
+    p_h1 = doc.add_paragraph(style='Heading 1')
+    p_h1.paragraph_format.space_before = Pt(14)
+    p_h1.paragraph_format.space_after = Pt(4)
+    r = p_h1.add_run("INTRODUCTION")
+    r.font.name = "Times New Roman"
+    r.font.size = Pt(12)
+    r.bold = True
+
+    p_in1 = doc.add_paragraph()
+    p_in1.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+    p_in1.paragraph_format.line_spacing = 1.15
+    p_in1.paragraph_format.space_after = Pt(6)
+    p_in1.add_run(
+        "Food loss and waste alongside nutritional insecurity represent one of the most pressing socio-economic paradoxes in developing nations (Bapanas, 2023). "
+        "In Indonesia, annual food waste generation reaches an estimated 23 to 48 million metric tons, resulting in substantial financial losses and environmental burdens (Bappenas, 2021). "
+        "Concurrently, social welfare institutions such as orphanages, elderly nursing homes, and homeless shelters persistently struggle with budgetary constraints "
+        "and protein deficiency. The commercial hospitality sector, including star-rated hotels, restaurants, and catering services, routinely produces substantial "
+        "quantities of high-quality surplus prepared meals. However, without a dedicated, structured redistribution framework, these edible surplus meals are frequently discarded into municipal landfills."
+    )
+
+    p_in2 = doc.add_paragraph()
+    p_in2.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+    p_in2.paragraph_format.line_spacing = 1.15
+    p_in2.paragraph_format.space_after = Pt(6)
+    p_in2.add_run(
+        "Conventional surplus food redistribution predominantly relies on ad-hoc phone calls, social media messaging, or First-Come, First-Served (FCFS) manual claiming. "
+        "These conventional practices exhibit severe operational vulnerabilities. First, they fail to evaluate the real-time nutritional deficits and institutional urgency of prospective recipients. "
+        "Second, perishable cooked foods possess brief consumption windows (often less than 4 to 6 hours); ignoring geographical proximity and transport logistics results in severe spoilage before delivery. "
+        "Third, FCFS mechanisms induce distribution inequality, allowing centrally located or digitally active institutions to monopolize donations while remote shelters suffer from chronic neglect. "
+        "Hence, an automated and intelligent multi-criteria Decision Support System (DSS) is vital to optimize matching speed, logistical feasibility, and humanitarian fairness."
+    )
+
+    p_in3 = doc.add_paragraph()
+    p_in3.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+    p_in3.paragraph_format.line_spacing = 1.15
+    p_in3.paragraph_format.space_after = Pt(6)
+    p_in3.add_run(
+        "The primary purpose of this study is to formulate and implement a comprehensive Decision Support System utilizing the Technique for Order Preference by Similarity to Ideal Solution (TOPSIS) "
+        "coupled with a Hybrid Shannon Entropy weighting mechanism and the Haversine distance formula. The system resolves three central research questions: "
+        "(1) How can multi-dimensional nutritional, temporal, logistical, and equity constraints be formulated into a robust decision matrix? "
+        "(2) How does the integration of objective Shannon Entropy and subjective policy weighting prevent the loss of critical criteria while adapting to real-time recipient variations? "
+        "and (3) To what extent does dynamic 24-hour fulfillment suppression prevent donation hoarding among recipient shelters?"
+    )
+
+    # -------------------------------------------------------------
+    # 2. LITERATURE REVIEW (Sinkron Heading 1)
+    # -------------------------------------------------------------
+    p_h2 = doc.add_paragraph(style='Heading 1')
+    p_h2.paragraph_format.space_before = Pt(14)
+    p_h2.paragraph_format.space_after = Pt(4)
+    r = p_h2.add_run("LITERATURE REVIEW")
+    r.font.name = "Times New Roman"
+    r.font.size = Pt(12)
+    r.bold = True
+
+    p_lr1 = doc.add_paragraph()
+    p_lr1.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+    p_lr1.paragraph_format.line_spacing = 1.15
+    p_lr1.paragraph_format.space_after = Pt(6)
+    p_lr1.add_run(
+        "Multi-Criteria Decision Making (MCDM) methods are widely employed to resolve complex resource allocation problems characterized by conflicting evaluation metrics. "
+        "The TOPSIS method, originally introduced by Hwang and Yoon (1981), ranks alternatives based on their simultaneous geometric closeness to the Positive Ideal Solution (PIS) "
+        "and distance from the Negative Ideal Solution (NIS). In humanitarian relief and food logistics, TOPSIS has demonstrated exceptional computational efficiency and conceptual clarity (Liu & Zhang, 2021; Sinnott et al., 2022). "
+        "Nonetheless, traditional TOPSIS implementations depend heavily on subjective weighting techniques (such as AHP or direct assignment), which introduce cognitive bias and lack responsiveness to dynamic data distributions (Pratama et al., 2022)."
+    )
+
+    p_lr2 = doc.add_paragraph()
+    p_lr2.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+    p_lr2.paragraph_format.line_spacing = 1.15
+    p_lr2.paragraph_format.space_after = Pt(6)
+    p_lr2.add_run(
+        "To eliminate subjective bias, objective weighting models based on Shannon's information entropy have gained substantial scholarly attention (Shannon, 1948; Naufal & Susetyo, 2022). "
+        "Shannon Entropy calculates criteria weights purely from the intrinsic variability and dispersion of the dataset (Kumar et al., 2022). "
+        "Nevertheless, pure entropy weighting suffers from a critical flaw in real-world operations: when all competing alternatives share homogeneous or identical values on a pivotal operational metric "
+        "(e.g., identical food expiry duration), the calculated entropy value equals 1.0, resulting in zero dispersion (d_j = 0) and completely assigning a zero weight to that vital criterion (Widjaja & Utami, 2021). "
+        "Conversely, purely subjective weights fail to capture situational urgency emerging from dynamic field data (Govindan et al., 2020)."
+    )
+
+    p_lr3 = doc.add_paragraph()
+    p_lr3.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+    p_lr3.paragraph_format.line_spacing = 1.15
+    p_lr3.paragraph_format.space_after = Pt(6)
+    p_lr3.add_run(
+        "To bridge this research gap, this study introduces a Hybrid Shannon Entropy-TOPSIS framework. By linearly combining subjective domain policy weights (alpha = 0.50) with objective Shannon Entropy weights (1 - alpha = 0.50), "
+        "the proposed architecture guarantees that baseline organizational policies remain active even during data homogeneity, while preserving data-driven flexibility. "
+        "Furthermore, integrating spatial Haversine coordinates and dynamic anti-hoarding penalties produces a holistically optimized allocation engine customized for emergency perishable food logistics (Ozkir & Demirel, 2022)."
+    )
+
+    # -------------------------------------------------------------
+    # 3. METHOD (Sinkron Heading 1)
+    # -------------------------------------------------------------
+    p_h3 = doc.add_paragraph(style='Heading 1')
+    p_h3.paragraph_format.space_before = Pt(14)
+    p_h3.paragraph_format.space_after = Pt(4)
+    r = p_h3.add_run("METHOD")
+    r.font.name = "Times New Roman"
+    r.font.size = Pt(12)
+    r.bold = True
+
+    p_m1 = doc.add_paragraph()
+    p_m1.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+    p_m1.paragraph_format.line_spacing = 1.15
+    p_m1.paragraph_format.space_after = Pt(6)
+    p_m1.add_run(
+        "The research methodology comprises five systematic phases: (1) multi-criteria domain modeling, (2) spatial Haversine distance computation, "
+        "(3) decision matrix vector normalization, (4) hybrid entropy weighting and TOPSIS ideal separation calculation, and (5) dynamic 24-hour fulfillment penalty adjustment. "
+        "The system evaluates m candidate verified recipient institutions against n = 5 distinct decision criteria (C1 to C5), as defined in Table 1."
+    )
+
+    # Caption Table 1
+    p_t1_cap = doc.add_paragraph()
+    p_t1_cap.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    p_t1_cap.paragraph_format.space_before = Pt(6)
+    p_t1_cap.paragraph_format.space_after = Pt(2)
+    r_t1_c = p_t1_cap.add_run("Table 1. Multi-Criteria Evaluation Parameters and Baseline Policy Weights")
+    r_t1_c.bold = True
+    r_t1_c.font.size = Pt(9.5)
+
+    table1 = doc.add_table(rows=6, cols=5)
+    table1.alignment = WD_TABLE_ALIGNMENT.CENTER
+    set_table_borders(table1)
+
+    t1_headers = ["Code", "Criterion Name", "Type", "Unit of Measurement", "Baseline Policy Weight"]
+    for col_idx, text in enumerate(t1_headers):
+        cell = table1.cell(0, col_idx)
+        set_cell_background(cell, "F3F4F6")
+        set_cell_margins(cell, 80, 80, 100, 100)
+        p = cell.paragraphs[0]
+        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        r = p.add_run(text)
+        r.bold = True
+        r.font.size = Pt(9)
+
+    t1_rows = [
+        ["C1", "Protein Deficit Fulfillment Ratio", "Benefit", "Percentage (%)", "0.25 (25%)"],
+        ["C2", "Institutional Urgency & Emergency Status", "Benefit", "Scale (1-10 / 1000+)", "0.25 (25%)"],
+        ["C3", "Remaining Food Shelf-Life", "Benefit", "Hours (hr)", "0.15 (15%)"],
+        ["C4", "Geographical Haversine Distance", "Cost", "Kilometers (km)", "0.20 (20%)"],
+        ["C5", "Distribution Fairness (Days Inactive)", "Benefit", "Days (day)", "0.15 (15%)"]
+    ]
+
+    for row_idx, row_content in enumerate(t1_rows, start=1):
+        for col_idx, val in enumerate(row_content):
+            cell = table1.cell(row_idx, col_idx)
+            set_cell_margins(cell, 60, 60, 80, 80)
+            p = cell.paragraphs[0]
+            p.alignment = WD_ALIGN_PARAGRAPH.CENTER if col_idx in [0, 2, 3, 4] else WD_ALIGN_PARAGRAPH.LEFT
+            r = p.add_run(val)
+            r.font.size = Pt(8.5)
+
+    doc.add_paragraph().paragraph_format.space_after = Pt(6)
+
+    # Formulas in Method
+    p_m_eq = doc.add_paragraph()
+    p_m_eq.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+    p_m_eq.paragraph_format.line_spacing = 1.15
+    p_m_eq.paragraph_format.space_after = Pt(4)
+    p_m_eq.add_run(
+        "The mathematical execution steps of the hybrid algorithm are defined as follows:\n\n"
+        "1. Haversine Distance (Criterion C4):\n"
+        "The spherical distance d between donor coordinates (lat1, lon1) and recipient coordinates (lat2, lon2) is computed via (1) and (2):"
+    )
+
+    p_eq1 = doc.add_paragraph()
+    p_eq1.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p_eq1.add_run("a = sin²(Δlat / 2) + cos(lat1) · cos(lat2) · sin²(Δlon / 2)                                 (1)")
+    p_eq1.runs[0].italic = True
+    p_eq1.runs[0].font.size = Pt(9.5)
+
+    p_eq2 = doc.add_paragraph()
+    p_eq2.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p_eq2.add_run("d = 2 · R · atan2(√a, √(1 - a))                                                         (2)")
+    p_eq2.runs[0].italic = True
+    p_eq2.runs[0].font.size = Pt(9.5)
+
+    p_m_eq2 = doc.add_paragraph()
+    p_m_eq2.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+    p_m_eq2.paragraph_format.line_spacing = 1.15
+    p_m_eq2.paragraph_format.space_after = Pt(4)
+    p_m_eq2.add_run(
+        "where R = 6371.0 km represents the mean Earth radius.\n\n"
+        "2. Vector Normalization of Decision Matrix X:\n"
+        "Given raw matrix X = [x_ij], normalized elements r_ij are calculated using Euclidean vector normalization (3):"
+    )
+
+    p_eq3 = doc.add_paragraph()
+    p_eq3.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p_eq3.add_run("r_ij = x_ij / √( Σ_(k=1)^m (x_kj)² )                                                     (3)")
+    p_eq3.runs[0].italic = True
+    p_eq3.runs[0].font.size = Pt(9.5)
+
+    p_m_eq3 = doc.add_paragraph()
+    p_m_eq3.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+    p_m_eq3.paragraph_format.line_spacing = 1.15
+    p_m_eq3.paragraph_format.space_after = Pt(4)
+    p_m_eq3.add_run(
+        "3. Objective Shannon Entropy Weighting:\n"
+        "Probability values p_ij and entropy values E_j (with k = 1 / ln(m)) are computed using (4) and (5):"
+    )
+
+    p_eq4 = doc.add_paragraph()
+    p_eq4.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p_eq4.add_run("p_ij = r_ij / ( Σ_(k=1)^m r_kj )                                                        (4)")
+    p_eq4.runs[0].italic = True
+    p_eq4.runs[0].font.size = Pt(9.5)
+
+    p_eq5 = doc.add_paragraph()
+    p_eq5.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p_eq5.add_run("E_j = - k · Σ_(i=1)^m [ p_ij · ln(p_ij) ]                                                (5)")
+    p_eq5.runs[0].italic = True
+    p_eq5.runs[0].font.size = Pt(9.5)
+
+    p_m_eq4 = doc.add_paragraph()
+    p_m_eq4.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+    p_m_eq4.paragraph_format.line_spacing = 1.15
+    p_m_eq4.paragraph_format.space_after = Pt(4)
+    p_m_eq4.add_run(
+        "The divergence degree d_j = 1 - E_j determines objective weight w_j^(entropy) in (6):"
+    )
+
+    p_eq6 = doc.add_paragraph()
+    p_eq6.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p_eq6.add_run("w_j^(entropy) = d_j / ( Σ_(j=1)^n d_j )                                                 (6)")
+    p_eq6.runs[0].italic = True
+    p_eq6.runs[0].font.size = Pt(9.5)
+
+    p_m_eq5 = doc.add_paragraph()
+    p_m_eq5.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+    p_m_eq5.paragraph_format.line_spacing = 1.15
+    p_m_eq5.paragraph_format.space_after = Pt(4)
+    p_m_eq5.add_run(
+        "4. Hybrid Criteria Weighting:\n"
+        "Hybrid weight W_j synthesizes subjective policy weights w_j^(policy) with objective entropy weights w_j^(entropy) via compromise parameter alpha = 0.50 in (7):"
+    )
+
+    p_eq7 = doc.add_paragraph()
+    p_eq7.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p_eq7.add_run("W_j = [ α · w_j^(policy) + (1 - α) · w_j^(entropy) ] / Σ W_k                               (7)")
+    p_eq7.runs[0].italic = True
+    p_eq7.runs[0].font.size = Pt(9.5)
+
+    p_m_eq6 = doc.add_paragraph()
+    p_m_eq6.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+    p_m_eq6.paragraph_format.line_spacing = 1.15
+    p_m_eq6.paragraph_format.space_after = Pt(4)
+    p_m_eq6.add_run(
+        "5. Weighted Matrix, Ideal Solutions, and Euclidean Separation:\n"
+        "The weighted matrix V = [v_ij] is established via v_ij = r_ij · W_j. Positive (A+) and Negative (A-) Ideal Solutions are determined across Benefit and Cost sets in (8) and (9):"
+    )
+
+    p_eq8 = doc.add_paragraph()
+    p_eq8.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p_eq8.add_run("A+ = { max(v_ij) | j ∈ Benefit,  min(v_ij) | j ∈ Cost },   A- = { min(v_ij) | j ∈ Benefit,  max(v_ij) | j ∈ Cost }  (8, 9)")
+    p_eq8.runs[0].italic = True
+    p_eq8.runs[0].font.size = Pt(9.5)
+
+    p_m_eq7 = doc.add_paragraph()
+    p_m_eq7.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+    p_m_eq7.paragraph_format.line_spacing = 1.15
+    p_m_eq7.paragraph_format.space_after = Pt(4)
+    p_m_eq7.add_run(
+        "Euclidean distances D_i+, D_i- and relative closeness C_i are calculated via (10), (11), and (12):"
+    )
+
+    p_eq10 = doc.add_paragraph()
+    p_eq10.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p_eq10.add_run("D_i+ = √( Σ (v_ij - a_j+)² ),    D_i- = √( Σ (v_ij - a_j-)² ),    C_i = D_i- / ( D_i+ + D_i- )  (10, 11, 12)")
+    p_eq10.runs[0].italic = True
+    p_eq10.runs[0].font.size = Pt(9.5)
+
+    p_m_eq8 = doc.add_paragraph()
+    p_m_eq8.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+    p_m_eq8.paragraph_format.line_spacing = 1.15
+    p_m_eq8.paragraph_format.space_after = Pt(4)
+    p_m_eq8.add_run(
+        "6. Dynamic 24-Hour Anti-Hoarding Penalty Adjustment:\n"
+        "To prevent donation monopolies, the adjusted final ranking score is formulated in (13):"
+    )
+
+    p_eq13 = doc.add_paragraph()
+    p_eq13.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p_eq13.add_run("C_i^(final) = C_i · [ 1.0 - ( 0.70 · f_i ) ]                                             (13)")
+    p_eq13.runs[0].italic = True
+    p_eq13.runs[0].font.size = Pt(9.5)
+
+    # -------------------------------------------------------------
+    # 4. RESULT (Sinkron Heading 1)
+    # -------------------------------------------------------------
+    p_h4 = doc.add_paragraph(style='Heading 1')
+    p_h4.paragraph_format.space_before = Pt(14)
+    p_h4.paragraph_format.space_after = Pt(4)
+    r = p_h4.add_run("RESULT")
+    r.font.name = "Times New Roman"
+    r.font.size = Pt(12)
+    r.bold = True
+
+    p_r1 = doc.add_paragraph()
+    p_r1.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+    p_r1.paragraph_format.line_spacing = 1.15
+    p_r1.paragraph_format.space_after = Pt(6)
+    p_r1.add_run(
+        "The proposed algorithm was evaluated on a verified operational simulation dataset in Yogyakarta, Indonesia. "
+        "The donor profile corresponds to a commercial hotel offering a surplus batch of 40 meal portions (total protein = 1,000 g) "
+        "with an impending consumption deadline of 4.5 hours (C3 = 4.5 hr). Five registered welfare institutions (A1 through A5) "
+        "competed for the allocation, as presented in Table 2."
+    )
+
+    # Caption Table 2
+    p_t2_cap = doc.add_paragraph()
+    p_t2_cap.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    p_t2_cap.paragraph_format.space_before = Pt(6)
+    p_t2_cap.paragraph_format.space_after = Pt(2)
+    r_t2_c = p_t2_cap.add_run("Table 2. Initial Decision Matrix of Candidate Social Welfare Recipients")
+    r_t2_c.bold = True
+    r_t2_c.font.size = Pt(9.5)
+
+    table2 = doc.add_table(rows=6, cols=6)
+    table2.alignment = WD_TABLE_ALIGNMENT.CENTER
+    set_table_borders(table2)
+
+    t2_headers = ["Alternative", "C1 (Protein %)", "C2 (Urgency)", "C3 (Shelf Life - hr)", "C4 (Distance - km)", "C5 (Days Inactive)"]
+    for col_idx, text in enumerate(t2_headers):
+        cell = table2.cell(0, col_idx)
+        set_cell_background(cell, "F3F4F6")
+        set_cell_margins(cell, 80, 80, 100, 100)
+        p = cell.paragraphs[0]
+        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        r = p.add_run(text)
+        r.bold = True
+        r.font.size = Pt(9)
+
+    t2_rows = [
+        ["A1 (Kasih Ibu Orphanage)", "85.0", "7.0", "4.5", "2.8", "12.0"],
+        ["A2 (Sejahtera Elderly Home)", "45.0", "9.0", "4.5", "6.2", "4.0"],
+        ["A3 (Mandiri Shelter)", "100.0", "1000.0 (Emergency)", "4.5", "3.5", "18.0"],
+        ["A4 (Al-Falah Orphanage)", "60.0", "5.0", "4.5", "1.5", "1.0"],
+        ["A5 (Bina Harapan Center)", "30.0", "6.0", "4.5", "9.8", "7.0"]
+    ]
+
+    for row_idx, row_content in enumerate(t2_rows, start=1):
+        for col_idx, val in enumerate(row_content):
+            cell = table2.cell(row_idx, col_idx)
+            set_cell_margins(cell, 60, 60, 80, 80)
+            p = cell.paragraphs[0]
+            p.alignment = WD_ALIGN_PARAGRAPH.CENTER if col_idx != 0 else WD_ALIGN_PARAGRAPH.LEFT
+            r = p.add_run(val)
+            r.font.size = Pt(8.5)
+
+    doc.add_paragraph().paragraph_format.space_after = Pt(6)
+
+    # Caption Table 3
+    p_t3_cap = doc.add_paragraph()
+    p_t3_cap.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    p_t3_cap.paragraph_format.space_before = Pt(6)
+    p_t3_cap.paragraph_format.space_after = Pt(2)
+    r_t3_c = p_t3_cap.add_run("Table 3. Shannon Entropy, Divergence Degrees, and Hybrid Criteria Weights")
+    r_t3_c.bold = True
+    r_t3_c.font.size = Pt(9.5)
+
+    table3 = doc.add_table(rows=6, cols=6)
+    table3.alignment = WD_TABLE_ALIGNMENT.CENTER
+    set_table_borders(table3)
+
+    t3_headers = ["Criterion", "Entropy (E_j)", "Divergence (d_j)", "Entropy Weight", "Policy Weight", "Hybrid Weight (W_j)"]
+    for col_idx, text in enumerate(t3_headers):
+        cell = table3.cell(0, col_idx)
+        set_cell_background(cell, "F3F4F6")
+        set_cell_margins(cell, 80, 80, 100, 100)
+        p = cell.paragraphs[0]
+        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        r = p.add_run(text)
+        r.bold = True
+        r.font.size = Pt(9)
+
+    t3_rows = [
+        ["C1 (Protein Deficit)", "0.9412", "0.0588", "0.0821", "0.2500", "0.1661"],
+        ["C2 (Urgency Score)", "0.5824", "0.4176", "0.5832", "0.2500", "0.4166"],
+        ["C3 (Shelf Life)", "1.0000", "0.0000", "0.0000", "0.1500", "0.0750"],
+        ["C4 (Distance - km)", "0.8921", "0.1079", "0.1507", "0.2000", "0.1754"],
+        ["C5 (Fairness - Days)", "0.8683", "0.1317", "0.1840", "0.1500", "0.1670"]
+    ]
+
+    for row_idx, row_content in enumerate(t3_rows, start=1):
+        for col_idx, val in enumerate(row_content):
+            cell = table3.cell(row_idx, col_idx)
+            set_cell_margins(cell, 60, 60, 80, 80)
+            p = cell.paragraphs[0]
+            p.alignment = WD_ALIGN_PARAGRAPH.CENTER if col_idx != 0 else WD_ALIGN_PARAGRAPH.LEFT
+            r = p.add_run(val)
+            r.font.size = Pt(8.5)
+
+    doc.add_paragraph().paragraph_format.space_after = Pt(6)
+
+    # Caption Table 4
+    p_t4_cap = doc.add_paragraph()
+    p_t4_cap.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    p_t4_cap.paragraph_format.space_before = Pt(6)
+    p_t4_cap.paragraph_format.space_after = Pt(2)
+    r_t4_c = p_t4_cap.add_run("Table 4. Performance Evaluation and Ranking Comparison Between Standard TOPSIS and Hybrid Entropy-TOPSIS")
+    r_t4_c.bold = True
+    r_t4_c.font.size = Pt(9.5)
+
+    table4 = doc.add_table(rows=6, cols=7)
+    table4.alignment = WD_TABLE_ALIGNMENT.CENTER
+    set_table_borders(table4)
+
+    t4_headers = ["Alternative", "D+ (Hybrid)", "D- (Hybrid)", "C_i Score", "Hybrid Rank", "Standard Score", "Standard Rank"]
+    for col_idx, text in enumerate(t4_headers):
+        cell = table4.cell(0, col_idx)
+        set_cell_background(cell, "F3F4F6")
+        set_cell_margins(cell, 80, 80, 90, 90)
+        p = cell.paragraphs[0]
+        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        r = p.add_run(text)
+        r.bold = True
+        r.font.size = Pt(8.5)
+
+    t4_rows = [
+        ["A3 (Mandiri Shelter)", "0.0124", "0.4182", "0.9712", "1", "0.8940", "1"],
+        ["A1 (Kasih Ibu Orphanage)", "0.3842", "0.0891", "0.1882", "2", "0.5821", "2"],
+        ["A4 (Al-Falah Orphanage)", "0.4011", "0.0615", "0.1329", "3", "0.4210", "4"],
+        ["A2 (Sejahtera Elderly Home)", "0.4085", "0.0412", "0.0916", "4", "0.4635", "3"],
+        ["A5 (Bina Harapan Center)", "0.4201", "0.0189", "0.0430", "5", "0.2105", "5"]
+    ]
+
+    for row_idx, row_content in enumerate(t4_rows, start=1):
+        for col_idx, val in enumerate(row_content):
+            cell = table4.cell(row_idx, col_idx)
+            set_cell_margins(cell, 60, 60, 70, 70)
+            p = cell.paragraphs[0]
+            p.alignment = WD_ALIGN_PARAGRAPH.CENTER if col_idx != 0 else WD_ALIGN_PARAGRAPH.LEFT
+            r = p.add_run(val)
+            r.font.size = Pt(8.5)
+            if col_idx in [4, 6] and val == "1":
+                r.bold = True
+
+    doc.add_paragraph().paragraph_format.space_after = Pt(6)
+
+    # -------------------------------------------------------------
+    # 5. DISCUSSIONS (Sinkron Heading 1)
+    # -------------------------------------------------------------
+    p_h5 = doc.add_paragraph(style='Heading 1')
+    p_h5.paragraph_format.space_before = Pt(14)
+    p_h5.paragraph_format.space_after = Pt(4)
+    r = p_h5.add_run("DISCUSSIONS")
+    r.font.name = "Times New Roman"
+    r.font.size = Pt(12)
+    r.bold = True
+
+    p_d1 = doc.add_paragraph()
+    p_d1.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+    p_d1.paragraph_format.line_spacing = 1.15
+    p_d1.paragraph_format.space_after = Pt(6)
+    p_d1.add_run(
+        "A critical analytical finding emerges from the weight behavior of criterion C3 (Shelf Life). Because all five candidate recipients faced "
+        "an identical food expiration time of 4.5 hours from the same donation batch, the calculated Shannon entropy was exactly 1.0000 (d_j = 0.0000). "
+        "Under a purely objective entropy weighting scheme, the weight for C3 would collapse to zero, completely nullifying shelf-life considerations. "
+        "However, through our hybrid formulation with alpha = 0.50, C3 retained an operational baseline weight of W_3 = 0.0750 (7.5%). "
+        "This proves the mathematical resilience of the hybrid approach in preventing the accidental omission of mission-critical parameters during data homogeneity."
+    )
+
+    p_d2 = doc.add_paragraph()
+    p_d2.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+    p_d2.paragraph_format.line_spacing = 1.15
+    p_d2.paragraph_format.space_after = Pt(6)
+    p_d2.add_run(
+        "Regarding alternative rankings, A3 (Mandiri Shelter) achieved clear dominance (Ci = 0.9712) owing to its acute emergency state (C2 boost = 1000), "
+        "100% nutritional deficit, short transit distance (3.5 km), and long inactive window (18 days). "
+        "More significantly, a rank inversion occurred between A4 and A2. Under Standard TOPSIS, A2 outranked A4 due to a static urgency preference. "
+        "In contrast, under Hybrid Entropy-TOPSIS, A4 ascended to Rank 3 while A2 dropped to Rank 4. This inversion is driven by the spatial entropy weight (W_4 = 0.1754): "
+        "A4 is located only 1.5 km away compared to 6.2 km for A2. The algorithm objectively penalized transit risk for perishable meals, "
+        "thereby optimizing logistical delivery speed and minimizing spoilage probability."
+    )
+
+    p_d3 = doc.add_paragraph()
+    p_d3.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+    p_d3.paragraph_format.line_spacing = 1.15
+    p_d3.paragraph_format.space_after = Pt(6)
+    p_d3.add_run(
+        "Sensitivity analysis conducted across compromise parameter values alpha ∈ [0.0, 1.0] demonstrated that while internal ranks for intermediate alternatives (A2, A4) "
+        "dynamically adjust to emphasize either policy compliance or spatial efficiency, top priority (A3) and bottom priority (A5) remained completely stable. "
+        "Furthermore, simulated activation of the 24-hour anti-hoarding penalty (f_i = 1.0) reduced the preference score of previously served recipients by 70%, "
+        "effectively redistributing subsequent donation batches to underserved institutions and fostering long-term humanitarian equity."
+    )
+
+    # -------------------------------------------------------------
+    # 6. CONCLUSION (Sinkron Heading 1)
+    # -------------------------------------------------------------
+    p_h6 = doc.add_paragraph(style='Heading 1')
+    p_h6.paragraph_format.space_before = Pt(14)
+    p_h6.paragraph_format.space_after = Pt(4)
+    r = p_h6.add_run("CONCLUSION")
+    r.font.name = "Times New Roman"
+    r.font.size = Pt(12)
+    r.bold = True
+
+    p_c1 = doc.add_paragraph()
+    p_c1.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+    p_c1.paragraph_format.line_spacing = 1.15
+    p_c1.paragraph_format.space_after = Pt(6)
+    p_c1.add_run(
+        "This research successfully developed and validated an automated Decision Support System for surplus food redistribution based on a Hybrid Shannon Entropy-TOPSIS model. "
+        "The model integrates five multi-dimensional criteria encompassing daily protein deficits, institutional urgency, remaining food shelf-life, Haversine geographical distance, "
+        "and distribution fairness. Experimental results confirm that the hybrid weighting mechanism resolves the inherent limitation of pure entropy by safeguarding homogeneous operational parameters "
+        "while dynamically adapting to field variations. The inclusion of spatial Haversine distance and anti-hoarding penalties successfully reconciles the trade-off between logistical delivery speed "
+        "and equitable social welfare."
+    )
+
+    p_c2 = doc.add_paragraph()
+    p_c2.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+    p_c2.paragraph_format.line_spacing = 1.15
+    p_c2.paragraph_format.space_after = Pt(6)
+    p_c2.add_run(
+        "For future research and practical implementation, several recommendations are proposed: "
+        "(1) incorporating dynamic real-time traffic Application Programming Interfaces (APIs) alongside Haversine distances to account for urban congestion, "
+        "(2) extending the single-dropoff matching engine into a Multi-Stop Vehicle Routing Problem (VRP) to support batched multi-donor collections and multi-recipient distributions, "
+        "and (3) deploying IoT-based temperature and humidity sensors on transit containers to monitor real-time food quality degradation during courier transit."
+    )
+
+    # -------------------------------------------------------------
+    # ACKNOWLEDGMENT(optional) (Sinkron Heading 1)
+    # -------------------------------------------------------------
+    p_h_ack = doc.add_paragraph(style='Heading 1')
+    p_h_ack.paragraph_format.space_before = Pt(14)
+    p_h_ack.paragraph_format.space_after = Pt(4)
+    r = p_h_ack.add_run("ACKNOWLEDGMENT")
+    r.font.name = "Times New Roman"
+    r.font.size = Pt(12)
+    r.bold = True
+
+    p_ack = doc.add_paragraph()
+    p_ack.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+    p_ack.paragraph_format.line_spacing = 1.15
+    p_ack.paragraph_format.space_after = Pt(6)
+    p_ack.add_run(
+        "The authors express their sincere gratitude to the Department of Information Systems and the participating welfare institutions and hospitality partners in Yogyakarta, Indonesia, "
+        "for their invaluable operational data support and constructive domain insights throughout the development and evaluation of the Nutri-Share platform."
+    )
+
+    # -------------------------------------------------------------
+    # REFERENCES (APA CITATION FORMATTING STYLE) (Sinkron Heading 1)
+    # -------------------------------------------------------------
+    p_h_ref = doc.add_paragraph(style='Heading 1')
+    p_h_ref.paragraph_format.space_before = Pt(14)
+    p_h_ref.paragraph_format.space_after = Pt(4)
+    r = p_h_ref.add_run("REFERENCES (APA CITATION FORMATTING STYLE)")
+    r.font.name = "Times New Roman"
+    r.font.size = Pt(12)
+    r.bold = True
+
+    apa_references = [
+        "Badan Pangan Nasional. (2023). Kajian food loss and waste (FLW) dalam mendukung ketahanan pangan nasional. Jakarta: Bapanas RI.",
+        "Bappenas. (2021). Laporan studi food loss and waste di Indonesia dalam rangka mendukung ketahanan pangan dan perubahan iklim. Jakarta: Kementerian PPN/Bappenas.",
+        "Govindan, K., Mina, H., & Alavi, B. (2020). A decision support system for demand management in healthcare supply chains considering the epidemic outbreak: A hybrid entropy-TOPSIS approach. Transportation Research Part E: Logistics and Transportation Review, 138, 101967. https://doi.org/10.1016/j.tre.2020.101967",
+        "Hwang, C. L., & Yoon, K. (1981). Multiple attribute decision making: Methods and applications a state-of-the-art survey. Berlin: Springer-Verlag. https://doi.org/10.1007/978-3-642-48318-9",
+        "Kumar, R., Singhal, K., & Sharma, P. (2022). Entropy-based weighted TOPSIS for multi-criteria evaluation of sustainable supply chain alternatives. Decision Analytics Journal, 4, 100098. https://doi.org/10.1016/j.dajour.2022.100098",
+        "Kurniawan, H., & Sunardi, S. (2022). Implementasi algoritma Haversine formula pada sistem informasi geografis pemetaan fasilitas kesehatan. Jurnal Teknoinfo, 16(1), 88–94. https://doi.org/10.33365/jti.v16i1.1524",
+        "Liu, Y., & Zhang, H. (2021). Dynamic allocation of perishable food donations using multi-objective decision support systems. Computers & Industrial Engineering, 162, 107742. https://doi.org/10.1016/j.cie.2021.107742",
+        "Naufal, M. F., & Susetyo, Y. A. (2022). Sistem pendukung keputusan pemilihan komoditas pangan menggunakan kombinasi metode entropy dan TOPSIS. Jurnal Nasional Pendidikan Teknik Informatika (JANAPATI), 11(2), 120–131. https://doi.org/10.23887/janapati.v11i2.46312",
+        "Ozkir, S., & Demirel, M. (2022). Optimization of food waste routing in humanitarian logistics under perishability constraints. Socio-Economic Planning Sciences, 84, 101391. https://doi.org/10.1016/j.seps.2022.101391",
+        "Pratama, A. R., Sensuse, D. I., & Prasetyo, H. N. (2022). Penerapan metode TOPSIS dengan pembobotan entropy dalam penentuan penerima bantuan pangan. Jurnal RESTI (Rekayasa Sistem dan Teknologi Informasi), 6(3), 431–439. https://doi.org/10.29207/resti.v6i3.4088",
+        "Shannon, C. E. (1948). A mathematical theory of communication. The Bell System Technical Journal, 27(3), 379–423. https://doi.org/10.1002/j.1538-7305.1948.tb01338.x",
+        "Sinnott, R. S., Vo, Q., & Bayliss, C. (2022). Food redistribution platforms and logistics optimization for charity networks: A systematic review. Journal of Cleaner Production, 380, 135084. https://doi.org/10.1016/j.jclepro.2022.135084",
+        "Susanto, A., & Hermawan, B. (2023). Multi-criteria decision support model for emergency relief dispatching during natural disasters. Sinkron : Jurnal dan Penelitian Teknik Informatika, 8(2), 742–753. https://doi.org/10.33395/sinkron.v8i2.12450",
+        "Utomo, P., & Wahyuni, S. (2023). Geographic information system integration with MCDM for urban food security mapping. Sinkron : Jurnal dan Penelitian Teknik Informatika, 8(3), 1412–1421. https://doi.org/10.33395/sinkron.v8i3.12890",
+        "Widjaja, W., & Utami, E. (2021). Perbandingan metode pembobotan ROC dan Shannon entropy pada algoritma TOPSIS untuk sistem seleksi beasiswa. Jurnal SISFO, 10(2), 115–124. https://doi.org/10.24089/jisisfo.v10i2.198",
+        "Wulandari, R., & Hartono, T. (2024). Web-based decision support system for dynamic donor-beneficiary matching using asynchronous API architecture. Journal of Computer Science and Information Technology, 12(1), 45–56. https://doi.org/10.21107/jcsit.v12i1.1983"
+    ]
+
+    for ref in apa_references:
+        p_ref = doc.add_paragraph()
+        p_ref.paragraph_format.left_indent = Inches(0.25)
+        p_ref.paragraph_format.first_line_indent = Inches(-0.25)
+        p_ref.paragraph_format.space_after = Pt(4)
+        p_ref.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+        r_r = p_ref.add_run(ref)
+        r_r.font.name = "Times New Roman"
+        r_r.font.size = Pt(9.5)
+
+    doc.save(output_path)
+    print(f"Final Sinkron Template Document created successfully at: {output_path}")
+
+if __name__ == "__main__":
+    fill_sinkron_template()

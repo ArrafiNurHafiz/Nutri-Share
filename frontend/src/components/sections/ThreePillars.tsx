@@ -1,171 +1,137 @@
-import { motion } from "motion/react";
-import { UtensilsCrossed, Users, Truck, Check, ArrowRight } from "lucide-react";
+import { UtensilsCrossed, Users, Truck, Check, Network } from "lucide-react";
 import { Link } from "react-router-dom";
-import { GlossyLeafDecor } from "./EcoVisuals";
 
 const PILLARS = [
   {
     icon: UtensilsCrossed,
-    title: "Donor (HoReCa)",
-    desc: "Hotels, restaurants, and cafeterias can donate surplus food. Turn excess into opportunity for a healthier society.",
+    title: "HoReKa Donors",
+    role: "Hotels, Restaurants & Catering",
+    stat: "15+ Active Partners",
+    desc: "Channel high-quality surplus meals before consumption window expires to prevent organic food waste in landfills.",
     img: "/images/donor_kitchen.jpg",
-    fallbackImg: "/images/fresh-food.webp",
     ctaLabel: "Join as Donor",
     ctaLink: "/register/donor",
     items: [
-      "Provide surplus with nutrition info",
-      "Real-time waste disposal alerts",
-      "Builds a positive brand image",
+      "Fast surplus entry in under 2 minutes",
+      "Automated ESG & CO₂e reduction metrics",
+      "Enhanced CSR credentials & audit certificates",
     ],
   },
   {
     icon: Users,
-    title: "Recipient (Social Institution)",
-    desc: "Orphanages, schools, and social institutions can access nutritious food based on verified needs.",
+    title: "Beneficiary Shelters",
+    role: "Orphanages & Social Homes",
+    stat: "24 Verified Shelters",
+    desc: "Receive balanced, nutritious meals allocated fairly based on real deficit rankings without manual queue bias.",
     img: "/images/recipient_kids.jpg",
-    fallbackImg: "/images/charity-kids.webp",
     ctaLabel: "Register as Recipient",
     ctaLink: "/register/recipient",
     items: [
-      "Access free nutritious food",
-      "Priority based on health data",
-      "Monitor distribution history",
+      "100% free nutritious food supply",
+      "Objective priority based on calorie & protein needs",
+      "Real-time schedule & delivery tracking",
     ],
   },
   {
     icon: Truck,
-    title: "Courier & Distribution",
-    desc: "Logistics partners and volunteers help ensure food reaches recipients safely and on time.",
+    title: "Logistics & Volunteers",
+    role: "Rapid Dispatch Fleet",
+    stat: "Avg. <45 Minutes",
+    desc: "Maintain strict cold chain and hygienic standards from donor kitchens to dining tables with route optimization.",
     img: "/images/delivery.webp",
-    fallbackImg: "/images/delivery.webp",
-    ctaLabel: "Join as Partner",
-    ctaLink: "/register/donor",
+    ctaLabel: "Learn More",
+    ctaLink: "/support",
     items: [
-      "Automated delivery scheduling",
-      "Real-time live tracking",
-      "Digital handover confirmation",
+      "Automated GIS-based route pickup",
+      "Digital proof-of-delivery with geotags & photos",
+      "Food-grade temperature-controlled containers",
     ],
   },
 ];
 
 export function ThreePillars() {
   return (
-    <section id="tentang" className="relative py-24 bg-[#FFFFFF] overflow-hidden">
-      {/* Variant 4 (Single Gloss Blade) on Right */}
-      <GlossyLeafDecor
-        variant="single-gloss"
-        className="block absolute top-6 sm:top-12 md:top-1/2 right-2 sm:right-4 md:right-6 w-14 h-14 sm:w-20 sm:h-20 md:w-28 md:h-28 opacity-80 sm:opacity-90 md:-translate-y-1/2 z-0"
-      />
-      {/* Variant 5 (Fanned Trio) on Bottom Left */}
-      <GlossyLeafDecor
-        variant="fanned-trio"
-        className="block absolute bottom-4 sm:bottom-6 md:bottom-8 left-2 sm:left-4 md:left-8 w-14 h-14 sm:w-20 sm:h-20 md:w-28 md:h-28 opacity-80 sm:opacity-90 z-0"
-      />
+    <section id="ecosystem" className="relative py-20 sm:py-28 bg-[#f8fafc] text-slate-900 border-b border-emerald-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto mb-14 space-y-2">
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <span className="text-[#059669] font-bold uppercase tracking-[0.2em] text-[11px] px-3.5 py-1 rounded-full bg-[#ECFDF5] border border-[#A7F3D0]">
-              ECOSYSTEM
-            </span>
-          </motion.div>
-
-          <motion.h2
-            initial={{ opacity: 0, y: 15 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
-            className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#0F172A] tracking-tight font-heading"
-          >
-            Three Pillars, One Greater Impact
-          </motion.h2>
-
-          <motion.p
-            initial={{ opacity: 0, y: 15 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-            className="text-xs sm:text-[13px] text-[#64748B] leading-relaxed max-w-lg mx-auto"
-          >
-            Collaboration between donors, social institutions, and logistics partners to build a more nourished and sustainable community.
-          </motion.p>
+        <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold">
+            <Network size={13} className="text-emerald-700" />
+            <span>Three-Pillar Collaborative Ecosystem</span>
+          </div>
+          <h2 className="font-heading font-extrabold text-3xl sm:text-5xl text-emerald-950 tracking-tight">
+            Integrated Food Network
+          </h2>
+          <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
+            Sustainable synergy between commercial food providers, verified social shelters, and logistics volunteers across Yogyakarta.
+          </p>
         </div>
 
-        {/* 3 Pillar Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {PILLARS.map((p, i) => (
-            <motion.div
-              key={p.title}
-              initial={{ opacity: 0, y: 25 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.12 }}
-              className="bg-white rounded-2xl overflow-hidden border border-[#E2E8F0] shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group"
+        {/* 3 Columns Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {PILLARS.map((p, idx) => (
+            <div
+              key={idx}
+              className="rounded-3xl bg-white border border-emerald-100 hover:border-emerald-300 flex flex-col justify-between overflow-hidden group transition-all duration-300 hover:-translate-y-1 shadow-xs hover:shadow-md"
             >
               <div>
-                {/* Visual Image Header */}
-                <div className="relative h-44 w-full overflow-hidden bg-stone-100">
+                {/* Photo Header */}
+                <div className="relative h-48 w-full bg-emerald-50 overflow-hidden">
                   <img
                     src={p.img}
                     alt={p.title}
-                    width={400}
-                    height={240}
-                    loading="lazy"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = p.fallbackImg;
-                    }}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-
-                  {/* Circular Icon Floating Badge with emerald green background & white ring */}
-                  <div className="absolute -bottom-4 left-5">
-                    <div className="w-9 h-9 rounded-full bg-[#10B981] text-white flex items-center justify-center shadow-md border-2 border-white">
-                      <p.icon size={17} strokeWidth={2.4} />
-                    </div>
+                  <div className="absolute top-3 left-3 px-3 py-1 rounded-lg bg-white/90 backdrop-blur-md text-emerald-950 text-xs font-bold border border-emerald-200/60 shadow-xs">
+                    {p.title}
+                  </div>
+                  <div className="absolute bottom-3 right-3 px-2.5 py-1 rounded-lg bg-emerald-950/85 backdrop-blur-md text-[#e1fcad] text-[11px] font-semibold">
+                    {p.stat}
                   </div>
                 </div>
 
-                {/* Content Area */}
-                <div className="p-5 pt-7 space-y-3">
-                  <h3 className="text-sm font-bold text-[#0F172A] font-heading">
-                    {p.title}
-                  </h3>
+                {/* Content & Checklist */}
+                <div className="p-6 space-y-4">
+                  <div>
+                    <h3 className="font-heading font-bold text-lg text-emerald-950 leading-tight">
+                      {p.title}
+                    </h3>
+                    <span className="text-xs font-semibold text-emerald-700 block mt-1">
+                      {p.role}
+                    </span>
+                    <p className="text-xs text-slate-600 mt-2 leading-relaxed">
+                      {p.desc}
+                    </p>
+                  </div>
 
-                  <p className="text-[11px] text-[#64748B] leading-relaxed">
-                    {p.desc}
-                  </p>
-
-                  <ul className="space-y-2 pt-1">
-                    {p.items.map((item, j) => (
-                      <li key={j} className="flex items-start gap-2 text-[11px] text-[#334155] font-medium">
-                        <span className="w-3.5 h-3.5 rounded-full bg-[#10B981] text-white flex items-center justify-center shrink-0 mt-0.5">
-                          <Check size={9} strokeWidth={3.5} />
-                        </span>
+                  <div className="space-y-2 pt-3 border-t border-slate-100">
+                    {p.items.map((item, i) => (
+                      <div key={i} className="flex items-start gap-2.5 text-xs text-slate-700">
+                        <div className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0 mt-0.5 font-bold">
+                          <Check size={11} />
+                        </div>
                         <span>{item}</span>
-                      </li>
+                      </div>
                     ))}
-                  </ul>
+                  </div>
                 </div>
               </div>
 
-              {/* Bottom Outlined CTA Button */}
-              <div className="p-5 pt-0">
+              {/* Action Button */}
+              <div className="p-6 pt-0">
                 <Link
                   to={p.ctaLink}
-                  className="w-full py-2 px-3 rounded-full bg-[#ECFDF5] hover:bg-[#10B981] text-[#065F46] hover:text-white border border-[#A7F3D0] text-[11px] font-bold flex items-center justify-center gap-1.5 transition-colors duration-200"
+                  className="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs text-center block transition-all shadow-xs"
                 >
-                  <span>{p.ctaLabel}</span>
-                  <ArrowRight size={12} />
+                  {p.ctaLabel}
                 </Link>
               </div>
-            </motion.div>
+
+            </div>
           ))}
         </div>
+
       </div>
     </section>
   );

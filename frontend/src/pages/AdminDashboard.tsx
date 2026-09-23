@@ -405,7 +405,7 @@ export function AdminDashboard() {
       <SEO title="Control Center Admin | NutriShare" description="Pusat kendali ekosistem donasi pangan dan pemantauan real-time." />
 
       {/* ===== COMMAND CENTER TOP HEADER ===== */}
-      <header className="relative bg-[#0F172A] text-white overflow-hidden border-b border-[#1E293B]">
+      <header className="relative bg-gradient-to-r from-emerald-950 via-emerald-900 to-teal-950 text-white overflow-hidden border-b border-emerald-800">
         {/* Ambient background glow & image */}
         <div className="absolute inset-0 z-0 pointer-events-none opacity-20">
           <img
@@ -413,7 +413,7 @@ export function AdminDashboard() {
             alt=""
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0F172A] via-[#0F172A]/90 to-[#0F172A]/70" />
+          <div className="absolute inset-0 bg-gradient-to-r from-emerald-950 via-emerald-900/90 to-emerald-950/70" />
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-6">
@@ -424,36 +424,36 @@ export function AdminDashboard() {
                 <Link to="/" className="flex items-center gap-2">
                   <img
                     src="/images/logoterbaru.webp"
-                    alt="NutriShare"
-                    className="h-9 w-auto bg-white/10 p-1 rounded-xl backdrop-blur-md border border-white/20"
+                    alt="NutriShare Logo"
+                    className="w-9 h-9 object-contain"
                   />
                   <span className="text-xl font-extrabold tracking-tight font-heading text-white">
                     NutriShare
                   </span>
                 </Link>
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-[#2D7A4F]/30 text-[#A7F3D0] border border-[#2D7A4F]/50">
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-emerald-500/20 text-[#e1fcad] border border-emerald-400/40">
                   Command Center
                 </span>
               </div>
-              <p className="text-xs text-[#94A3B8] max-w-xl">
+              <p className="text-xs text-emerald-200/80 max-w-xl">
                 Platform pusat orkestrasi surplus pangan, penentuan prioritas gizi Hybrid TOPSIS, dan verifikasi mitra.
               </p>
             </div>
 
             {/* Live Indicator & Quick Header Actions */}
             <div className="flex items-center gap-3 flex-wrap">
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 backdrop-blur-md">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-900/60 border border-emerald-500/30 backdrop-blur-md">
                 <span className="w-2 h-2 rounded-full bg-[#10b981] animate-pulse" />
-                <span className="text-xs font-semibold text-[#E2E8F0]">
+                <span className="text-xs font-semibold text-emerald-100">
                   Realtime Synced
                 </span>
               </div>
 
               <Link
                 to="/peta"
-                className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors border border-white/10"
+                className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-[#e1fcad] hover:text-emerald-950 text-white text-xs font-bold flex items-center gap-1.5 transition-all border border-white/10"
               >
-                <Compass size={14} className="text-[#34D399]" />
+                <Compass size={14} />
                 <span>Peta Sebaran</span>
               </Link>
 

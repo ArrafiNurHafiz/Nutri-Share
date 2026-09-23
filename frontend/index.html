@@ -1,65 +1,58 @@
 <!doctype html>
-<html lang="id">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>NUTRI-SHARE — Distribusi Pangan Berbasis Gizi</title>
+    <title>NUTRI-SHARE — Nutrition-Based Food Rescue Platform</title>
     <meta
       name="description"
-      content="Platform distribusi surplus pangan HoReKa berbasis Hybrid Entropy-TOPSIS untuk menentukan penerima prioritas berdasarkan kebutuhan gizi."
+      content="Sustainable food waste rescue and redistribution platform powered by Hybrid Shannon Entropy - TOPSIS algorithm."
     />
     <meta
       name="keywords"
-      content="food waste, donasi pangan, distribusi pangan, TOPSIS, nutrisi, Indonesia, Yogyakarta"
+      content="food waste, food rescue, nutrition distribution, TOPSIS, entropy, Indonesia, Yogyakarta"
     />
     <meta name="robots" content="index, follow" />
 
     <!-- Open Graph / Social Media -->
     <meta
       property="og:title"
-      content="NUTRI-SHARE — Distribusi Pangan Berbasis Gizi"
+      content="NUTRI-SHARE — Nutrition-Based Food Rescue Platform"
     />
     <meta
       property="og:description"
-      content="Platform distribusi surplus pangan berbasis Hybrid Entropy-TOPSIS untuk alokasi yang adil dan tepat sasaran."
+      content="Precision food surplus distribution connecting hotels, restaurants, and catering to social welfare institutions."
     />
     <meta property="og:type" content="website" />
-    <meta property="og:locale" content="id_ID" />
+    <meta property="og:locale" content="en_US" />
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="NUTRI-SHARE" />
     <meta
       name="twitter:description"
-      content="Distribusi pangan surplus cerdas berbasis kebutuhan gizi."
+      content="Sustainable food surplus distribution powered by nutritional intelligence."
     />
 
-    <!-- Favicon -->
     <!-- Favicon & Icons -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
 
-    <!-- Fonts: preconnect + non-blocking -->
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800;900&family=Work+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800;900&family=Work+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap"
       media="print"
       onload="this.media = 'all'"
     />
-    <noscript>
-      <link
-        rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800;900&family=Work+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap"
-      />
-    </noscript>
 
     <!-- PWA -->
     <link rel="manifest" href="/manifest.json" />
-    <meta name="theme-color" content="#2D7A4F" />
+    <meta name="theme-color" content="#047857" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -68,15 +61,5 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    <script>
-      // Clean up any stale service workers
-      if ("serviceWorker" in navigator) {
-        navigator.serviceWorker.getRegistrations().then((registrations) => {
-          for (const registration of registrations) {
-            registration.unregister();
-          }
-        });
-      }
-    </script>
   </body>
 </html>

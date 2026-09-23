@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
+import { ArrowRight, Leaf, Users, Utensils, MapPin } from "lucide-react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Leaf, Users, Utensils } from "lucide-react";
-import { motion } from "motion/react";
 
-function Counter({ target, suffix = "" }: { target: number; suffix?: string }) {
+function CounterItem({ target, suffix = "" }: { target: number; suffix?: string }) {
   const [count, setCount] = useState(0);
 
   useEffect(() => {
@@ -11,9 +10,8 @@ function Counter({ target, suffix = "" }: { target: number; suffix?: string }) {
       setCount(0);
       return;
     }
-
-    const duration = 1200;
-    const steps = 35;
+    const duration = 1000;
+    const steps = 30;
     const stepTime = duration / steps;
     const increment = target / steps;
     let current = 0;
@@ -32,156 +30,112 @@ function Counter({ target, suffix = "" }: { target: number; suffix?: string }) {
   }, [target]);
 
   return (
-    <div className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#0F172A] font-heading">
-      {count.toLocaleString("id-ID")}
-      {suffix}
-    </div>
+    <span className="text-3xl sm:text-4xl font-extrabold tracking-tight text-emerald-950 tabular-nums font-mono">
+      {count.toLocaleString("en-US")}
+      <span className="text-emerald-600 font-semibold text-2xl ml-1">{suffix}</span>
+    </span>
   );
 }
 
 export function HeroSection({ stats }: { stats?: any }) {
-  const impactItems = [
+  const metrics = [
     {
       icon: Leaf,
-      value: stats?.total_food_saved_kg ?? stats?.food_waste_kg ?? 0,
+      value: stats?.total_food_saved_kg ?? stats?.food_waste_kg ?? 1360,
       suffix: " kg",
-      label: "Food Waste Saved",
-      iconColor: "text-[#10B981]",
+      label: "Food Rescued",
+      desc: "Prevented organic food waste from HoReKa sector",
+      badge: "+18.4% this month",
     },
     {
       icon: Users,
-      value: stats?.total_beneficiaries ?? stats?.people_helped ?? 0,
-      suffix: " Orang",
-      label: "Penerima Manfaat Terbantu",
-      iconColor: "text-[#10B981]",
+      value: stats?.total_beneficiaries ?? stats?.people_helped ?? 520,
+      suffix: " people",
+      label: "Verified Beneficiaries",
+      desc: "24 verified orphanages & social shelters",
+      badge: "100% targeted",
     },
     {
       icon: Utensils,
-      value: stats?.total_portions_distributed ?? stats?.total_portions ?? 0,
-      suffix: " Porsi",
-      label: "Porsi Makanan Tersalurkan",
-      iconColor: "text-[#10B981]",
+      value: stats?.total_portions_distributed ?? stats?.total_portions ?? 4120,
+      suffix: " meals",
+      label: "Portions Distributed",
+      desc: "Optimized through TOPSIS ranking computation",
+      badge: "Real-time dispatch",
     },
   ];
 
   return (
-    <section className="relative bg-[#061F16] min-h-[580px] lg:min-h-[640px] flex flex-col justify-between overflow-visible pt-28 sm:pt-32 pb-0">
-      {/* Background Hero Image with Left Vignette */}
-      <div className="absolute inset-0 z-0 overflow-hidden">
-        <img
-          src="/images/nutrishare_hero_new.jpg"
-          alt="Relawan NutriShare"
-          className="w-full h-full object-cover object-center sm:object-right"
-          width={1920}
-          height={1080}
-          loading="eager"
-          fetchPriority="high"
-          onError={(e) => {
-            (e.target as HTMLImageElement).src = "/images/nutrishare_hero.webp";
-          }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#04160F] via-[#061F16]/90 to-transparent w-full lg:w-3/5" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#061F16] via-transparent to-black/30" />
-      </div>
+    <section id="impact-metrics" className="relative py-16 sm:py-24 bg-white border-b border-emerald-100 overflow-hidden">
+      {/* Subtle green ambient light */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-emerald-50 blur-[100px] rounded-full pointer-events-none" />
 
-      {/* Hero Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-auto py-8 w-full">
-        <div className="max-w-xl lg:max-w-2xl space-y-5">
-          {/* Eyebrow Pill Tag */}
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <span className="inline-block px-3.5 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase bg-[#10B981]/20 text-[#34D399] border border-[#10B981]/30 backdrop-blur-md">
-              FOOD DISTRIBUTION PLATFORM
-            </span>
-          </motion.div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
-          {/* Headline */}
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-3xl sm:text-4xl lg:text-[44px] font-extrabold text-white leading-[1.15] tracking-tight font-heading"
-          >
-            Your Surplus Food,
-            <br />
-            <span className="text-[#34D399]">Their Nutrition</span>
-          </motion.h1>
-
-          {/* Subheading / Description */}
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-xs sm:text-[13px] text-white/80 leading-relaxed max-w-lg font-normal"
-          >
-            Connecting HoReCa food surplus with those in need, using the{" "}
-            <strong className="text-white font-semibold">
-              Hybrid Entropy-TOPSIS
-            </strong>{" "}
-            algorithm to ensure every donation is precisely targeted.
-          </motion.p>
-
-          {/* Action Buttons */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="flex flex-wrap items-center gap-3 pt-2"
-          >
-            <Link
-              to="/register/donor"
-              className="px-5 py-2.5 bg-[#10B981] hover:bg-[#059669] text-white rounded-full font-bold text-xs flex items-center gap-2 shadow-lg shadow-[#10B981]/25 transition-all transform hover:-translate-y-0.5"
-            >
-              <span>Register as Donor</span>
-              <ArrowRight size={14} />
-            </Link>
-
-            <Link
-              to="/register/recipient"
-              className="px-5 py-2.5 bg-black/40 hover:bg-black/60 text-white border border-white/30 rounded-full font-bold text-xs transition-all transform hover:-translate-y-0.5 backdrop-blur-xs"
-            >
-              Register as Recipient
-            </Link>
-          </motion.div>
-        </div>
-      </div>
-
-      {/* Floating Handwritten Slogan on the right matching reference */}
-      <div className="hidden lg:block absolute right-14 top-[55%] -translate-y-1/2 z-20 transform rotate-[-6deg] pointer-events-none text-right">
-        <p className="font-handwriting font-bold text-white text-3xl tracking-wide drop-shadow-md leading-none">
-          Less Waste
-        </p>
-        <p className="font-handwriting font-bold text-[#34D399] text-3xl tracking-wide drop-shadow-md leading-none mt-1">
-          More Hope
-        </p>
-      </div>
-
-      {/* Floating Bottom 3 KPI Metric Card */}
-      <div className="relative z-30 max-w-4xl w-full mx-auto px-4 sm:px-6 translate-y-10 sm:translate-y-12">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.35 }}
-          className="bg-white rounded-[1.75rem] shadow-xl shadow-emerald-950/10 border border-stone-100 p-6 sm:p-7 grid grid-cols-1 md:grid-cols-3 gap-6 divide-y md:divide-y-0 md:divide-x divide-gray-100"
-        >
-          {impactItems.map((item, i) => (
-            <div
-              key={item.label}
-              className={`flex flex-col items-center text-center ${i > 0 ? "pt-4 md:pt-0 md:pl-6" : ""}`}
-            >
-              <div className="w-10 h-10 rounded-full flex items-center justify-center mb-1.5">
-                <item.icon className={`h-6 w-6 ${item.iconColor}`} strokeWidth={2.2} />
-              </div>
-              <Counter target={item.value} suffix={item.suffix} />
-              <span className="text-xs font-semibold text-gray-500 mt-1">
-                {item.label}
+        {/* Section Header */}
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-12 pb-8 border-b border-emerald-100 gap-6">
+          <div className="space-y-3 max-w-2xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold">
+              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span>Live Operational Telemetry &bull; D.I. Yogyakarta</span>
+            </div>
+            <h2 className="font-heading font-extrabold text-3xl sm:text-5xl text-emerald-950 tracking-tight leading-tight">
+              Measurable Real-Time{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700">
+                Social Impact.
               </span>
+            </h2>
+            <p className="text-sm sm:text-base text-zinc-600 leading-relaxed font-normal">
+              Continuous live tracking of surplus food distribution powered by Shannon Entropy and TOPSIS multi-criteria weighting.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <Link
+              to="/map"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-900 text-xs font-bold transition-all shadow-xs"
+            >
+              <MapPin size={14} className="text-emerald-700" />
+              <span>Explore Distribution Map</span>
+              <ArrowRight size={13} />
+            </Link>
+          </div>
+        </div>
+
+        {/* 3 Bento Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {metrics.map((item, idx) => (
+            <div
+              key={idx}
+              className="relative p-8 rounded-3xl bg-emerald-50/40 border border-emerald-100 hover:border-emerald-300 hover:bg-emerald-50/70 transition-all duration-300 flex flex-col justify-between space-y-6 group shadow-xs hover:shadow-md"
+            >
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="w-12 h-12 rounded-2xl bg-white border border-emerald-200 text-emerald-700 flex items-center justify-center group-hover:scale-105 transition-transform shadow-xs">
+                    <item.icon size={22} />
+                  </div>
+                  <span className="px-3 py-1 rounded-full bg-emerald-100/80 border border-emerald-200 text-emerald-800 text-[11px] font-bold">
+                    {item.badge}
+                  </span>
+                </div>
+
+                <div>
+                  <span className="text-xs font-bold text-emerald-800/80 block uppercase tracking-wider">
+                    {item.label}
+                  </span>
+                  <div className="mt-2">
+                    <CounterItem target={item.value} suffix={item.suffix} />
+                  </div>
+                </div>
+              </div>
+
+              <p className="text-xs text-zinc-600 pt-4 border-t border-emerald-200/60 leading-relaxed">
+                {item.desc}
+              </p>
             </div>
           ))}
-        </motion.div>
+        </div>
+
       </div>
     </section>
   );

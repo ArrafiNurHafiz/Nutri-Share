@@ -1,21 +1,21 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { Menu, X, ArrowRight } from "lucide-react";
 import { useHideOnScroll } from "../lib/useHideOnScroll";
 import { motion, AnimatePresence } from "motion/react";
 
 const NAV_ITEMS = [
   { path: "/", label: "Home" },
-  { path: "/#tentang", label: "About" },
-  { path: "/#cara-kerja", label: "How It Works" },
-  { path: "/#dampak", label: "Impact" },
-  { path: "/#pahlawan", label: "Partners" },
-  { path: "/support", label: "Contact" },
+  { path: "/#ecosystem", label: "Ecosystem" },
+  { path: "/#catalog", label: "Surplus Catalog" },
+  { path: "/#protocol", label: "TOPSIS Protocol" },
+  { path: "/#impact", label: "Public Impact" },
+  { path: "/support", label: "Support & FAQ" },
 ];
 
 export function Navbar({ onLoginClick }: { onLoginClick?: () => void }) {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { navVisible, isScrolled } = useHideOnScroll();
+  const { navVisible } = useHideOnScroll();
   const location = useLocation();
 
   const handleNav = (path: string) => {
@@ -25,6 +25,7 @@ export function Navbar({ onLoginClick }: { onLoginClick?: () => void }) {
       } else {
         window.location.href = "/";
       }
+      setMobileOpen(false);
       return;
     }
 
@@ -42,35 +43,41 @@ export function Navbar({ onLoginClick }: { onLoginClick?: () => void }) {
         const y = el.getBoundingClientRect().top + window.scrollY - 80;
         window.scrollTo({ top: y, behavior: "smooth" });
       }
+      setMobileOpen(false);
       return;
     }
 
     window.location.href = path;
+    setMobileOpen(false);
   };
 
   return (
     <>
-      <nav
+      <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 transform ${
           navVisible ? "translate-y-0" : "-translate-y-full"
-        } ${
-          isScrolled
-            ? "bg-[#061F16]/95 backdrop-blur-md shadow-md py-3.5"
-            : "bg-transparent py-4 sm:py-5"
-        }`}
+        } bg-white/90 backdrop-blur-xl border-b border-emerald-100 shadow-xs`}
       >
-        <div className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8">
-          {/* Brand Logo matching layout */}
-          <Link to="/" className="flex items-center gap-2">
+        <div className="max-w-7xl mx-auto flex items-center justify-between h-16 sm:h-18 px-4 sm:px-6 lg:px-8">
+          {/* Brand Logo with Original Logo Image */}
+          <Link to="/" className="flex items-center gap-2.5 group">
             <img
               src="/images/logoterbaru.webp"
-              alt="NutriShare"
-              className="h-8 sm:h-9 w-auto object-contain"
+              alt="NutriShare Logo"
+              className="w-8 h-8 object-contain group-hover:scale-105 transition-transform duration-200"
             />
+            <div className="flex flex-col">
+              <span className="font-heading font-extrabold text-base sm:text-lg tracking-tight text-emerald-950 leading-tight">
+                NutriShare
+              </span>
+              <span className="text-[11px] font-semibold text-emerald-700">
+                Nutrition-Based Food Rescue
+              </span>
+            </div>
           </Link>
 
-          {/* Desktop Nav Links */}
-          <div className="hidden md:flex items-center gap-6 lg:gap-7">
+          {/* Desktop Navigation Links */}
+          <nav className="hidden lg:flex items-center gap-1 bg-emerald-50/80 p-1.5 rounded-full border border-emerald-200/60">
             {NAV_ITEMS.map((item) => (
               <a
                 key={item.path}
@@ -79,122 +86,95 @@ export function Navbar({ onLoginClick }: { onLoginClick?: () => void }) {
                   e.preventDefault();
                   handleNav(item.path);
                 }}
-                className="text-xs lg:text-[13px] font-medium text-white/90 hover:text-white transition-colors"
+                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                  item.path === "/" && location.pathname === "/"
+                    ? "bg-emerald-600 text-white shadow-xs"
+                    : "text-emerald-900/80 hover:text-emerald-950 hover:bg-white/80"
+                }`}
               >
                 {item.label}
               </a>
             ))}
+          </nav>
 
-            {/* CTA Buttons */}
-            <div className="flex items-center gap-2.5 ml-2">
-              <button
-                type="button"
-                onClick={onLoginClick}
-                className="px-4 py-1.5 text-xs font-semibold rounded-full text-white bg-black/30 hover:bg-black/50 border border-white/20 transition-all cursor-pointer"
-              >
-                Sign In
-              </button>
+          {/* Action CTAs */}
+          <div className="hidden sm:flex items-center gap-2.5">
+            <button
+              type="button"
+              onClick={onLoginClick}
+              className="px-4 py-2 text-xs font-bold text-emerald-800 hover:text-emerald-950 rounded-xl hover:bg-emerald-50 transition-colors cursor-pointer"
+            >
+              Sign In
+            </button>
 
-              <Link
-                to="/register/donor"
-                className="px-4 py-1.5 text-xs font-semibold bg-[#10B981] hover:bg-[#059669] text-white rounded-full transition-all shadow-sm"
-              >
-                Food Donation
-              </Link>
-            </div>
+            <Link
+              to="/register/donor"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all hover:scale-105 active:scale-100"
+            >
+              <span>Join as Donor</span>
+              <ArrowRight size={13} />
+            </Link>
           </div>
 
-          {/* Mobile menu trigger */}
-          <button
-            type="button"
-            onClick={() => setMobileOpen(true)}
-            className="md:hidden p-2 rounded-xl text-white hover:bg-white/10 transition-colors cursor-pointer"
-            aria-label="Open menu"
-          >
-            <Menu size={22} />
-          </button>
+          {/* Mobile Menu Toggle */}
+          <div className="flex items-center lg:hidden">
+            <button
+              type="button"
+              onClick={() => setMobileOpen(!mobileOpen)}
+              className="p-2 rounded-xl text-emerald-900 hover:bg-emerald-50 transition-colors"
+              aria-label="Open Navigation"
+            >
+              {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
+          </div>
         </div>
-      </nav>
+      </header>
 
       {/* Mobile Drawer */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm md:hidden"
-            onClick={() => setMobileOpen(false)}
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.15 }}
+            className="fixed inset-x-0 top-16 z-40 bg-white/95 backdrop-blur-2xl border-b border-emerald-100 p-6 shadow-xl lg:hidden"
           >
-            <motion.div
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="absolute right-0 top-0 bottom-0 w-80 bg-[#061F16] shadow-2xl p-6 flex flex-col justify-between text-white border-l border-white/10"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="space-y-6">
-                <div className="flex justify-between items-center pb-4 border-b border-white/10">
-                  <img
-                    src="/images/logoterbaru.webp"
-                    alt="NutriShare"
-                    className="h-8 w-auto object-contain"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setMobileOpen(false)}
-                    className="p-1.5 rounded-lg text-white/70 hover:bg-white/10"
-                  >
-                    <X size={20} />
-                  </button>
-                </div>
-
-                <nav className="flex flex-col gap-2">
-                  {NAV_ITEMS.map((item) => (
-                    <a
-                      key={item.path}
-                      href={item.path}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setMobileOpen(false);
-                        handleNav(item.path);
-                      }}
-                      className="py-2.5 px-3 rounded-xl font-medium text-sm text-white/85 hover:bg-white/10 transition-colors"
-                    >
-                      {item.label}
-                    </a>
-                  ))}
-                </nav>
-              </div>
-
-              <div className="pt-6 border-t border-white/10 space-y-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMobileOpen(false);
-                    onLoginClick?.();
+            <nav className="flex flex-col gap-1.5 mb-6">
+              {NAV_ITEMS.map((item) => (
+                <a
+                  key={item.path}
+                  href={item.path}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleNav(item.path);
                   }}
-                  className="w-full py-2.5 bg-black/40 border border-white/20 rounded-xl font-semibold text-xs text-white flex items-center justify-center hover:bg-black/60"
+                  className="px-3.5 py-2.5 rounded-xl text-sm font-semibold text-emerald-900 hover:bg-emerald-50 hover:text-emerald-950 transition-colors"
                 >
-                  Sign In
-                </button>
-                <Link
-                  to="/register/donor"
-                  onClick={() => setMobileOpen(false)}
-                  className="w-full py-2.5 bg-[#10B981] hover:bg-[#059669] text-white rounded-xl font-semibold text-xs flex items-center justify-center shadow-sm"
-                >
-                  Food Donation
-                </Link>
-                <Link
-                  to="/register/recipient"
-                  onClick={() => setMobileOpen(false)}
-                  className="w-full py-2.5 bg-white/10 text-[#34D399] border border-white/20 rounded-xl font-semibold text-xs flex items-center justify-center"
-                >
-                  Register as Recipient
-                </Link>
-              </div>
-            </motion.div>
+                  {item.label}
+                </a>
+              ))}
+            </nav>
+
+            <div className="grid grid-cols-2 gap-3 pt-4 border-t border-emerald-100">
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileOpen(false);
+                  onLoginClick?.();
+                }}
+                className="w-full py-2.5 rounded-xl border border-emerald-200 bg-emerald-50/50 text-emerald-900 font-semibold text-xs text-center shadow-xs"
+              >
+                Sign In
+              </button>
+              <Link
+                to="/register/donor"
+                onClick={() => setMobileOpen(false)}
+                className="w-full py-2.5 rounded-xl bg-emerald-600 text-white font-bold text-xs text-center shadow-xs"
+              >
+                Join as Donor
+              </Link>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

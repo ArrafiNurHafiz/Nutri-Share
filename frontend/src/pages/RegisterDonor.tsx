@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { api } from "../lib/api";
 import { LocationPicker } from "../components/LocationPicker";
-import { Store, Mail, Lock, Phone, MapPin, Sparkles, MessageCircle, ShieldCheck } from "lucide-react";
+import { Store, Mail, Lock, Phone, MapPin, MessageCircle, ShieldCheck, ArrowLeft } from "lucide-react";
 import {
   validateEmail,
   validatePassword,
@@ -34,15 +34,15 @@ export function RegisterDonor() {
 
   const validateField = (field: string, value: string) => {
     const rules: Record<string, () => { valid: boolean; message?: string }> = {
-      business_name: () => validateRequired(value, "Nama Usaha / Hotel / Resto"),
+      business_name: () => validateRequired(value, "Business / Hotel / Restaurant Name"),
       phone: () => {
-        if (!value.trim()) return { valid: false, message: "Nomor WhatsApp wajib diisi untuk koordinasi" };
-        if (value.replace(/\D/g, "").length < 9) return { valid: false, message: "Nomor telepon minimal 9 digit" };
+        if (!value.trim()) return { valid: false, message: "Active WhatsApp number is required for dispatch" };
+        if (value.replace(/\D/g, "").length < 9) return { valid: false, message: "Phone number must be at least 9 digits" };
         return { valid: true };
       },
       email: () => validateEmail(value),
       password: () => validatePassword(value),
-      address: () => validateRequired(value, "Alamat Lengkap"),
+      address: () => validateRequired(value, "Complete Pickup Address"),
     };
     const r = rules[field]?.();
     if (r)
@@ -51,18 +51,18 @@ export function RegisterDonor() {
 
   const validateAll = (): boolean => {
     const fields = [
-      { key: "business_name", fn: () => validateRequired(form.business_name, "Nama Usaha") },
+      { key: "business_name", fn: () => validateRequired(form.business_name, "Business Name") },
       {
         key: "phone",
         fn: () => {
-          if (!form.phone.trim()) return { valid: false, message: "Nomor WhatsApp aktif wajib diisi" };
-          if (form.phone.replace(/\D/g, "").length < 9) return { valid: false, message: "Nomor telepon minimal 9 digit" };
+          if (!form.phone.trim()) return { valid: false, message: "Active WhatsApp number is required" };
+          if (form.phone.replace(/\D/g, "").length < 9) return { valid: false, message: "Phone number must be at least 9 digits" };
           return { valid: true };
         },
       },
       { key: "email", fn: () => validateEmail(form.email) },
       { key: "password", fn: () => validatePassword(form.password) },
-      { key: "address", fn: () => validateRequired(form.address, "Alamat Lengkap") },
+      { key: "address", fn: () => validateRequired(form.address, "Complete Address") },
     ];
     const newErrors: FieldErrors = {};
     let valid = true;
@@ -87,10 +87,10 @@ export function RegisterDonor() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
-      toast.success("Pendaftaran berhasil dikirim! Menunggu verifikasi admin.");
+      toast.success("Registration submitted! Awaiting admin verification.");
       nav("/login");
     } catch (err: any) {
-      toast.error(err.message || "Gagal melakukan pendaftaran.");
+      toast.error(err.message || "Registration failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -102,83 +102,92 @@ export function RegisterDonor() {
   };
 
   return (
-    <div className="min-h-[100dvh] bg-[#faf8f4] flex flex-col md:flex-row">
-      <SEO title="Pendaftaran Donatur Mitra | NutriShare" />
+    <div className="min-h-[100dvh] bg-[#f4fbf7] bg-emerald-grid flex flex-col md:flex-row font-sans text-emerald-950">
+      <SEO title="Donor Partner Registration | NutriShare" />
 
-      {/* Left - Narrative Visual Panel */}
+      {/* Left - Heroic Visual Panel */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="hidden md:flex md:w-1/2 lg:w-3/5 relative overflow-hidden bg-brand-dark"
+        className="hidden md:flex md:w-1/2 lg:w-2/5 relative overflow-hidden bg-emerald-950 text-white p-10 flex-col justify-between"
       >
         <div className="absolute inset-0">
           <div
             className="w-full h-full bg-cover bg-center"
             style={{
-              backgroundImage: "url('/images/nutrishare_login_image_3.webp')",
+              backgroundImage: "url('/images/donor_kitchen.jpg')",
             }}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-brand-dark/80 via-brand-dark/30 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/95 via-emerald-950/70 to-emerald-950/60" />
         </div>
 
-        <div className="absolute bottom-8 left-8 right-8 p-6 md:p-8 backdrop-blur-md bg-white/15 rounded-3xl border border-white/20 z-10 text-white space-y-3">
-          <div className="flex items-center gap-3">
+        <div className="relative z-10">
+          <Link to="/" className="inline-flex items-center gap-2.5">
             <img
               src="/images/logoterbaru.webp"
-              alt="NutriShare"
-              className="h-10 w-auto bg-white/90 p-1 rounded-xl"
+              alt="NutriShare Logo"
+              className="w-9 h-9 object-contain"
             />
-            <h1 className="font-heading text-2xl font-bold">NutriShare HoReKa</h1>
-          </div>
-          <p className="text-white/85 text-xs sm:text-sm leading-relaxed max-w-lg">
-            Bergabunglah bersama hotel, restoran, dan katering di Yogyakarta untuk mencegah food waste dan menyalurkan surplus makanan bergizi.
-          </p>
-          <div className="flex items-center gap-2 pt-2">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/30 border border-emerald-300/40 text-emerald-200 text-xs font-bold">
-              <Sparkles size={13} className="text-amber-300" />
-              <span>Dukungan AI Nutrition & TOPSIS</span>
+            <span className="font-heading font-extrabold text-xl text-white tracking-tight">
+              NutriShare
             </span>
-          </div>
+          </Link>
+        </div>
+
+        <div className="relative z-10 p-8 rounded-3xl bg-emerald-950/80 backdrop-blur-xl border border-emerald-500/30 shadow-2xl space-y-4">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-[#e1fcad] text-xs font-bold border border-emerald-400/30">
+            <ShieldCheck size={14} />
+            <span>HoReKa Donor Partnership</span>
+          </span>
+          <h2 className="font-heading font-extrabold text-2xl text-white leading-snug">
+            Redirect Surplus Meals, Empower Communities.
+          </h2>
+          <p className="text-xs text-emerald-100/80 leading-relaxed">
+            Register your business to distribute surplus food seamlessly, safely, and with automated ESG sustainability reporting.
+          </p>
         </div>
       </motion.div>
 
-      {/* Right - Form */}
-      <div className="flex-1 flex items-center justify-center p-6 md:p-12 lg:p-14 bg-white overflow-y-auto">
+      {/* Right - Form Container */}
+      <div className="flex-1 flex items-center justify-center p-6 md:p-12 lg:p-14 overflow-y-auto">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-[520px]"
+          transition={{ duration: 0.4 }}
+          className="w-full max-w-[580px] bg-white rounded-3xl p-8 sm:p-10 border border-emerald-200/90 shadow-xl shadow-emerald-950/5"
         >
           <Link
             to="/login"
-            className="inline-flex items-center gap-2 text-stone-400 hover:text-stone-800 transition-colors mb-6 text-xs font-semibold tracking-wider uppercase"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 hover:text-emerald-950 mb-6 transition-colors"
           >
-            &larr; Kembali ke Masuk
+            <ArrowLeft size={14} />
+            <span>Back to Sign In</span>
           </Link>
 
           <div className="mb-6 space-y-1">
-            <h2 className="font-heading text-2xl sm:text-3xl font-bold text-stone-900">
-              Daftar Sebagai Donatur
+            <h2 className="font-heading text-2xl sm:text-3xl font-extrabold text-emerald-950 tracking-tight">
+              Register as Donor
             </h2>
-            <p className="text-xs sm:text-sm text-stone-500">
-              Lengkapi data usaha Anda untuk mulai mempublikasikan donasi makanan.
+            <p className="text-xs text-slate-500">
+              Provide your commercial food facility details to begin dispatching surplus food batches.
             </p>
           </div>
 
           <form onSubmit={handleRegister} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="sm:col-span-2">
-                <label className="text-xs font-bold text-stone-700 mb-1.5 block">
-                  Nama Usaha / Hotel / Restoran <span className="text-red-500">*</span>
+                <label className="text-xs font-bold text-emerald-950 block mb-1.5" htmlFor="business_name">
+                  Business / Hotel / Restaurant Name <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
-                  <Store size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400" />
+                  <Store className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-700/60" />
                   <input
-                    placeholder="Contoh: Hotel Tentrem Yogyakarta"
+                    id="business_name"
+                    placeholder="e.g. Hotel Merapi Merbabu"
                     value={form.business_name}
                     onChange={(e) => update("business_name", e.target.value)}
                     onBlur={() => validateField("business_name", form.business_name)}
-                    className={`w-full border rounded-xl pl-10 pr-4 py-3 bg-stone-50 border-stone-200 focus:bg-white focus:ring-2 focus:ring-[#2D7A4F]/20 focus:border-[#2D7A4F] text-xs font-semibold outline-none transition-all ${getErrorClass(errors.business_name)}`}
+                    className={`w-full rounded-xl pl-10 pr-4 py-3 bg-emerald-50/40 border border-emerald-200 text-xs font-medium text-slate-900 focus:bg-white focus:ring-2 focus:ring-emerald-600/30 focus:border-emerald-600 outline-none transition-all ${getErrorClass(errors.business_name)}`}
                     required
                   />
                 </div>
@@ -186,39 +195,40 @@ export function RegisterDonor() {
               </div>
 
               <div>
-                <label className="text-xs font-bold text-stone-700 mb-1.5 block">
-                  Jenis Usaha
+                <label className="text-xs font-bold text-emerald-950 block mb-1.5" htmlFor="business_type">
+                  Business Sector
                 </label>
                 <select
+                  id="business_type"
                   value={form.business_type}
                   onChange={(e) => update("business_type", e.target.value)}
-                  className="w-full border border-stone-200 rounded-xl px-4 py-3 bg-stone-50 text-xs font-semibold focus:bg-white focus:ring-2 focus:ring-[#2D7A4F]/20 focus:border-[#2D7A4F] outline-none transition-all"
+                  className="w-full rounded-xl px-4 py-3 bg-emerald-50/40 border border-emerald-200 text-xs font-semibold text-slate-900 focus:bg-white focus:ring-2 focus:ring-emerald-600/30 focus:border-emerald-600 outline-none transition-all cursor-pointer"
                 >
-                  <option value="hotel">Hotel & Penginapan</option>
-                  <option value="restoran">Restoran & Rumah Makan</option>
-                  <option value="kafe">Kafe & Bakery</option>
-                  <option value="katering">Jasa Katering</option>
-                  <option value="lainnya">Supermarket / Lainnya</option>
+                  <option value="hotel">Hotel &amp; Lodging</option>
+                  <option value="restoran">Restaurant &amp; Dining</option>
+                  <option value="kafe">Cafe &amp; Bakery</option>
+                  <option value="katering">Catering Services</option>
+                  <option value="lainnya">Supermarket / Retail / Other</option>
                 </select>
               </div>
 
-              {/* Explicit WhatsApp Field with Integration Tooltip */}
               <div>
-                <label className="text-xs font-bold text-stone-700 mb-1.5 flex items-center justify-between">
-                  <span>Nomor WhatsApp Aktif <span className="text-red-500">*</span></span>
-                  <span className="text-[10px] text-emerald-700 font-bold flex items-center gap-0.5">
-                    <MessageCircle size={11} /> Koordinasi WA
+                <label className="text-xs font-bold text-emerald-950 block mb-1.5 flex items-center justify-between" htmlFor="phone">
+                  <span>Active WhatsApp <span className="text-red-500">*</span></span>
+                  <span className="text-[10px] text-emerald-700 font-bold flex items-center gap-1">
+                    <MessageCircle size={11} /> WA Dispatch
                   </span>
                 </label>
                 <div className="relative">
-                  <Phone size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400" />
+                  <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-700/60" />
                   <input
+                    id="phone"
                     placeholder="0812xxxxxxxx"
                     type="tel"
                     value={form.phone}
                     onChange={(e) => update("phone", e.target.value)}
                     onBlur={() => validateField("phone", form.phone)}
-                    className={`w-full border rounded-xl pl-10 pr-4 py-3 bg-stone-50 border-stone-200 focus:bg-white focus:ring-2 focus:ring-[#2D7A4F]/20 focus:border-[#2D7A4F] text-xs font-semibold outline-none transition-all ${getErrorClass(errors.phone)}`}
+                    className={`w-full rounded-xl pl-10 pr-4 py-3 bg-emerald-50/40 border border-emerald-200 text-xs font-medium text-slate-900 focus:bg-white focus:ring-2 focus:ring-emerald-600/30 focus:border-emerald-600 outline-none transition-all ${getErrorClass(errors.phone)}`}
                     required
                   />
                 </div>
@@ -228,18 +238,19 @@ export function RegisterDonor() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-bold text-stone-700 mb-1.5 block">
-                  Email Akun <span className="text-red-500">*</span>
+                <label className="text-xs font-bold text-emerald-950 block mb-1.5" htmlFor="email">
+                  Account Email <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
-                  <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400" />
+                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-700/60" />
                   <input
-                    placeholder="nama@hotel.com"
+                    id="email"
+                    placeholder="contact@business.com"
                     type="email"
                     value={form.email}
                     onChange={(e) => update("email", e.target.value)}
                     onBlur={() => validateField("email", form.email)}
-                    className={`w-full border rounded-xl pl-10 pr-4 py-3 bg-stone-50 border-stone-200 focus:bg-white focus:ring-2 focus:ring-[#2D7A4F]/20 focus:border-[#2D7A4F] text-xs font-semibold outline-none transition-all ${getErrorClass(errors.email)}`}
+                    className={`w-full rounded-xl pl-10 pr-4 py-3 bg-emerald-50/40 border border-emerald-200 text-xs font-medium text-slate-900 focus:bg-white focus:ring-2 focus:ring-emerald-600/30 focus:border-emerald-600 outline-none transition-all ${getErrorClass(errors.email)}`}
                     required
                   />
                 </div>
@@ -247,26 +258,27 @@ export function RegisterDonor() {
               </div>
 
               <div>
-                <label className="text-xs font-bold text-stone-700 mb-1.5 block">
-                  Kata Sandi <span className="text-red-500">*</span>
+                <label className="text-xs font-bold text-emerald-950 block mb-1.5" htmlFor="password">
+                  Password <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
-                  <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400" />
+                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-700/60" />
                   <input
-                    placeholder="Minimal 6 karakter"
+                    id="password"
+                    placeholder="Minimum 6 characters"
                     type={showPassword ? "text" : "password"}
                     value={form.password}
                     onChange={(e) => update("password", e.target.value)}
                     onBlur={() => validateField("password", form.password)}
-                    className={`w-full border rounded-xl pl-10 pr-12 py-3 bg-stone-50 border-stone-200 focus:bg-white focus:ring-2 focus:ring-[#2D7A4F]/20 focus:border-[#2D7A4F] text-xs font-semibold outline-none transition-all ${getErrorClass(errors.password)}`}
+                    className={`w-full rounded-xl pl-10 pr-12 py-3 bg-emerald-50/40 border border-emerald-200 text-xs font-medium text-slate-900 focus:bg-white focus:ring-2 focus:ring-emerald-600/30 focus:border-emerald-600 outline-none transition-all ${getErrorClass(errors.password)}`}
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700 text-xs font-bold"
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs font-bold cursor-pointer"
                   >
-                    {showPassword ? "Tutup" : "Lihat"}
+                    {showPassword ? "Hide" : "Show"}
                   </button>
                 </div>
                 {getErrorText(errors.password)}
@@ -274,28 +286,29 @@ export function RegisterDonor() {
             </div>
 
             <div>
-              <label className="text-xs font-bold text-stone-700 mb-1.5 block">
-                Alamat Lengkap Titik Penjemputan <span className="text-red-500">*</span>
+              <label className="text-xs font-bold text-emerald-950 block mb-1.5" htmlFor="address">
+                Full Pickup Address <span className="text-red-500">*</span>
               </label>
               <textarea
-                placeholder="Jl. AM Sangaji No. xx, Jetis, Kota Yogyakarta"
+                id="address"
+                placeholder="Jl. AM Sangaji No. xx, Jetis, Yogyakarta (or select pin below)"
                 value={form.address}
                 onChange={(e) => update("address", e.target.value)}
                 onBlur={() => validateField("address", form.address)}
-                className={`w-full border rounded-xl px-4 py-3 bg-stone-50 border-stone-200 focus:bg-white focus:ring-2 focus:ring-[#2D7A4F]/20 focus:border-[#2D7A4F] text-xs font-semibold outline-none transition-all ${getErrorClass(errors.address)}`}
+                className={`w-full rounded-xl px-4 py-3 bg-emerald-50/40 border border-emerald-200 text-xs font-medium text-slate-900 focus:bg-white focus:ring-2 focus:ring-emerald-600/30 focus:border-emerald-600 outline-none transition-all ${getErrorClass(errors.address)}`}
                 rows={2}
                 required
               />
               {getErrorText(errors.address)}
             </div>
 
-            {/* Map Location Picker */}
-            <div className="bg-stone-50 border border-stone-200 rounded-2xl p-4 space-y-2">
-              <h3 className="text-xs font-bold text-stone-800 flex items-center gap-1.5">
-                <MapPin size={15} className="text-[#2D7A4F]" /> Titik Koordinat Peta Donatur
+            {/* Map Picker */}
+            <div className="bg-emerald-50/50 border border-emerald-200/80 rounded-2xl p-4 space-y-2">
+              <h3 className="text-xs font-bold text-emerald-950 flex items-center gap-1.5">
+                <MapPin size={15} className="text-emerald-700" /> Pickup Geographic Pin
               </h3>
-              <p className="text-[11px] text-stone-500">
-                Pilih atau seret pin lokasi agar panti asuhan penerima dapat menghitung rute jalan penjemputan secara akurat. Alamat di atas akan otomatis disesuaikan.
+              <p className="text-[11px] text-slate-600 leading-relaxed">
+                Position your pickup pin to allow exact distance calculations for the TOPSIS dispatch engine.
               </p>
               <LocationPicker
                 lat={parseFloat(form.latitude) || -7.7956}
@@ -322,23 +335,23 @@ export function RegisterDonor() {
             <button
               disabled={loading}
               type="submit"
-              className="w-full bg-[#2D7A4F] hover:bg-emerald-800 text-white py-3.5 rounded-xl font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3.5 rounded-xl font-bold text-xs shadow-md shadow-emerald-700/20 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
             >
               {loading ? (
-                <LoadingSpinner size={18} inline />
+                <LoadingSpinner size={16} inline />
               ) : (
                 <>
                   <ShieldCheck size={16} />
-                  <span>Kirim Pendaftaran Donatur</span>
+                  <span>Submit Donor Registration</span>
                 </>
               )}
             </button>
           </form>
 
-          <p className="text-center text-xs text-stone-500 mt-6">
-            Sudah memiliki akun?{" "}
-            <Link to="/login" className="text-[#2D7A4F] font-bold hover:underline">
-              Masuk di sini
+          <p className="text-center text-xs text-slate-500 mt-6">
+            Already have an account?{" "}
+            <Link to="/login" className="text-emerald-700 font-bold hover:underline">
+              Sign In here
             </Link>
           </p>
         </motion.div>
@@ -346,4 +359,5 @@ export function RegisterDonor() {
     </div>
   );
 }
+
 export default RegisterDonor;

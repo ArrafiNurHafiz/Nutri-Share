@@ -1,27 +1,27 @@
 import { Link, useLocation } from "react-router-dom";
-import type { MouseEvent, SyntheticEvent } from "react";
-import { Instagram, Linkedin, Youtube, Sprout } from "lucide-react";
-import { TuguJogjaIllustration } from "./sections/EcoVisuals";
+import type { MouseEvent } from "react";
+import { Instagram, Linkedin, Youtube } from "lucide-react";
 
 const NAV_LINKS = [
   { to: "/", label: "Home" },
-  { to: "/#tentang", label: "About" },
-  { to: "/#cara-kerja", label: "How It Works" },
-  { to: "/#dampak", label: "Impact" },
-  { to: "/#pahlawan", label: "Partners" },
-  { to: "/support", label: "Contact" },
+  { to: "/#ecosystem", label: "Three-Pillar Ecosystem" },
+  { to: "/#catalog", label: "Surplus Food Catalog" },
+  { to: "/#protocol", label: "TOPSIS Workflow" },
+  { to: "/#impact", label: "Public Impact" },
+  { to: "/support", label: "Help & Support" },
 ];
 
 const JOIN_LINKS = [
   { to: "/register/donor", label: "Register as Donor" },
   { to: "/register/recipient", label: "Register as Recipient" },
   { to: "/login", label: "Sign In" },
+  { to: "/map", label: "Interactive GIS Map" },
 ];
 
 export function Footer() {
   const location = useLocation();
 
-  const handleAnchor = (e: MouseEvent, href: string) => {
+  const handleAnchor = (e: MouseEvent<HTMLAnchorElement>, href: string) => {
     if (href.includes("#")) {
       const hash = href.substring(href.indexOf("#"));
       if (location.pathname !== "/") {
@@ -35,75 +35,79 @@ export function Footer() {
   };
 
   return (
-    <footer className="relative bg-[#061F16] text-white/80 overflow-hidden border-t border-[#093527]">
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-10 pb-10 border-b border-white/10 items-start">
+    <footer className="relative bg-emerald-950 text-white overflow-hidden border-t border-emerald-800">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 pb-12 border-b border-emerald-800/80">
+
           {/* Brand Info & Mission */}
-          <div className="lg:col-span-5 space-y-3.5">
-            <Link to="/" className="inline-flex items-center gap-2">
+          <div className="lg:col-span-5 space-y-4">
+            <Link to="/" className="flex items-center gap-2.5 group">
               <img
                 src="/images/logoterbaru.webp"
-                alt="NutriShare"
-                className="h-8 w-auto object-contain"
+                alt="NutriShare Logo"
+                className="w-8 h-8 object-contain"
               />
+              <span className="font-heading font-bold text-xl tracking-tight text-white">
+                NutriShare
+              </span>
             </Link>
 
-            <p className="text-xs text-white/70 leading-relaxed max-w-sm">
-              Food surplus distribution platform powered by <strong>Entropy-TOPSIS</strong> for fair and targeted allocation.
+            <p className="text-sm text-emerald-200/80 leading-relaxed max-w-sm font-normal">
+              Integrated surplus food rescue platform powered by <strong>Hybrid Shannon Entropy - TOPSIS</strong> for fair, fast, and transparent nutrient distribution across D.I. Yogyakarta.
             </p>
 
-            {/* Social Icons */}
-            <div className="flex items-center gap-2.5 pt-1">
+            {/* Social Links */}
+            <div className="flex items-center gap-3 pt-2">
               <a
                 href="https://instagram.com"
                 target="_blank"
                 rel="noreferrer"
-                className="w-7 h-7 rounded-full bg-white/10 hover:bg-[#10B981] text-white flex items-center justify-center transition-colors"
+                className="w-8 h-8 rounded-lg bg-emerald-900 hover:bg-emerald-800 text-emerald-200 hover:text-white flex items-center justify-center transition-colors"
                 aria-label="Instagram"
               >
-                <Instagram size={13} />
+                <Instagram size={16} />
               </a>
               <a
                 href="https://linkedin.com"
                 target="_blank"
                 rel="noreferrer"
-                className="w-7 h-7 rounded-full bg-white/10 hover:bg-[#10B981] text-white flex items-center justify-center transition-colors"
+                className="w-8 h-8 rounded-lg bg-emerald-900 hover:bg-emerald-800 text-emerald-200 hover:text-white flex items-center justify-center transition-colors"
                 aria-label="LinkedIn"
               >
-                <Linkedin size={13} />
+                <Linkedin size={16} />
               </a>
               <a
                 href="https://youtube.com"
                 target="_blank"
                 rel="noreferrer"
-                className="w-7 h-7 rounded-full bg-white/10 hover:bg-[#10B981] text-white flex items-center justify-center transition-colors"
+                className="w-8 h-8 rounded-lg bg-emerald-900 hover:bg-emerald-800 text-emerald-200 hover:text-white flex items-center justify-center transition-colors"
                 aria-label="YouTube"
               >
-                <Youtube size={13} />
+                <Youtube size={16} />
               </a>
             </div>
           </div>
 
           {/* Navigation Links */}
-          <div className="lg:col-span-2 space-y-2.5">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-white font-heading">
-              Navigation
+          <div className="lg:col-span-4 space-y-3">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-emerald-300">
+              Page Directory
             </h4>
-            <ul className="space-y-2 text-xs">
+            <ul className="space-y-2 text-sm">
               {NAV_LINKS.map((link) => (
                 <li key={link.to}>
                   {link.to.includes("#") ? (
                     <a
                       href={link.to}
-                      onClick={(e: MouseEvent) => handleAnchor(e, link.to)}
-                      className="text-white/70 hover:text-[#34D399] transition-colors cursor-pointer"
+                      onClick={(e) => handleAnchor(e, link.to)}
+                      className="text-emerald-200/70 hover:text-white transition-colors block"
                     >
                       {link.label}
                     </a>
                   ) : (
                     <Link
                       to={link.to}
-                      className="text-white/70 hover:text-[#34D399] transition-colors"
+                      className="text-emerald-200/70 hover:text-white transition-colors block"
                     >
                       {link.label}
                     </Link>
@@ -113,17 +117,17 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Join CTA Links */}
-          <div className="lg:col-span-2 space-y-2.5">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-white font-heading">
-              Join
+          {/* Access Portals */}
+          <div className="lg:col-span-3 space-y-3">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-emerald-300">
+              Access Portals
             </h4>
-            <ul className="space-y-2 text-xs">
+            <ul className="space-y-2 text-sm">
               {JOIN_LINKS.map((link) => (
                 <li key={link.to}>
                   <Link
                     to={link.to}
-                    className="text-white/70 hover:text-[#34D399] transition-colors"
+                    className="text-emerald-200/70 hover:text-white transition-colors block"
                   >
                     {link.label}
                   </Link>
@@ -132,29 +136,20 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Tugu Jogja Vector Artwork */}
-          <div className="lg:col-span-3 flex items-center justify-end">
-            <div className="space-y-1 text-right">
-              <p className="text-[11px] font-semibold text-white/90 inline-flex items-center gap-1.5">
-                <Sprout size={13} className="text-[#34D399]" /> Let's Build
-              </p>
-              <p className="text-[11px] font-normal text-white/60">
-                a Zero Food Waste Future
-              </p>
-              <TuguJogjaIllustration className="ml-auto opacity-90 mt-1" />
-            </div>
+        </div>
+
+        {/* Bottom Bar */}
+        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-emerald-400/80 gap-4">
+          <div>
+            &copy; {new Date().getFullYear()} NutriShare Initiative. All rights reserved.
+          </div>
+          <div className="flex items-center gap-4">
+            <span>Zero Food Waste Initiative</span>
+            <span>&bull;</span>
+            <span className="text-[#e1fcad] font-medium">D.I. Yogyakarta Pilot</span>
           </div>
         </div>
 
-        {/* Bottom Copyright & Legal */}
-        <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-white/50">
-          <p>&copy; 2026 NutriShare. All rights reserved.</p>
-          <div className="flex items-center gap-5">
-            <Link to="/support" className="hover:text-white transition-colors">Privacy Policy</Link>
-            <Link to="/support" className="hover:text-white transition-colors">Terms of Service</Link>
-            <Link to="/support" className="hover:text-white transition-colors">Contact</Link>
-          </div>
-        </div>
       </div>
     </footer>
   );

@@ -183,19 +183,24 @@ export function DonorDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7] text-[#1E293B] font-sans flex flex-col antialiased">
+    <div className="min-h-screen bg-[#f4fbf7] bg-emerald-grid text-emerald-950 font-sans flex flex-col antialiased">
       <SEO title="Portal Donatur | NutriShare" description="Kelola surplus makanan hotel dan restoran secara terorganisir." />
 
       {/* Top Navbar */}
-      <header className="sticky top-0 z-30 bg-white/95 border-b border-[#E2E8F0] backdrop-blur-md">
+      <header className="sticky top-0 z-30 bg-white/90 border-b border-emerald-100 backdrop-blur-xl shadow-xs">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Link to="/" className="flex items-center gap-2">
-              <img src="/images/logoterbaru.webp" alt="NutriShare" className="h-8 w-auto" />
+            <Link to="/" className="flex items-center gap-2.5">
+              <img
+                src="/images/logoterbaru.webp"
+                alt="NutriShare Logo"
+                className="w-8 h-8 object-contain"
+              />
+              <span className="font-heading font-extrabold text-base text-emerald-950 tracking-tight">NutriShare</span>
             </Link>
-            <div className="h-4 w-px bg-[#E2E8F0] hidden sm:block" />
-            <div className="hidden sm:flex items-center gap-1.5 text-xs font-semibold text-[#475569]">
-              <Building2 size={14} className="text-[#2D7A4F]" />
+            <div className="h-4 w-px bg-emerald-200 hidden sm:block" />
+            <div className="hidden sm:flex items-center gap-1.5 text-xs font-bold text-emerald-800">
+              <Building2 size={14} className="text-emerald-600" />
               <span>{profile?.business_name || user.name}</span>
             </div>
           </div>
@@ -203,10 +208,10 @@ export function DonorDashboard() {
           <div className="flex items-center gap-2">
             <Link
               to="/peta"
-              className="px-3 py-1.5 rounded-lg border border-[#E2E8F0] hover:bg-[#F8FAFC] text-xs font-semibold text-[#334155] transition-colors flex items-center gap-1.5"
+              className="px-3 py-1.5 rounded-xl border border-emerald-200 hover:bg-emerald-50 text-xs font-bold text-emerald-900 transition-colors flex items-center gap-1.5"
             >
-              <Compass size={14} className="text-[#2D7A4F]" />
-              <span className="hidden sm:inline">Peta Sebaran</span>
+              <Compass size={14} className="text-emerald-700" />
+              <span className="hidden sm:inline">GIS Map</span>
             </Link>
 
             <button
@@ -215,17 +220,17 @@ export function DonorDashboard() {
                 setShowModal(true);
                 setFormStep(1);
               }}
-              className="px-3.5 py-1.5 rounded-lg bg-[#2D7A4F] hover:bg-[#235F3D] text-white text-xs font-semibold shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
+              className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition-all hover:scale-105 flex items-center gap-1.5 cursor-pointer"
             >
               <Plus size={14} />
-              <span>Donasikan Makanan</span>
+              <span>Donate Food</span>
             </button>
 
             <button
               type="button"
               onClick={() => setShowProfile(true)}
-              className="p-1.5 rounded-lg border border-[#E2E8F0] hover:bg-[#F8FAFC] text-[#475569] transition-colors cursor-pointer"
-              title="Profil"
+              className="p-2 rounded-xl border border-emerald-200 hover:bg-emerald-50 text-emerald-800 transition-colors cursor-pointer"
+              title="Profile"
             >
               <User size={15} />
             </button>
@@ -236,8 +241,8 @@ export function DonorDashboard() {
                 await logout();
                 nav("/");
               }}
-              className="p-1.5 rounded-lg border border-[#E2E8F0] hover:bg-[#FEF2F2] hover:text-[#DC2626] text-[#64748B] transition-colors cursor-pointer"
-              title="Keluar"
+              className="p-2 rounded-xl border border-red-200 hover:bg-red-50 text-red-600 transition-colors cursor-pointer"
+              title="Sign Out"
             >
               <LogOut size={15} />
             </button>
@@ -248,35 +253,35 @@ export function DonorDashboard() {
       {/* Main Container */}
       <main className="max-w-6xl mx-auto w-full px-4 sm:px-6 py-8 space-y-8 flex-1">
         {/* Aesthetic Ambient Hero Banner for Donor */}
-        <section className="relative rounded-3xl overflow-hidden bg-[#0F2418] text-white p-6 sm:p-8 border border-[#2D7A4F]/30 shadow-md">
+        <section className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-emerald-950 via-emerald-900 to-teal-950 text-white p-6 sm:p-8 border border-emerald-700/50 shadow-lg">
           <div className="absolute inset-0 z-0 opacity-25">
             <img
               src="/images/fresh-food.webp"
               alt=""
               className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#091710] via-[#0F2418]/90 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-emerald-950 via-emerald-900/90 to-transparent" />
           </div>
 
           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="space-y-2 max-w-xl">
               <div className="flex items-center gap-2">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#A7F3D0] bg-white/10 px-3 py-1 rounded-full border border-white/15 backdrop-blur-md">
-                  Portal Mitra Donatur (HoReKa)
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#e1fcad] bg-emerald-500/20 px-3 py-1 rounded-full border border-emerald-400/30 backdrop-blur-md">
+                  HoReKa Donor Portal
                 </span>
-                <span className="text-[11px] font-semibold text-[#6EE7B7] flex items-center gap-1">
+                <span className="text-[11px] font-semibold text-[#e1fcad] flex items-center gap-1">
                   <Star size={12} className="text-[#FBBF24] fill-[#FBBF24]" /> Rating {avgRating}
                 </span>
               </div>
               <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight font-heading text-white">
                 {profile?.business_name || user.name}
               </h1>
-              <p className="text-xs sm:text-sm text-white/80 leading-relaxed">
-                Pusat manajemen distribusi surplus pangan hotel, restoran, dan katering Anda secara aman, termonitor, dan tepat sasaran.
+              <p className="text-xs sm:text-sm text-emerald-100/80 leading-relaxed">
+                Centralized management for surplus food donations from your commercial kitchen, directly dispatched through verified TOPSIS ranking.
               </p>
 
               <div className="pt-2 flex flex-wrap items-center gap-2">
-                <span className="text-[11px] font-medium text-white/70">Pilihan Cepat:</span>
+                <span className="text-[11px] font-medium text-emerald-200/70">Quick Presets:</span>
                 {PRESETS.map((p) => (
                   <button
                     key={p.id}
@@ -292,7 +297,7 @@ export function DonorDashboard() {
                       setShowModal(true);
                       setFormStep(2);
                     }}
-                    className="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 border border-white/15 text-xs font-semibold text-white transition-colors cursor-pointer backdrop-blur-md"
+                    className="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-[#e1fcad] hover:text-emerald-950 border border-white/15 text-xs font-semibold text-white transition-all cursor-pointer backdrop-blur-md"
                   >
                     <span>{p.label}</span>
                   </button>
@@ -301,17 +306,17 @@ export function DonorDashboard() {
             </div>
 
             {/* Quick Metrics Card Overlay */}
-            <div className="grid grid-cols-3 gap-3 shrink-0 bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/15">
+            <div className="grid grid-cols-3 gap-3 shrink-0 bg-emerald-950/60 backdrop-blur-md p-4 rounded-2xl border border-emerald-500/30">
               <div className="text-center">
-                <span className="text-[10px] text-white/70 font-bold uppercase tracking-wider block">Porsi Selesai</span>
+                <span className="text-[10px] text-emerald-300 font-bold uppercase tracking-wider block">Completed</span>
                 <span className="text-xl font-extrabold text-white">{totalPortionsShared}</span>
               </div>
-              <div className="text-center border-x border-white/15 px-2">
-                <span className="text-[10px] text-white/70 font-bold uppercase tracking-wider block">Dijemput</span>
-                <span className="text-xl font-extrabold text-[#6EE7B7]">{inTransitList.length}</span>
+              <div className="text-center border-x border-emerald-700/50 px-2">
+                <span className="text-[10px] text-emerald-300 font-bold uppercase tracking-wider block">In Pickup</span>
+                <span className="text-xl font-extrabold text-[#e1fcad]">{inTransitList.length}</span>
               </div>
               <div className="text-center">
-                <span className="text-[10px] text-white/70 font-bold uppercase tracking-wider block">Ulasan</span>
+                <span className="text-[10px] text-emerald-300 font-bold uppercase tracking-wider block">Reviews</span>
                 <span className="text-xl font-extrabold text-[#FCD34D]">{reviews.length}</span>
               </div>
             </div>
@@ -319,78 +324,78 @@ export function DonorDashboard() {
         </section>
 
         {/* AKG & Hybrid Entropy-TOPSIS Platform Impact Card */}
-        <section className="bg-white rounded-2xl border border-[#E2E8F0] p-6 shadow-xs space-y-5">
+        <section className="bg-white rounded-3xl border border-emerald-100 p-6 shadow-xs space-y-5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#059669] bg-[#ECFDF5] px-2.5 py-0.5 rounded border border-[#A7F3D0]">
-                  Transparansi Distribusi Presisi
+                <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded border border-emerald-200">
+                  Precision Distribution Transparency
                 </span>
-                <span className="text-xs text-[#64748B]">Berdasarkan Standar AKG Kemenkes RI</span>
+                <span className="text-xs text-slate-500">Based on Ministry of Health RDA Standards</span>
               </div>
-              <h2 className="text-lg sm:text-xl font-bold text-[#0F172A]">
-                Kontribusi Angka Kecukupan Gizi (AKG) & Akurasi TOPSIS
+              <h2 className="text-lg sm:text-xl font-extrabold text-emerald-950 font-heading">
+                Nutrition Contribution &amp; TOPSIS Precision
               </h2>
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-[11px] font-bold text-[#047857] bg-[#ECFDF5] border border-[#A7F3D0] px-3 py-1.5 rounded-xl flex items-center gap-1.5">
-                <Brain size={14} className="text-[#059669]" />
-                Hybrid Shannon Entropy-TOPSIS
+              <span className="text-[11px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+                <Brain size={14} className="text-emerald-700" />
+                Hybrid Shannon Entropy - TOPSIS
               </span>
             </div>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="p-3.5 bg-[#F8FAF8] rounded-xl border border-[#E2E8F0] space-y-1">
-              <div className="flex items-center justify-between text-[#64748B] text-xs">
-                <span>Total Protein Disalurkan</span>
-                <Utensils size={14} className="text-[#059669]" />
+            <div className="p-4 bg-[#f4fbf7] rounded-2xl border border-emerald-100 space-y-1">
+              <div className="flex items-center justify-between text-slate-500 text-xs">
+                <span>Total Protein Shared</span>
+                <Utensils size={14} className="text-emerald-700" />
               </div>
-              <span className="text-lg sm:text-xl font-black text-[#047857] block font-heading">
+              <span className="text-lg sm:text-xl font-extrabold text-emerald-950 block font-mono">
                 {(totalProteinSharedGrams / 1000).toFixed(1)} kg
               </span>
-              <span className="text-[10px] text-[#64748B] block">
-                ~{Math.round(totalProteinSharedGrams / 40)} Porsi Kebutuhan Protein Anak
+              <span className="text-[10px] text-slate-500 block">
+                ~{Math.round(totalProteinSharedGrams / 40)} Daily Child RDA Portions
               </span>
             </div>
 
-            <div className="p-3.5 bg-[#F8FAF8] rounded-xl border border-[#E2E8F0] space-y-1">
-              <div className="flex items-center justify-between text-[#64748B] text-xs">
-                <span>Total Energi Kalori</span>
-                <Flame size={14} className="text-[#D97706]" />
+            <div className="p-4 bg-[#f4fbf7] rounded-2xl border border-emerald-100 space-y-1">
+              <div className="flex items-center justify-between text-slate-500 text-xs">
+                <span>Total Calories</span>
+                <Flame size={14} className="text-amber-600" />
               </div>
-              <span className="text-lg sm:text-xl font-black text-[#D97706] block font-heading">
-                {(totalCaloriesSharedKcal / 1000).toFixed(1)} Mkal
+              <span className="text-lg sm:text-xl font-extrabold text-amber-700 block font-mono">
+                {(totalCaloriesSharedKcal / 1000).toFixed(1)} Mcal
               </span>
-              <span className="text-[10px] text-[#64748B] block">
-                Suplai Energi Siap Konsumsi
+              <span className="text-[10px] text-slate-500 block">
+                Wholesome Energy Supply
               </span>
             </div>
 
-            <div className="p-3.5 bg-[#F8FAF8] rounded-xl border border-[#E2E8F0] space-y-1">
-              <div className="flex items-center justify-between text-[#64748B] text-xs">
-                <span>Objektivitas Penyaluran</span>
-                <Scale size={14} className="text-[#2563EB]" />
+            <div className="p-4 bg-[#f4fbf7] rounded-2xl border border-emerald-100 space-y-1">
+              <div className="flex items-center justify-between text-slate-500 text-xs">
+                <span>Dispatch Objectivity</span>
+                <Scale size={14} className="text-blue-600" />
               </div>
-              <span className="text-lg sm:text-xl font-black text-[#2563EB] block font-heading">
+              <span className="text-lg sm:text-xl font-extrabold text-blue-700 block font-mono">
                 100%
               </span>
-              <span className="text-[10px] text-[#64748B] block">
-                Bebas Intervensi Manual
+              <span className="text-[10px] text-slate-500 block">
+                Zero Manual Queue Bias
               </span>
             </div>
 
-            <div className="p-3.5 bg-[#F8FAF8] rounded-xl border border-[#E2E8F0] space-y-1">
-              <div className="flex items-center justify-between text-[#64748B] text-xs">
-                <span>Panti/Yayasan Binaan</span>
-                <Heart size={14} className="text-[#E11D48]" />
+            <div className="p-4 bg-[#f4fbf7] rounded-2xl border border-emerald-100 space-y-1">
+              <div className="flex items-center justify-between text-slate-500 text-xs">
+                <span>Shelters Supported</span>
+                <Heart size={14} className="text-rose-600" />
               </div>
-              <span className="text-lg sm:text-xl font-black text-[#E11D48] block font-heading">
-                {donations.length > 0 ? new Set(donations.filter((d: any) => d.claimed_by).map((d: any) => d.claimed_by)).size || 1 : 0} Mitra
+              <span className="text-lg sm:text-xl font-extrabold text-rose-700 block font-mono">
+                {donations.length > 0 ? new Set(donations.filter((d: any) => d.claimed_by).map((d: any) => d.claimed_by)).size || 1 : 0} Centers
               </span>
-              <span className="text-[10px] text-[#64748B] block">
-                Penerima Tervalidasi
+              <span className="text-[10px] text-slate-500 block">
+                Verified Institutions
               </span>
             </div>
           </div>

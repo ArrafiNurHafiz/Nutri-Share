@@ -3,8 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { SEO } from "../components/SEO";
 import { Navbar } from "../components/Navbar";
 import { Footer } from "../components/Footer";
+import HeroAero from "../components/ui/demo";
 import {
   HeroSection,
+  MarqueeBanner,
+  SurplusShowcase,
   ProcessSection,
   ThreePillars,
   RecognitionSection,
@@ -27,7 +30,7 @@ export default function Home() {
       setTopDonors(d);
       setStats(s);
     } catch {
-      /* fallback defaults used */
+      /* fallback defaults */
     }
   }, []);
 
@@ -38,16 +41,38 @@ export default function Home() {
   const handleLoginClick = () => navigate("/login");
 
   return (
-    <div className="min-h-[100dvh] bg-white text-[#0F172A] font-sans overflow-x-hidden antialiased selection:bg-[#10B981]/20 selection:text-[#065F46]">
+    <div className="min-h-[100dvh] bg-[#f8fafc] text-slate-900 font-sans overflow-x-hidden antialiased selection:bg-emerald-100 selection:text-emerald-900">
       <Navbar onLoginClick={handleLoginClick} />
-      <SEO title="NutriShare | Your Surplus Food, Their Nutrition" />
+      <SEO title="NutriShare — Platform Distribusi Pangan Berbasis Gizi" />
 
-      <HeroSection stats={stats} />
-      <ProcessSection />
-      <ThreePillars />
-      <RecognitionSection topDonors={topDonors} stats={stats} />
-      <Testimonials />
-      <CTASection onLoginClick={handleLoginClick} />
+      <main className="w-full max-w-full overflow-x-hidden">
+        {/* Hero Section: 21st Rivr Emerald */}
+        <HeroAero />
+
+        {/* Real-time Impact Telemetry */}
+        <HeroSection stats={stats} />
+
+        {/* Ticker Banner */}
+        <MarqueeBanner />
+
+        {/* Surplus Food Inventory */}
+        <SurplusShowcase />
+
+        {/* 4-Step Process & TOPSIS Formula */}
+        <ProcessSection />
+
+        {/* 3 Pillars Ecosystem */}
+        <ThreePillars />
+
+        {/* Impact & Partner Recognition */}
+        <RecognitionSection topDonors={topDonors} stats={stats} />
+
+        {/* Testimonials */}
+        <Testimonials />
+
+        {/* Final CTA */}
+        <CTASection onLoginClick={handleLoginClick} />
+      </main>
 
       <Footer />
     </div>

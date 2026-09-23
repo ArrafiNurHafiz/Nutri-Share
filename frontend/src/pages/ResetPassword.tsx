@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
 import { SEO } from "../components/SEO";
-import { Heart, Lock, Eye, EyeOff, CheckCircle } from "lucide-react";
+import { Lock, Eye, EyeOff, CheckCircle2, ArrowLeft } from "lucide-react";
 import { api } from "../lib/api";
 import { Navbar } from "../components/Navbar";
 import { Footer } from "../components/Footer";
@@ -32,7 +32,7 @@ export default function ResetPassword() {
       return;
     }
     if (!token) {
-      toast.error("Reset token not found");
+      toast.error("Token reset tidak ditemukan");
       return;
     }
     setError(undefined);
@@ -44,65 +44,76 @@ export default function ResetPassword() {
         body: JSON.stringify({ token, password }),
       });
       setDone(true);
-      toast.success("Password reset successfully!");
+      toast.success("Kata sandi berhasil diperbarui!");
       setTimeout(() => nav("/login"), 2000);
     } catch (err: any) {
-      toast.error(err.message || "Failed to reset password");
+      toast.error(err.message || "Gagal mengatur ulang kata sandi");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-[100dvh] bg-[var(--bg-primary)] text-[var(--text-primary)]">
+    <div className="min-h-[100dvh] bg-[#f4fbf7] bg-emerald-grid text-emerald-950 font-sans flex flex-col justify-between">
       <Navbar />
       <SEO
-        title="Reset Password"
-        description="Create a new password for your NUTRI-SHARE account"
+        title="Atur Ulang Kata Sandi | NutriShare"
+        description="Buat kata sandi baru untuk akun NutriShare Anda"
       />
-      <div className="max-w-md mx-auto px-6 pt-32 pb-20">
+      <div className="max-w-md mx-auto w-full px-6 pt-36 pb-20">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-[var(--bg-secondary)] p-8 rounded-3xl shadow-sm border border-[var(--border-color)]"
+          className="bg-white p-8 sm:p-10 rounded-3xl shadow-xl border border-emerald-200/90 shadow-emerald-950/5"
         >
           {done ? (
-            <div className="text-center">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CheckCircle size={32} className="text-[#2D7A4F]" />
+            <div className="text-center space-y-4">
+              <div className="w-16 h-16 bg-emerald-100 text-emerald-800 rounded-full flex items-center justify-center mx-auto shadow-xs">
+                <CheckCircle2 size={32} />
               </div>
-              <h1 className="text-2xl font-bold mb-2">Password Changed!</h1>
-              <p className="text-sm text-gray-500 mb-6">
-                Your password has been reset successfully. Redirecting to the
-                login page...
+              <h1 className="text-2xl font-extrabold text-emerald-950 font-heading">
+                Kata Sandi Diperbarui!
+              </h1>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Kata sandi baru Anda telah aktif. Mengalihkan ke halaman login...
               </p>
             </div>
           ) : (
             <>
-              <div className="w-14 h-14 bg-[#E8F5E9] rounded-2xl flex items-center justify-center mb-4">
-                <Lock size={28} className="text-[#2D7A4F]" />
+              <Link
+                to="/login"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 hover:text-emerald-950 mb-6 transition-colors"
+              >
+                <ArrowLeft size={14} /> <span>Kembali ke Masuk</span>
+              </Link>
+              <div className="w-12 h-12 bg-emerald-100 text-emerald-800 rounded-2xl flex items-center justify-center mb-4 font-bold shadow-xs">
+                <Lock size={22} />
               </div>
-              <h1 className="text-2xl font-bold mb-2">Reset Password</h1>
-              <p className="text-sm text-gray-500 mb-6">
-                Enter your new password.
+              <h1 className="text-2xl font-extrabold text-emerald-950 font-heading tracking-tight mb-1">
+                Atur Kata Sandi Baru
+              </h1>
+              <p className="text-xs text-slate-500 mb-6 leading-relaxed">
+                Masukkan token verifikasi dan kata sandi baru Anda.
               </p>
+
               <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                 <div>
-                  <label className="text-sm font-medium mb-1 block">
-                    Reset Token
+                  <label className="text-xs font-bold text-emerald-950 mb-1.5 block">
+                    Token Verifikasi
                   </label>
                   <input
                     type="text"
                     value={token}
                     onChange={(e) => setToken(e.target.value)}
-                    className="w-full border rounded-xl px-4 py-3 bg-gray-50 dark:bg-gray-800 focus:bg-white dark:focus:bg-gray-700 focus:ring-2 focus:ring-[#52C77F] outline-none transition-all font-mono text-xs"
-                    placeholder="Enter reset token"
+                    className="w-full rounded-xl px-4 py-3 bg-emerald-50/40 border border-emerald-200 text-xs font-mono text-slate-900 focus:bg-white focus:ring-2 focus:ring-emerald-600/30 focus:border-emerald-600 outline-none transition-all"
+                    placeholder="Masukkan token reset"
                     required
                   />
                 </div>
+
                 <div>
-                  <label className="text-sm font-medium mb-1 block">
-                    New Password
+                  <label className="text-xs font-bold text-emerald-950 mb-1.5 block">
+                    Kata Sandi Baru
                   </label>
                   <div className="relative">
                     <input
@@ -112,42 +123,35 @@ export default function ResetPassword() {
                         setPassword(e.target.value);
                         setError(undefined);
                       }}
-                      className={`w-full border rounded-xl px-4 py-3 pr-12 bg-gray-50 dark:bg-gray-800 focus:bg-white dark:focus:bg-gray-700 focus:ring-2 focus:ring-[#52C77F] outline-none transition-all ${getErrorClass(error)}`}
-                      placeholder="Min. 6 characters"
+                      className={`w-full rounded-xl pl-4 pr-12 py-3 bg-emerald-50/40 border border-emerald-200 text-xs font-medium text-slate-900 focus:bg-white focus:ring-2 focus:ring-emerald-600/30 focus:border-emerald-600 outline-none transition-all ${getErrorClass(error)}`}
+                      placeholder="Minimal 6 karakter"
                       required
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs font-bold cursor-pointer"
                     >
-                      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
                   </div>
                   {getErrorText(error)}
                 </div>
+
                 <button
                   disabled={loading}
                   type="submit"
-                  className="w-full bg-[#2D7A4F] text-white py-3.5 rounded-xl font-bold hover:bg-opacity-90 transition-all shadow-md disabled:opacity-50 flex items-center justify-center gap-2"
+                  className="w-full bg-emerald-600 text-white py-3.5 rounded-xl font-bold text-xs hover:bg-emerald-700 transition-all shadow-md shadow-emerald-700/20 disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer mt-2"
                 >
                   {loading ? (
                     <>
-                      <LoadingSpinner size={18} inline /> Resetting...
+                      <LoadingSpinner size={16} inline /> Memproses...
                     </>
                   ) : (
-                    "Reset Password"
+                    "Simpan Kata Sandi Baru"
                   )}
                 </button>
               </form>
-              <div className="mt-6 text-center">
-                <Link
-                  to="/login"
-                  className="text-[#2D7A4F] font-bold text-sm hover:underline"
-                >
-                  Back to Login
-                </Link>
-              </div>
             </>
           )}
         </motion.div>

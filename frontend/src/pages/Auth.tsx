@@ -8,7 +8,7 @@ import {
   getErrorText,
 } from "../lib/validation";
 import { LoadingSpinner } from "../components/LoadingSpinner";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, ArrowLeft, Lock, Mail, ArrowRight, ShieldCheck } from "lucide-react";
 import toast from "react-hot-toast";
 import { motion } from "motion/react";
 import { SEO } from "../components/SEO";
@@ -18,9 +18,7 @@ export function Login() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>(
-    {},
-  );
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const { login } = useAuth();
   const nav = useNavigate();
 
@@ -40,28 +38,28 @@ export function Login() {
     setLoading(true);
     try {
       const res = await login(email.trim(), password);
-      toast.success("Logged in successfully!");
+      toast.success("Signed in successfully!");
       if (res.user.role === "admin") nav("/admin");
       else if (res.user.role === "donor") nav("/donor");
       else nav("/recipient");
     } catch (err: any) {
-      toast.error(err.message || "Failed to log in.");
+      toast.error(err.message || "Failed to sign in. Please verify your credentials.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-[100dvh] bg-[#faf8f4] flex flex-col md:flex-row">
+    <div className="min-h-[100dvh] bg-[#f4fbf7] bg-emerald-grid flex flex-col md:flex-row font-sans text-emerald-950">
       <SEO title="Sign In | NutriShare" />
 
-      {/* Left - Narrative Visual Panel */}
+      {/* Left - Heroic Visual Panel */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="hidden md:flex md:w-1/2 lg:w-3/5 relative overflow-hidden bg-brand-dark"
+        className="hidden md:flex md:w-1/2 lg:w-3/5 relative overflow-hidden bg-emerald-950 text-white p-10 flex-col justify-between"
       >
-        {/* Background Image */}
+        {/* Photo Background with Rich Green Overlay */}
         <div className="absolute inset-0">
           <div
             className="w-full h-full bg-cover bg-center"
@@ -69,135 +67,95 @@ export function Login() {
               backgroundImage: "url('/images/nutrishare_login_image_3.webp')",
             }}
           />
-          {/* Gradient overlay for readability */}
-          <div className="absolute inset-0 bg-gradient-to-t from-brand-dark/80 via-brand-dark/30 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/95 via-emerald-950/70 to-emerald-950/50" />
         </div>
 
-        {/* Glassmorphism Overlay for Branding */}
-        <div className="absolute bottom-8 left-8 right-8 p-6 md:p-8 backdrop-blur-md bg-white/15 rounded-2xl border border-white/20 z-10">
-          <div className="flex items-center gap-3 mb-3">
+        {/* 12-col grid lines */}
+        <div className="absolute inset-0 grid grid-cols-6 divide-x divide-white/10 pointer-events-none" />
+
+        {/* Top Branding with Original Logo */}
+        <div className="relative z-10">
+          <Link to="/" className="inline-flex items-center gap-2.5">
             <img
               src="/images/logoterbaru.webp"
-              alt="NutriShare"
-              width={40}
-              height={40}
-              className="h-10 w-10 rounded-lg bg-white/90 p-1"
+              alt="NutriShare Logo"
+              className="w-9 h-9 object-contain"
             />
-            <h1 className="font-heading text-2xl font-bold text-white">
+            <span className="font-heading font-extrabold text-xl text-white tracking-tight">
               NutriShare
-            </h1>
-          </div>
-          <p className="text-white/85 leading-relaxed max-w-lg text-sm">
-            Empowering communities through intelligent food distribution. Join
-            our network of donors and recipients to minimize waste and maximize
-            impact.
+            </span>
+          </Link>
+        </div>
+
+        {/* Bottom Glass Card */}
+        <div className="relative z-10 p-8 rounded-3xl bg-emerald-950/80 backdrop-blur-xl border border-emerald-500/30 shadow-2xl space-y-4 max-w-lg">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-[#e1fcad] text-xs font-bold border border-emerald-400/30">
+            <ShieldCheck size={14} />
+            <span>Automated Food Rescue &amp; Dispatch Protocol</span>
+          </span>
+          <h2 className="font-heading font-extrabold text-2xl text-white leading-snug">
+            Prevent Food Waste, Empower Community Nutrition.
+          </h2>
+          <p className="text-xs text-emerald-100/80 leading-relaxed">
+            Bridging surplus food from hotels, restaurants, and catering businesses directly to verified shelters using TOPSIS multi-criteria optimization.
           </p>
-          <div className="mt-5 flex gap-8">
+          <div className="grid grid-cols-2 gap-4 pt-3 border-t border-emerald-800/80">
             <div>
-              <p className="text-white/60 text-xs font-semibold tracking-widest uppercase">
-                Meals Shared
-              </p>
-              <p className="text-white font-bold text-3xl">1.2M+</p>
+              <span className="text-[10px] text-emerald-300 uppercase tracking-wider block font-semibold">Meals Distributed</span>
+              <strong className="text-xl font-extrabold text-white font-mono">4,120+</strong>
             </div>
             <div>
-              <p className="text-white/60 text-xs font-semibold tracking-widest uppercase">
-                Active Donors
-              </p>
-              <p className="text-white font-bold text-3xl">4,800</p>
+              <span className="text-[10px] text-emerald-300 uppercase tracking-wider block font-semibold">Active Partners</span>
+              <strong className="text-xl font-extrabold text-[#e1fcad] font-mono">39 Centers</strong>
             </div>
           </div>
         </div>
       </motion.div>
 
-      {/* Right - Login Form Canvas */}
-      <div className="flex-1 flex items-center justify-center p-6 md:p-12 lg:p-16 bg-white">
+      {/* Right - Form Card */}
+      <div className="flex-1 flex items-center justify-center p-6 md:p-12 lg:p-16">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="w-full max-w-[440px]"
+          transition={{ duration: 0.4 }}
+          className="w-full max-w-[440px] bg-white rounded-3xl p-8 sm:p-10 border border-emerald-200/90 shadow-xl shadow-emerald-950/5"
         >
-          {/* Back Link */}
+          {/* Back to Home */}
           <Link
             to="/"
-            className="inline-flex items-center gap-2 text-gray-400 hover:text-brand-dark transition-colors mb-8 group"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 hover:text-emerald-950 mb-6 transition-colors"
           >
-            <svg
-              className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-            <span className="text-xs font-semibold tracking-widest uppercase">
-              Back to Home
-            </span>
+            <ArrowLeft size={14} />
+            <span>Back to Home</span>
           </Link>
 
-          {/* Mobile logo */}
-          <div className="md:hidden flex items-center gap-2 mb-6">
-            <img
-              src="/images/logoterbaru.webp"
-              alt="NutriShare"
-              width={32}
-              height={32}
-              className="h-8 w-8"
-            />
-            <span className="font-heading text-lg font-bold text-brand-dark">
-              NutriShare
-            </span>
-          </div>
-
           {/* Form Header */}
-          <div className="mb-8">
-            <h2 className="font-heading text-3xl font-bold text-brand-dark mb-2">
+          <div className="mb-6">
+            <h2 className="font-heading text-2xl sm:text-3xl font-extrabold text-emerald-950 tracking-tight">
               Welcome Back
             </h2>
-            <p className="text-gray-500">
-              Enter your credentials to access your impact dashboard.
+            <p className="text-xs text-slate-500 mt-1">
+              Enter your credentials to access your dashboard.
             </p>
           </div>
 
-          {/* Login Form */}
-          <form onSubmit={handleLogin} className="space-y-5">
-            {/* Email */}
+          {/* Form */}
+          <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-1.5">
-              <label
-                className="text-xs font-semibold tracking-widest uppercase text-gray-500"
-                htmlFor="login-email"
-              >
+              <label className="text-xs font-bold text-emerald-950 block" htmlFor="email">
                 Email Address
               </label>
-              <div className="relative group">
-                <svg
-                  className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-primary-orange transition-colors"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                  />
-                </svg>
+              <div className="relative">
+                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-700/60" />
                 <input
-                  id="login-email"
+                  id="email"
                   type="email"
                   value={email}
                   onChange={(e) => {
                     setEmail(e.target.value);
-                    if (errors.email)
-                      setErrors((p) => ({ ...p, email: undefined }));
+                    if (errors.email) setErrors((p) => ({ ...p, email: undefined }));
                   }}
-                  className={`w-full border rounded-xl pl-10 pr-4 py-3 bg-[#f8fafc] border-gray-200 focus:ring-2 focus:ring-primary-orange/20 focus:border-primary-orange outline-none transition-all ${getErrorClass(errors.email)}`}
+                  className={`w-full rounded-xl pl-10 pr-4 py-3 bg-emerald-50/40 border border-emerald-200 text-xs font-medium text-slate-900 focus:bg-white focus:ring-2 focus:ring-emerald-600/30 focus:border-emerald-600 outline-none transition-all ${getErrorClass(errors.email)}`}
                   placeholder="name@organization.org"
                   required
                 />
@@ -205,180 +163,80 @@ export function Login() {
               {getErrorText(errors.email)}
             </div>
 
-            {/* Password */}
             <div className="space-y-1.5">
               <div className="flex justify-between items-center">
-                <label
-                  className="text-xs font-semibold tracking-widest uppercase text-gray-500"
-                  htmlFor="login-password"
-                >
+                <label className="text-xs font-bold text-emerald-950" htmlFor="password">
                   Password
                 </label>
                 <Link
                   to="/forgot-password"
-                  className="text-xs font-semibold tracking-widest uppercase text-primary-orange hover:underline"
+                  className="text-xs font-semibold text-emerald-700 hover:text-emerald-950"
                 >
-                  Forgot?
+                  Forgot password?
                 </Link>
               </div>
-              <div className="relative group">
-                <svg
-                  className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-primary-orange transition-colors"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                  />
-                </svg>
+              <div className="relative">
+                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-700/60" />
                 <input
-                  id="login-password"
+                  id="password"
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => {
                     setPassword(e.target.value);
-                    if (errors.password)
-                      setErrors((p) => ({ ...p, password: undefined }));
+                    if (errors.password) setErrors((p) => ({ ...p, password: undefined }));
                   }}
-                  className={`w-full border rounded-xl pl-10 pr-12 py-3 bg-[#f8fafc] border-gray-200 focus:ring-2 focus:ring-primary-orange/20 focus:border-primary-orange outline-none transition-all ${getErrorClass(errors.password)}`}
+                  className={`w-full rounded-xl pl-10 pr-12 py-3 bg-emerald-50/40 border border-emerald-200 text-xs font-medium text-slate-900 focus:bg-white focus:ring-2 focus:ring-emerald-600/30 focus:border-emerald-600 outline-none transition-all ${getErrorClass(errors.password)}`}
                   placeholder="••••••••"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
                 >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
               {getErrorText(errors.password)}
             </div>
 
-            {/* Remember Me */}
-            <div className="flex items-center gap-2">
-              <input
-                id="remember"
-                type="checkbox"
-                className="w-4 h-4 rounded border-gray-300 text-primary-orange focus:ring-primary-orange"
-              />
-              <label
-                htmlFor="remember"
-                className="text-sm text-gray-500 select-none"
-              >
-                Keep me logged in
-              </label>
-            </div>
-
-            {/* Submit */}
             <button
               disabled={loading}
               type="submit"
-              className="w-full py-3.5 bg-primary-orange text-white rounded-xl font-bold hover:bg-primary-orange-dark active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-primary-orange/20"
+              className="w-full py-3.5 bg-emerald-600 text-white rounded-xl font-bold text-xs hover:bg-emerald-700 active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-md shadow-emerald-700/20 cursor-pointer mt-2"
             >
               {loading ? (
                 <>
-                  <LoadingSpinner size={18} inline /> Processing...
+                  <LoadingSpinner size={16} inline /> Signing In...
                 </>
               ) : (
                 <>
-                  <span>Login</span>
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2.5}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
-                    />
-                  </svg>
+                  <span>Sign In to Dashboard</span>
+                  <ArrowRight size={14} />
                 </>
               )}
             </button>
           </form>
 
-          {/* Divider */}
-          <div className="relative my-8">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-200" />
-            </div>
-            <div className="relative flex justify-center">
-              <span className="px-4 bg-white text-xs font-semibold tracking-widest uppercase text-gray-400">
-                New to NutriShare?
-              </span>
-            </div>
-          </div>
-
-          {/* Secondary Actions */}
-          <div className="space-y-3">
-            <Link
-              to="/register/donor"
-              className="w-full py-3.5 border-2 border-primary-orange/30 text-brand-dark font-bold rounded-xl hover:bg-primary-orange-bg transition-colors flex items-center justify-center gap-2"
-            >
-              <svg
-                className="w-4 h-4 text-primary-orange"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                />
-              </svg>
-              Register as Donor / Recipient
-            </Link>
-            <Link
-              to="/contact"
-              className="w-full py-3 text-gray-500 text-sm rounded-lg hover:text-primary-orange transition-colors flex items-center justify-center gap-2 border border-transparent"
-            >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              Need Technical Support?
-            </Link>
-          </div>
-
-          {/* Compliance Footer */}
-          <footer className="mt-10 text-center">
-            <p className="text-xs text-gray-400 leading-relaxed">
-              By logging in, you agree to NutriShare's{" "}
+          {/* Registrasi Link */}
+          <div className="mt-8 pt-6 border-t border-emerald-100 text-center space-y-3">
+            <span className="text-xs text-slate-500 block">Do not have an account yet?</span>
+            <div className="grid grid-cols-2 gap-2.5">
               <Link
-                to="/#tentang"
-                className="underline hover:text-primary-orange"
+                to="/register/donor"
+                className="py-2.5 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-900 text-xs font-bold transition-colors text-center block truncate"
               >
-                Terms of Service
-              </Link>{" "}
-              and{" "}
-              <Link
-                to="/#tentang"
-                className="underline hover:text-primary-orange"
-              >
-                Privacy Policy
+                Join as Donor
               </Link>
-              .
-            </p>
-          </footer>
+              <Link
+                to="/register/recipient"
+                className="py-2.5 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-900 text-xs font-bold transition-colors text-center block truncate"
+              >
+                Join as Recipient
+              </Link>
+            </div>
+          </div>
+
         </motion.div>
       </div>
     </div>

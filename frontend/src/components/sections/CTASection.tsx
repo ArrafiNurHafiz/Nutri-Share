@@ -1,127 +1,85 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Heart } from "lucide-react";
-import { GlossyLeafDecor } from "./EcoVisuals";
+import { ArrowUpRight, CheckCircle2, ShieldCheck, HeartHandshake } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export function CTASection({ onLoginClick }: { onLoginClick?: () => void }) {
   return (
-    <section className="relative py-20 bg-[#F6FAF6] overflow-hidden">
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+    <section className="relative py-20 sm:py-28 bg-[#f4fbf7] bg-emerald-grid text-slate-900 overflow-hidden">
+      {/* Background Glows */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-5xl h-[450px] bg-emerald-300/20 blur-[130px] rounded-full pointer-events-none" />
 
-          {/* ─── LEFT: Organic Blob Framed Children + Handwritten Note ─── */}
-          <div className="lg:col-span-4 flex flex-row items-center justify-center gap-3 sm:gap-4 relative px-2">
-            {/* Handwritten note on the left */}
-            <div className="flex flex-col items-end z-20 transform -rotate-6 pointer-events-none text-right shrink-0">
-              <p className="font-handwriting font-bold text-lg sm:text-2xl lg:text-[26px] text-[#059669] leading-tight drop-shadow-xs">
-                Nourishing<br />
-                Today<br />
-                Brighter<br />
-                Tomorrow
-              </p>
-              <Heart size={18} className="text-[#059669] fill-current mr-1 mt-1" />
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+
+        {/* Rich Textured Emerald Banner */}
+        <div className="relative rounded-[2.5rem] bg-gradient-to-br from-emerald-950 via-emerald-900 to-teal-950 text-white p-8 sm:p-16 overflow-hidden shadow-2xl flex flex-col items-center text-center border border-emerald-700/50">
+
+          {/* Subtle Ambient Dots & Gradients */}
+          <div className="absolute inset-0 bg-[radial-gradient(#34d399_1px,transparent_1px)] [background-size:24px_24px] opacity-10 pointer-events-none" />
+          <div className="absolute top-0 right-0 -mt-16 -mr-16 w-80 h-80 rounded-full bg-emerald-400/25 blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-0 -mb-16 -ml-16 w-80 h-80 rounded-full bg-[#e1fcad]/20 blur-3xl pointer-events-none" />
+
+          <div className="relative z-10 space-y-6 max-w-3xl flex flex-col items-center">
+            {/* Tag */}
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-900/90 backdrop-blur-md border border-emerald-400/30 text-emerald-200 text-xs font-bold shadow-sm">
+              <HeartHandshake size={15} className="text-[#e1fcad]" />
+              <span>Zero Food Waste Initiative &bull; D.I. Yogyakarta</span>
             </div>
 
-            {/* Organic Blob Photo Container matching cutout shape */}
-            <div className="relative z-10 shrink-0">
-              <div
-                className="w-36 h-44 sm:w-48 sm:h-56 lg:w-52 lg:h-64 overflow-hidden bg-stone-100 border-[5px] sm:border-[6px] border-white shadow-2xl shadow-emerald-950/20 ring-4 ring-[#D1FAE5]"
-                style={{
-                  borderRadius: "42% 58% 70% 30% / 45% 45% 55% 55%",
-                }}
-              >
-                <img
-                  src="/images/recipient_kids.jpg"
-                  alt="Penerima donasi anak-anak tersenyum membawa makanan"
-                  className="w-full h-full object-cover scale-110 object-center"
-                  width={400}
-                  height={450}
-                  loading="lazy"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = "/images/charity-kids.webp";
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* ─── MIDDLE: Headline, Description & Dual CTA Buttons ─── */}
-          <div className="lg:col-span-4 text-center space-y-4 px-2">
-            <span className="text-[10px] font-extrabold text-[#059669] uppercase tracking-[0.2em] px-3.5 py-1 rounded-full bg-[#ECFDF5] border border-[#A7F3D0] inline-block shadow-xs">
-              START NOW
-            </span>
-
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#0F172A] tracking-tight font-heading leading-tight">
-              Your Surplus Food,
-              <br />
-              <span className="text-[#059669]">Their Nutrition</span>
+            {/* Headline */}
+            <h2 className="font-heading font-extrabold text-3xl sm:text-5xl lg:text-6xl text-white tracking-tight leading-[1.1] drop-shadow-sm">
+              Stop Waste.{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#e1fcad] via-emerald-200 to-teal-100">
+                Allocate Nutrition.
+              </span>
             </h2>
 
-            <p className="text-xs sm:text-[13px] text-[#64748B] max-w-xs mx-auto leading-relaxed">
-              Make leftover food a new nutrition reality. NutriShare is here to bridge the gap.
+            {/* Description */}
+            <p className="text-sm sm:text-base text-emerald-100/90 leading-relaxed font-normal max-w-2xl">
+              Join dozens of partner hotels, restaurants, catering services, and social shelters across Yogyakarta. Free of charge, food-safety compliant, and mathematically verified.
             </p>
 
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-2.5 justify-center pt-1">
-              <Link
-                to="/register/donor"
-                className="px-5 py-2.5 bg-[#047857] hover:bg-[#065F46] text-white rounded-full font-bold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-[#047857]/20 transition-all transform hover:-translate-y-0.5"
-              >
-                <span>Register as Donor</span>
-                <ArrowRight size={13} />
+            {/* Action Buttons (21st Signature Pill Style) */}
+            <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
+              <Link to="/register/donor">
+                <Button className="group not-disabled:inset-shadow-none flex cursor-pointer items-center justify-center gap-0 rounded-full border-none bg-transparent px-0 py-3 font-medium shadow-none hover:bg-transparent">
+                  <span className="rounded-full bg-[#e1fcad] px-8 py-3.5 text-emerald-950 text-sm font-extrabold duration-300 ease-in-out group-hover:bg-white group-hover:text-emerald-950 shadow-xl">
+                    Register as Donor
+                  </span>
+                  <div className="relative flex h-fit cursor-pointer items-center overflow-hidden rounded-full bg-[#e1fcad] p-3.5 text-emerald-950 duration-300 ease-in-out group-hover:bg-white group-hover:text-emerald-950 shadow-xl">
+                    <ArrowUpRight className="h-5 w-5 -translate-x-1/2 transition-all duration-300 ease-in-out group-hover:translate-x-10" />
+                    <ArrowUpRight className="absolute h-5 w-5 -translate-x-10 transition-all duration-300 ease-in-out group-hover:-translate-x-1/2" />
+                  </div>
+                </Button>
               </Link>
 
               <Link
                 to="/register/recipient"
-                className="px-5 py-2.5 bg-white border border-[#CBD5E1] hover:bg-[#F8FAFC] text-[#0F172A] rounded-full font-bold text-xs flex items-center justify-center transition-all shadow-xs transform hover:-translate-y-0.5"
+                className="px-7 py-3.5 rounded-full border border-emerald-400/40 bg-emerald-900/60 backdrop-blur-md hover:bg-emerald-800 text-white text-sm font-bold transition-all shadow-xs"
               >
                 Register as Recipient
               </Link>
             </div>
-          </div>
 
-          {/* ─── RIGHT: Food Bento Box + Overlapping Sticky Note & Leaf ─── */}
-          <div className="lg:col-span-4 flex items-center justify-center relative px-2">
-            <div className="relative z-10">
-
-              {/* Overlapping Top-Left Vector Botanical Leaf - Variant Single Gloss */}
-              <div className="absolute -top-6 -left-6 z-30 pointer-events-none">
-                <GlossyLeafDecor variant="single-gloss" className="w-16 h-16 sm:w-20 sm:h-20 opacity-95 -rotate-45" />
+            {/* Guarantees */}
+            <div className="pt-8 border-t border-emerald-800/80 grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs text-emerald-100 w-full max-w-2xl font-medium">
+              <div className="flex items-center justify-center gap-2">
+                <CheckCircle2 size={16} className="text-[#e1fcad] shrink-0" />
+                <span>100% Free Public Platform</span>
               </div>
-
-              {/* Fresh Bento Photo Box */}
-              <div className="w-48 h-48 sm:w-56 sm:h-56 lg:w-60 lg:h-60 rounded-[2rem] overflow-hidden bg-stone-100 border-[5px] sm:border-[6px] border-white shadow-2xl shadow-emerald-950/20 ring-4 ring-[#D1FAE5]">
-                <img
-                  src="/images/fresh-food.webp"
-                  alt="Sajian makanan segar bernutrisi"
-                  className="w-full h-full object-cover scale-105"
-                  width={400}
-                  height={400}
-                  loading="lazy"
-                />
+              <div className="flex items-center justify-center gap-2">
+                <ShieldCheck size={16} className="text-[#e1fcad] shrink-0" />
+                <span>BPOM &amp; HACCP Hygiene Standard</span>
               </div>
-
-              {/* Overlapping Yellow Sticky Note on Bottom-Left of Photo */}
-              <div className="absolute -bottom-4 -left-4 sm:-bottom-5 sm:-left-6 z-30 transform -rotate-6">
-                <div className="bg-[#FEF08A] border border-[#FDE047] px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-2xl shadow-xl shadow-amber-950/10 text-center min-w-[110px] sm:min-w-[130px] relative">
-                  {/* Sticky tape accent at top */}
-                  <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-8 h-3.5 bg-white/70 rounded-xs border border-black/5" />
-
-                  <p className="font-handwriting font-bold text-lg sm:text-2xl text-[#78350F] leading-none">
-                    Good Food
-                  </p>
-                  <p className="font-handwriting font-bold text-lg sm:text-2xl text-[#854D0E] leading-none mt-1">
-                    Good People
-                  </p>
-                  <div className="flex justify-center mt-1.5">
-                    <Heart size={14} className="text-[#854D0E] fill-current" />
-                  </div>
-                </div>
+              <div className="flex items-center justify-center gap-2">
+                <CheckCircle2 size={16} className="text-[#e1fcad] shrink-0" />
+                <span>Objective TOPSIS Allocation</span>
               </div>
-
             </div>
+
           </div>
 
         </div>
+
       </div>
     </section>
   );

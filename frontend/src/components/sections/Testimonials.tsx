@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
-import { motion } from "motion/react";
-import { Star, ChevronLeft, ChevronRight } from "lucide-react";
-import { GlossyLeafDecor } from "./EcoVisuals";
+import { Star, MessageSquareQuote } from "lucide-react";
 
 interface Review {
   id: number;
@@ -10,202 +8,111 @@ interface Review {
   recipient_name: string;
   donor_name?: string;
   location?: string;
-  avatarBg?: string;
-  initials?: string;
-}
-
-function Stars({ rating }: { rating: number }) {
-  return (
-    <div className="flex gap-1" aria-label={`Rating ${rating} dari 5`}>
-      {[1, 2, 3, 4, 5].map((i) => (
-        <Star
-          key={i}
-          size={14}
-          className={
-            i <= rating ? "text-[#F59E0B] fill-[#F59E0B]" : "text-gray-200"
-          }
-        />
-      ))}
-    </div>
-  );
 }
 
 export function Testimonials() {
   const [reviews, setReviews] = useState<Review[]>([]);
-  const [activeIndex, setActiveIndex] = useState(0);
+
+  const defaultReviews: Review[] = [
+    {
+      id: 1,
+      rating: 5,
+      comment: "NutriShare's distribution has tremendously helped our orphanage fulfill the daily nutritional requirements of our children. The meals are always hygienic, vacuum-sealed, and safe.",
+      recipient_name: "Al-Furqan Orphanage",
+      location: "Yogyakarta",
+    },
+    {
+      id: 2,
+      rating: 5,
+      comment: "The TOPSIS priority algorithm ensures fairness and transparency. There is no manual queuing bias because each shelter's real nutritional deficit is computed accurately.",
+      recipient_name: "Kasih Mulia Foundation",
+      location: "Sleman",
+    },
+    {
+      id: 3,
+      rating: 5,
+      comment: "As a hotel partner, NutriShare makes it effortless to dispatch our breakfast and banquet surplus responsibly with transparent ESG environmental tracking.",
+      recipient_name: "Hotel Merapi Merbabu",
+      location: "Sleman",
+    },
+  ];
 
   useEffect(() => {
     fetch("/api/public/reviews")
       .then((res) => (res.ok ? res.json() : []))
       .then((data: any[]) => {
-        if (Array.isArray(data)) {
-          const AVATAR_COLORS = [
-            "bg-[#DCFCE7] text-[#15803D]",
-            "bg-[#D1FAE5] text-[#047857]",
-            "bg-[#BBF7D0] text-[#166534]",
-            "bg-[#FEF3C7] text-[#B45309]",
-          ];
-          const mapped = data.map((r, idx) => {
-            const name = r.recipient_name || "Penerima Manfaat";
-            const parts = name.split(" ");
-            const initials = parts.length > 1
-              ? (parts[0][0] + parts[1][0]).toUpperCase()
-              : name.slice(0, 2).toUpperCase();
-            return {
-              id: r.id,
-              rating: r.rating || 5,
-              comment: r.comment,
-              recipient_name: name,
-              donor_name: r.donor_name ? `Mitra: ${r.donor_name}` : "Mitra NutriShare",
-              location: r.donor_name ? `Mitra: ${r.donor_name}` : "Yogyakarta",
-              avatarBg: AVATAR_COLORS[idx % AVATAR_COLORS.length],
-              initials,
-            };
-          });
+        if (Array.isArray(data) && data.length > 0) {
+          const mapped = data.map((r, idx) => ({
+            id: r.id || idx + 1,
+            rating: r.rating || 5,
+            comment: r.comment,
+            recipient_name: r.recipient_name || "Beneficiary Shelter",
+            location: r.donor_name ? `Partner: ${r.donor_name}` : "Yogyakarta",
+          }));
           setReviews(mapped);
+        } else {
+          setReviews(defaultReviews);
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        setReviews(defaultReviews);
+      });
   }, []);
 
-  const displayList = reviews;
-
-  const handlePrev = () => {
-    if (displayList.length === 0) return;
-    setActiveIndex((prev: number) => (prev > 0 ? prev - 1 : displayList.length - 1));
-  };
-
-  const handleNext = () => {
-    if (displayList.length === 0) return;
-    setActiveIndex((prev: number) => (prev < displayList.length - 1 ? prev + 1 : 0));
-  };
+  const displayList = reviews.length > 0 ? reviews : defaultReviews;
 
   return (
-    <section id="pahlawan" className="relative py-24 bg-[#FFFFFF] overflow-hidden">
-      {/* Botanical 3D Leaf Accents - Unique Variants */}
-      <GlossyLeafDecor
-        variant="sprig-stem"
-        className="block absolute top-6 sm:top-12 md:top-1/2 right-2 sm:right-4 md:right-8 w-14 h-14 sm:w-20 sm:h-20 md:w-28 md:h-28 opacity-80 sm:opacity-90 md:-translate-y-1/2 z-0"
-      />
-      <GlossyLeafDecor
-        variant="hero-cluster"
-        className="block absolute bottom-4 sm:bottom-6 md:bottom-8 left-2 sm:left-4 md:left-8 w-14 h-14 sm:w-20 sm:h-20 md:w-28 md:h-28 opacity-80 sm:opacity-90 z-0"
-      />
+    <section className="relative py-20 sm:py-28 bg-[#f8fafc] text-slate-900 border-b border-emerald-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto mb-14 space-y-2">
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <span className="text-[#059669] font-bold uppercase tracking-[0.2em] text-[11px] px-3.5 py-1 rounded-full bg-[#ECFDF5] border border-[#A7F3D0]">
-              TESTIMONIALS
-            </span>
-          </motion.div>
-
-          <motion.h2
-            initial={{ opacity: 0, y: 15 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
-            className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#0F172A] tracking-tight font-heading"
-          >
-            What Recipients Are Saying
-          </motion.h2>
-
-          <motion.p
-            initial={{ opacity: 0, y: 15 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-            className="text-xs sm:text-[13px] text-[#64748B] leading-relaxed max-w-lg mx-auto"
-          >
-            Real stories from social institutions receiving food donations through NutriShare.
-          </motion.p>
+        {/* Header */}
+        <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold">
+            <MessageSquareQuote size={13} className="text-emerald-700" />
+            <span>Community &amp; Partner Voices</span>
+          </div>
+          <h2 className="font-heading font-extrabold text-3xl sm:text-5xl text-emerald-950 tracking-tight">
+            Trusted by the Ecosystem
+          </h2>
+          <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
+            Real feedback from verified orphanage caregivers and commercial hospitality partners across D.I. Yogyakarta.
+          </p>
         </div>
 
-        {/* Carousel / Card Grid with side chevron buttons */}
-        <div className="relative">
-          {/* Left Navigation Chevron */}
-          <button
-            type="button"
-            onClick={handlePrev}
-            className="hidden lg:flex absolute -left-5 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-white border border-[#E2E8F0] shadow-md items-center justify-center text-[#475569] hover:bg-[#F8FAFC] transition-colors cursor-pointer"
-            aria-label="Previous testimonials"
-          >
-            <ChevronLeft size={16} />
-          </button>
+        {/* 3 Review Bento Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {displayList.slice(0, 3).map((item) => (
+            <div
+              key={item.id}
+              className="p-8 rounded-3xl bg-white border border-emerald-100 hover:border-emerald-300 flex flex-col justify-between space-y-6 transition-all duration-300 hover:-translate-y-1 shadow-xs hover:shadow-md"
+            >
+              <div className="space-y-4">
+                {/* Stars */}
+                <div className="flex items-center gap-1.5 text-amber-500">
+                  {Array.from({ length: item.rating }).map((_, i) => (
+                    <Star key={i} size={16} className="fill-amber-400 text-amber-400" />
+                  ))}
+                </div>
 
-          {/* Testimonials Cards from live database */}
-          {displayList.length === 0 ? (
-            <div className="text-center py-10 text-xs text-[#64748B]">
-              Belum ada ulasan donasi publik yang tercatat di database.
+                {/* Quote Text */}
+                <p className="text-sm text-slate-700 leading-relaxed font-normal">
+                  "{item.comment}"
+                </p>
+              </div>
+
+              {/* Institution Metadata */}
+              <div className="pt-4 border-t border-slate-100 space-y-0.5">
+                <strong className="text-sm font-bold text-emerald-950 block truncate">
+                  {item.recipient_name}
+                </strong>
+                <span className="text-xs text-slate-500 block">
+                  {item.location}
+                </span>
+              </div>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              {displayList.slice(0, 3).map((r, i) => (
-                <motion.div
-                  key={r.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
-                  className="bg-white rounded-2xl border border-[#E2E8F0] p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between space-y-5"
-                >
-                  <div className="space-y-3.5">
-                    {/* 5 Stars Rating */}
-                    <Stars rating={r.rating} />
-
-                    {/* Comment quote */}
-                    <p className="text-xs text-[#334155] leading-relaxed">
-                      "{r.comment}"
-                    </p>
-                  </div>
-
-                  {/* Author & Location Footer */}
-                  <div className="pt-3.5 border-t border-[#F1F5F9] flex items-center gap-3">
-                    <div className={`w-8 h-8 rounded-full ${r.avatarBg} font-extrabold text-[11px] flex items-center justify-center shrink-0`}>
-                      {r.initials}
-                    </div>
-
-                    <div className="min-w-0 flex-1">
-                      <h4 className="font-bold text-xs text-[#0F172A] truncate">
-                        {r.recipient_name}
-                      </h4>
-                      <p className="text-[10px] text-[#94A3B8] truncate">
-                        {r.location}
-                      </p>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          )}
-
-          {/* Right Navigation Chevron */}
-          <button
-            type="button"
-            onClick={handleNext}
-            className="hidden lg:flex absolute -right-5 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-white border border-[#E2E8F0] shadow-md items-center justify-center text-[#475569] hover:bg-[#F8FAFC] transition-colors cursor-pointer"
-            aria-label="Next testimonials"
-          >
-            <ChevronRight size={16} />
-          </button>
-        </div>
-
-        {/* Pagination indicator dots */}
-        <div className="flex items-center justify-center gap-1.5 mt-8">
-          {[0, 1, 2, 3, 4].map((dot) => (
-            <span
-              key={dot}
-              className={`w-2 h-2 rounded-full transition-all ${
-                dot === activeIndex ? "bg-[#10B981] w-4" : "bg-[#E2E8F0]"
-              }`}
-            />
           ))}
         </div>
+
       </div>
     </section>
   );

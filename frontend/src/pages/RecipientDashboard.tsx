@@ -194,22 +194,27 @@ export function RecipientDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7] text-[#1E293B] font-sans flex flex-col antialiased">
+    <div className="min-h-screen bg-[#f4fbf7] bg-emerald-grid text-emerald-950 font-sans flex flex-col antialiased">
       <SEO
         title="Portal Penerima Manfaat | NutriShare"
         description="Portal distribusi pangan bernutrisi untuk panti asuhan dan lembaga sosial di Yogyakarta."
       />
 
       {/* Top Navbar */}
-      <header className="sticky top-0 z-30 bg-white/95 border-b border-[#E2E8F0] backdrop-blur-md">
+      <header className="sticky top-0 z-30 bg-white/90 border-b border-emerald-100 backdrop-blur-xl shadow-xs">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Link to="/" className="flex items-center gap-2">
-              <img src="/images/logoterbaru.webp" alt="NutriShare" className="h-8 w-auto" />
+            <Link to="/" className="flex items-center gap-2.5">
+              <img
+                src="/images/logoterbaru.webp"
+                alt="NutriShare Logo"
+                className="w-8 h-8 object-contain"
+              />
+              <span className="font-heading font-extrabold text-base text-emerald-950 tracking-tight">NutriShare</span>
             </Link>
-            <div className="h-4 w-px bg-[#E2E8F0] hidden sm:block" />
-            <div className="hidden sm:flex items-center gap-1.5 text-xs font-semibold text-[#475569]">
-              <Heart size={14} className="text-[#2D7A4F]" />
+            <div className="h-4 w-px bg-emerald-200 hidden sm:block" />
+            <div className="hidden sm:flex items-center gap-1.5 text-xs font-bold text-emerald-800">
+              <Heart size={14} className="text-emerald-600" />
               <span>{profile?.institution_name || user.name}</span>
             </div>
           </div>
@@ -219,10 +224,10 @@ export function RecipientDashboard() {
             <button
               type="button"
               onClick={handleEmergencyToggle}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs ${
                 emergency === "approved" || emergency === "pending"
-                  ? "bg-[#DC2626] text-white"
-                  : "bg-[#FEF2F2] hover:bg-[#FEE2E2] text-[#B91C1C] border border-[#FECACA]"
+                  ? "bg-red-600 text-white"
+                  : "bg-red-50 hover:bg-red-100 text-red-700 border border-red-200"
               }`}
               title="Aktifkan status darurat jika stok pangan panti menipis"
             >
@@ -232,16 +237,16 @@ export function RecipientDashboard() {
 
             <Link
               to="/peta"
-              className="px-3 py-1.5 rounded-lg border border-[#E2E8F0] hover:bg-[#F8FAFC] text-xs font-semibold text-[#334155] transition-colors flex items-center gap-1.5"
+              className="px-3 py-1.5 rounded-xl border border-emerald-200 hover:bg-emerald-50 text-xs font-bold text-emerald-900 transition-colors flex items-center gap-1.5"
             >
-              <Compass size={14} className="text-[#2D7A4F]" />
+              <Compass size={14} className="text-emerald-700" />
               <span className="hidden sm:inline">Peta Sebaran</span>
             </Link>
 
             <button
               type="button"
               onClick={() => setShowProfile(true)}
-              className="p-1.5 rounded-lg border border-[#E2E8F0] hover:bg-[#F8FAFC] text-[#475569] transition-colors cursor-pointer"
+              className="p-2 rounded-xl border border-emerald-200 hover:bg-emerald-50 text-emerald-800 transition-colors cursor-pointer"
               title="Profil & Pengaturan AKG"
             >
               <User size={15} />
@@ -253,7 +258,7 @@ export function RecipientDashboard() {
                 await logout();
                 nav("/");
               }}
-              className="p-1.5 rounded-lg border border-[#E2E8F0] hover:bg-[#FEF2F2] hover:text-[#DC2626] text-[#64748B] transition-colors cursor-pointer"
+              className="p-2 rounded-xl border border-red-200 hover:bg-red-50 text-red-600 transition-colors cursor-pointer"
               title="Keluar"
             >
               <LogOut size={15} />
@@ -265,24 +270,24 @@ export function RecipientDashboard() {
       {/* Main Flow Container */}
       <main className="max-w-6xl mx-auto w-full px-4 sm:px-6 py-8 space-y-8 flex-1">
         {/* Aesthetic Ambient Hero Banner */}
-        <section className="relative rounded-3xl overflow-hidden bg-[#162A21] text-white p-6 sm:p-8 border border-[#2D7A4F]/30 shadow-md">
+        <section className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-emerald-950 via-emerald-900 to-teal-950 text-white p-6 sm:p-8 border border-emerald-700/50 shadow-lg">
           <div className="absolute inset-0 z-0 opacity-25">
             <img
               src="/images/charity-kids.webp"
               alt=""
               className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#0F1E17] via-[#162A21]/90 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-emerald-950 via-emerald-900/90 to-transparent" />
           </div>
 
           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="space-y-2 max-w-xl">
               <div className="flex items-center gap-2">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#A7F3D0] bg-white/10 px-3 py-1 rounded-full border border-white/15 backdrop-blur-md">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#e1fcad] bg-emerald-500/20 px-3 py-1 rounded-full border border-emerald-400/30 backdrop-blur-md">
                   Portal Lembaga Penerima
                 </span>
                 {emergency !== "none" && (
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-white bg-[#DC2626] px-2.5 py-1 rounded-full animate-pulse shadow-sm">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-white bg-red-600 px-2.5 py-1 rounded-full animate-pulse shadow-sm">
                     Status Darurat Aktif
                   </span>
                 )}
@@ -290,17 +295,17 @@ export function RecipientDashboard() {
               <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight font-heading text-white">
                 {profile?.institution_name || user.name}
               </h1>
-              <p className="text-xs sm:text-sm text-white/80 leading-relaxed">
+              <p className="text-xs sm:text-sm text-emerald-100/80 leading-relaxed">
                 Prioritas alokasi pangan surplus bernutrisi berbasis algoritma Hybrid Entropy-TOPSIS. Pantau asupan gizi harian dan ajukan klaim donasi secara transparan.
               </p>
             </div>
 
-            <div className="flex items-center gap-3 self-start md:self-auto bg-white/10 backdrop-blur-md p-3.5 rounded-2xl border border-white/15">
-              <div className="w-10 h-10 rounded-xl bg-[#2D7A4F] flex items-center justify-center text-white">
+            <div className="flex items-center gap-3 self-start md:self-auto bg-emerald-950/60 backdrop-blur-md p-3.5 rounded-2xl border border-emerald-500/30">
+              <div className="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center text-white shadow-xs">
                 <Heart size={20} />
               </div>
               <div>
-                <span className="text-[10px] text-white/70 uppercase font-bold tracking-wider block">Kebutuhan Binaan</span>
+                <span className="text-[10px] text-emerald-300 uppercase font-bold tracking-wider block">Kebutuhan Binaan</span>
                 <span className="text-sm font-extrabold text-white">{profile?.resident_count ?? 0} Orang</span>
               </div>
             </div>
@@ -312,112 +317,110 @@ export function RecipientDashboard() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#2D7A4F] bg-[#ECFDF5] px-2.5 py-0.5 rounded border border-[#A7F3D0]">
-                  Target Gizi Harian Kemenkes RI
+                <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded border border-emerald-200">
+                  RDA Nutrition Target (Ministry of Health)
                 </span>
-                <span className="text-xs text-[#64748B]">
-                  ({akg?.resident_count || profile?.resident_count || 35} Warga Binaan)
+                <span className="text-xs text-slate-500">
+                  ({akg?.resident_count || profile?.resident_count || 35} Resident Beneficiaries)
                 </span>
               </div>
-              <h2 className="text-lg sm:text-xl font-bold text-[#0F172A]">
-                Pemenuhan Angka Kecukupan Gizi (AKG) Hari Ini
+              <h2 className="text-lg sm:text-xl font-extrabold text-emerald-950 font-heading">
+                Daily Recommended Dietary Allowance (RDA) Fulfillment
               </h2>
-              <p className="text-[11px] text-[#64748B]">
-                Reset otomatis setiap 00:00 WIB • Murni menghitung makanan yang diserahterimakan pada hari berjalan.
+              <p className="text-[11px] text-slate-500">
+                Automated daily reset at 00:00 UTC+7 &bull; Real-time tracking of received meals.
               </p>
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-[11px] font-bold text-[#047857] bg-[#ECFDF5] border border-[#A7F3D0] px-3 py-1.5 rounded-xl flex items-center gap-1.5">
-                <ShieldCheck size={14} className="text-[#059669]" />
-                Target Kumulatif Lembaga
+              <span className="text-[11px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+                <ShieldCheck size={14} className="text-emerald-700" />
+                Cumulative Institution Target
               </span>
             </div>
           </div>
 
           {/* 4 Nutrient Progress Bars */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 pt-1">
-            <div className="p-3.5 bg-[#F8FAF8] rounded-xl border border-[#E2E8F0] space-y-2">
-              <div className="flex justify-between items-center text-xs font-semibold text-[#475569]">
-                <span>Energi Kalori</span>
-                <span className="font-bold text-[#0F172A]">{caloriePct}%</span>
+            <div className="p-4 bg-[#f4fbf7] rounded-2xl border border-emerald-100 space-y-2">
+              <div className="flex justify-between items-center text-xs font-semibold text-slate-600">
+                <span>Calorie Energy</span>
+                <span className="font-bold text-slate-900">{caloriePct}%</span>
               </div>
-              <div className="w-full bg-[#E2E8F0] h-2 rounded-full overflow-hidden">
+              <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
                 <div
-                  className="bg-[#D97706] h-full rounded-full transition-all duration-500"
+                  className="bg-amber-500 h-full rounded-full transition-all duration-500"
                   style={{ width: `${caloriePct}%` }}
                 />
               </div>
-              <div className="text-[10px] text-[#64748B] flex justify-between font-mono">
-                <span>Masuk: {todayCalories.toLocaleString("id-ID")} kkal</span>
-                <span>Target: {targetCalories.toLocaleString("id-ID")}</span>
+              <div className="text-[10px] text-slate-500 flex justify-between font-mono">
+                <span>In: {todayCalories.toLocaleString("en-US")} kcal</span>
+                <span>Target: {targetCalories.toLocaleString("en-US")}</span>
               </div>
             </div>
 
-            <div className="p-3.5 bg-[#F8FAF8] rounded-xl border border-[#E2E8F0] space-y-2">
-              <div className="flex justify-between items-center text-xs font-semibold text-[#475569]">
+            <div className="p-4 bg-[#f4fbf7] rounded-2xl border border-emerald-100 space-y-2">
+              <div className="flex justify-between items-center text-xs font-semibold text-slate-600">
                 <span>Protein (C1)</span>
-                <span className="font-bold text-[#047857]">{proteinPct}%</span>
+                <span className="font-bold text-emerald-800">{proteinPct}%</span>
               </div>
-              <div className="w-full bg-[#E2E8F0] h-2 rounded-full overflow-hidden">
+              <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
                 <div
-                  className="bg-[#10B981] h-full rounded-full transition-all duration-500"
+                  className="bg-emerald-600 h-full rounded-full transition-all duration-500"
                   style={{ width: `${proteinPct}%` }}
                 />
               </div>
-              <div className="text-[10px] text-[#64748B] flex justify-between font-mono">
-                <span>Masuk: {todayProtein.toLocaleString("id-ID")}g</span>
-                <span>Target: {targetProtein.toLocaleString("id-ID")}g</span>
+              <div className="text-[10px] text-slate-500 flex justify-between font-mono">
+                <span>In: {todayProtein.toLocaleString("en-US")}g</span>
+                <span>Target: {targetProtein.toLocaleString("en-US")}g</span>
               </div>
             </div>
 
-            <div className="p-3.5 bg-[#F8FAF8] rounded-xl border border-[#E2E8F0] space-y-2">
-              <div className="flex justify-between items-center text-xs font-semibold text-[#475569]">
-                <span>Zat Besi (Fe)</span>
-                <span className="font-bold text-[#0284C7]">{ironPct}%</span>
+            <div className="p-4 bg-[#f4fbf7] rounded-2xl border border-emerald-100 space-y-2">
+              <div className="flex justify-between items-center text-xs font-semibold text-slate-600">
+                <span>Iron (Fe)</span>
+                <span className="font-bold text-sky-700">{ironPct}%</span>
               </div>
-              <div className="w-full bg-[#E2E8F0] h-2 rounded-full overflow-hidden">
+              <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
                 <div
-                  className="bg-[#0284C7] h-full rounded-full transition-all duration-500"
+                  className="bg-sky-600 h-full rounded-full transition-all duration-500"
                   style={{ width: `${ironPct}%` }}
                 />
               </div>
-              <div className="text-[10px] text-[#64748B] flex justify-between font-mono">
-                <span>Masuk: {todayIron.toLocaleString("id-ID")}mg</span>
-                <span>Target: {targetIron.toLocaleString("id-ID")}mg</span>
+              <div className="text-[10px] text-slate-500 flex justify-between font-mono">
+                <span>In: {todayIron.toLocaleString("en-US")}mg</span>
+                <span>Target: {targetIron.toLocaleString("en-US")}mg</span>
               </div>
             </div>
 
-            <div className="p-3.5 bg-[#F8FAF8] rounded-xl border border-[#E2E8F0] space-y-2">
-              <div className="flex justify-between items-center text-xs font-semibold text-[#475569]">
+            <div className="p-4 bg-[#f4fbf7] rounded-2xl border border-emerald-100 space-y-2">
+              <div className="flex justify-between items-center text-xs font-semibold text-slate-600">
                 <span>Vitamin C</span>
-                <span className="font-bold text-[#7C3AED]">{vitCPct}%</span>
+                <span className="font-bold text-purple-700">{vitCPct}%</span>
               </div>
-              <div className="w-full bg-[#E2E8F0] h-2 rounded-full overflow-hidden">
+              <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
                 <div
-                  className="bg-[#7C3AED] h-full rounded-full transition-all duration-500"
+                  className="bg-purple-600 h-full rounded-full transition-all duration-500"
                   style={{ width: `${vitCPct}%` }}
                 />
               </div>
-              <div className="text-[10px] text-[#64748B] flex justify-between font-mono">
-                <span>Masuk: {todayVitC.toLocaleString("id-ID")}mg</span>
-                <span>Target: {targetVitC.toLocaleString("id-ID")}mg</span>
+              <div className="text-[10px] text-slate-500 flex justify-between font-mono">
+                <span>In: {todayVitC.toLocaleString("en-US")}mg</span>
+                <span>Target: {targetVitC.toLocaleString("en-US")}mg</span>
               </div>
             </div>
           </div>
         </section>
 
-
-
         {/* Active In-Transit Alert Strip */}
         {transitDonations.length > 0 && (
-          <section className="bg-white rounded-xl border border-[#93C5FD] p-4 shadow-xs space-y-3">
-            <div className="flex items-center justify-between border-b border-[#DBEAFE] pb-2">
-              <span className="text-xs font-bold text-[#1E40AF] flex items-center gap-1.5">
-                <Truck size={15} className="text-[#2563EB]" />
-                {transitDonations.length} Makanan Siap Dijemput di Lokasi Donatur
+          <section className="bg-white rounded-2xl border border-sky-200 p-5 shadow-xs space-y-3">
+            <div className="flex items-center justify-between border-b border-sky-100 pb-2">
+              <span className="text-xs font-bold text-sky-900 flex items-center gap-1.5">
+                <Truck size={15} className="text-sky-600" />
+                {transitDonations.length} Active Pickup Ready at Donor Location
               </span>
-              <span className="text-[11px] text-[#3B82F6] font-medium">Ikuti rute jalan penjemputan</span>
+              <span className="text-[11px] text-sky-600 font-medium">Follow navigation route</span>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -426,41 +429,41 @@ export function RecipientDashboard() {
                 return (
                   <div
                     key={item.id}
-                    className="bg-[#EFF6FF] rounded-lg border border-[#BFDBFE] p-3 flex flex-col justify-between gap-2.5"
+                    className="bg-sky-50/50 rounded-xl border border-sky-200/80 p-3.5 flex flex-col justify-between gap-2.5"
                   >
                     <div>
                       <div className="flex items-start justify-between">
-                        <h4 className="font-bold text-xs text-[#1E3A8A]">{item.food_name}</h4>
-                        <span className="text-[10px] font-semibold text-[#1E40AF] bg-white px-2 py-0.5 rounded border border-[#93C5FD]">
-                          Siap Diambil
+                        <h4 className="font-bold text-xs text-sky-950">{item.food_name}</h4>
+                        <span className="text-[10px] font-bold text-sky-800 bg-white px-2 py-0.5 rounded border border-sky-200">
+                          Ready for Pickup
                         </span>
                       </div>
-                      <p className="text-xs text-[#1E40AF] mt-0.5">
-                        {item.portion_count} Porsi • Donatur: <strong>{item.donor_name || "Mitra Donatur"}</strong>
+                      <p className="text-xs text-sky-900 mt-0.5">
+                        {item.portion_count} Portions &bull; Donor: <strong>{item.donor_name || "Food Partner"}</strong>
                       </p>
-                      <p className="text-[11px] text-[#60A5FA] mt-0.5 truncate flex items-center gap-1">
+                      <p className="text-[11px] text-sky-700/80 mt-0.5 truncate flex items-center gap-1">
                         <MapPin size={11} /> {item.donor_address || "Yogyakarta"}
                       </p>
                     </div>
 
-                    <div className="flex items-center gap-2 pt-1 border-t border-[#BFDBFE]/60">
+                    <div className="flex items-center gap-2 pt-1 border-t border-sky-200/60">
                       <button
                         type="button"
                         onClick={() => setTrackingData(item)}
-                        className="flex-1 py-1.5 rounded-md bg-[#2D7A4F] hover:bg-[#235F3D] text-white font-medium text-[11px] flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                        className="flex-1 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-[11px] flex items-center justify-center gap-1 transition-colors cursor-pointer shadow-xs"
                       >
-                        <Compass size={12} /> Buka Peta Rute Jalan 3D
+                        <Compass size={12} /> Open 3D Road Navigation
                       </button>
                       {phoneClean && (
                         <a
                           href={`https://wa.me/${phoneClean}?text=${encodeURIComponent(
-                            `Halo pihak ${item.donor_name || "donatur"}, kami dari ${profile?.institution_name || "penerima"} mengonfirmasi bahwa kami sedang dalam perjalanan untuk mengambil donasi "${item.food_name}".`,
+                            `Hello ${item.donor_name || "Donor"}, we from ${profile?.institution_name || "Recipient"} are confirming we are on the way to pick up the donation "${item.food_name}".`,
                           )}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="px-2.5 py-1.5 rounded-md bg-white border border-[#CBD5E1] text-[#334155] hover:bg-[#F8FAFC] font-medium text-[11px] flex items-center gap-1 transition-colors"
+                          className="px-2.5 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 font-medium text-[11px] flex items-center gap-1 transition-colors"
                         >
-                          <MessageCircle size={12} className="text-[#2D7A4F]" /> WhatsApp
+                          <MessageCircle size={12} className="text-emerald-700" /> WhatsApp
                         </a>
                       )}
                     </div>
@@ -473,48 +476,48 @@ export function RecipientDashboard() {
 
         {/* Tab Navigation & Content */}
         <section className="space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#E2E8F0] pb-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-emerald-100 pb-2">
             <div className="flex items-center gap-1 text-xs font-semibold">
               <button
                 type="button"
                 onClick={() => setActiveTab("explore")}
-                className={`px-3 py-1.5 rounded-md transition-colors cursor-pointer ${
-                  activeTab === "explore" ? "bg-[#2D7A4F] text-white" : "text-[#64748B] hover:text-[#0F172A]"
+                className={`px-3.5 py-1.5 rounded-xl font-bold transition-all cursor-pointer ${
+                  activeTab === "explore" ? "bg-emerald-600 text-white shadow-xs" : "text-slate-600 hover:text-emerald-950 hover:bg-emerald-50"
                 }`}
               >
-                Jelajah Surplus ({activeDonations.length})
+                Explore Surplus ({activeDonations.length})
               </button>
 
               <button
                 type="button"
                 onClick={() => setActiveTab("active")}
-                className={`px-3 py-1.5 rounded-md transition-colors cursor-pointer ${
-                  activeTab === "active" ? "bg-[#2D7A4F] text-white" : "text-[#64748B] hover:text-[#0F172A]"
+                className={`px-3.5 py-1.5 rounded-xl font-bold transition-all cursor-pointer ${
+                  activeTab === "active" ? "bg-emerald-600 text-white shadow-xs" : "text-slate-600 hover:text-emerald-950 hover:bg-emerald-50"
                 }`}
               >
-                Penjemputan Aktif ({transitDonations.length})
+                Active Pickups ({transitDonations.length})
               </button>
 
               <button
                 type="button"
                 onClick={() => setActiveTab("history")}
-                className={`px-3 py-1.5 rounded-md transition-colors cursor-pointer ${
-                  activeTab === "history" ? "bg-[#2D7A4F] text-white" : "text-[#64748B] hover:text-[#0F172A]"
+                className={`px-3.5 py-1.5 rounded-xl font-bold transition-all cursor-pointer ${
+                  activeTab === "history" ? "bg-emerald-600 text-white shadow-xs" : "text-slate-600 hover:text-emerald-950 hover:bg-emerald-50"
                 }`}
               >
-                Riwayat Diterima ({completedList.length})
+                Received History ({completedList.length})
               </button>
             </div>
 
             {activeTab === "explore" && (
               <div className="relative w-full sm:w-64">
-                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#94A3B8]" />
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Cari makanan, resto, hotel..."
-                  className="w-full pl-8 pr-3 py-1.5 bg-white border border-[#E2E8F0] rounded-lg text-xs text-[#1E293B] focus:outline-none focus:border-[#2D7A4F]"
+                  placeholder="Search food, restaurants, hotels..."
+                  className="w-full pl-8 pr-3 py-1.5 bg-white border border-emerald-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 shadow-xs"
                 />
               </div>
             )}
@@ -526,12 +529,12 @@ export function RecipientDashboard() {
               {/* Category Filter Pills */}
               <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
                 {[
-                  { id: "all", label: "Semua Kategori" },
-                  { id: "makanan_berat", label: "Makanan Berat" },
-                  { id: "lauk_protein", label: "Lauk & Protein" },
-                  { id: "sayur", label: "Sayur & Buah" },
-                  { id: "snack", label: "Snack & Pastry" },
-                  { id: "minuman", label: "Minuman" },
+                  { id: "all", label: "All Categories" },
+                  { id: "makanan_berat", label: "Meals" },
+                  { id: "lauk_protein", label: "Protein" },
+                  { id: "sayur", label: "Produce & Fruit" },
+                  { id: "snack", label: "Bakery & Snacks" },
+                  { id: "minuman", label: "Beverages" },
                 ].map((c) => (
                   <button
                     key={c.id}
