@@ -560,49 +560,56 @@ export function RecipientDashboard() {
                     return (
                       <div
                         key={item.id}
-                        className={`bg-white rounded-xl border overflow-hidden shadow-2xs flex flex-col justify-between transition-colors ${
+                        className={`bg-white rounded-xl border p-4.5 shadow-2xs flex flex-col justify-between gap-3.5 transition-colors ${
                           isRank1 ? "border-[#2D7A4F] ring-1 ring-[#2D7A4F]" : "border-[#E2E8F0] hover:border-[#CBD5E1]"
                         }`}
                       >
-                        <div className="relative h-36 bg-[#F1F5F9] overflow-hidden">
-                          <img
-                            src={item.photo_url || "/images/fresh-food.webp"}
-                            alt={item.food_name}
-                            className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                        <div className="space-y-3">
+                          {/* Header row: rank/badge + score & ID */}
+                          <div className="flex items-center justify-between gap-2">
+                            {isRank1 ? (
+                              <span className="bg-[#2D7A4F] text-white text-[10px] font-bold px-2.5 py-1 rounded shadow-xs border border-emerald-400/30 flex items-center gap-1">
+                                <Star size={11} className="fill-current text-amber-300" /> Rekomendasi TOPSIS #1
+                              </span>
+                            ) : (
+                              <span className="text-[11px] text-[#64748B] font-mono bg-[#F1F5F9] px-2 py-0.5 rounded border border-[#E2E8F0]">
+                                #{item.id}
+                              </span>
+                            )}
 
-                          {isRank1 && (
-                            <div className="absolute top-2.5 left-2.5 bg-[#2D7A4F] text-white text-[10px] font-bold px-2.5 py-1 rounded-md shadow-sm border border-emerald-400/30 flex items-center gap-1">
-                              <Star size={11} className="fill-current text-amber-300" /> Rekomendasi TOPSIS #1
-                            </div>
-                          )}
-
-                          <div className="absolute bottom-2 left-2.5 right-2.5 flex items-center justify-between text-white text-[11px] font-semibold">
-                            <span className="bg-black/40 backdrop-blur-md px-2 py-0.5 rounded text-white">{item.portion_count} Porsi</span>
-                            <span className="flex items-center gap-1 bg-black/40 backdrop-blur-md px-2 py-0.5 rounded text-[#A7F3D0]">
-                              <Clock size={11} /> Sisa {item.hours_valid || 6} Jam
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="p-4 space-y-3 flex-1 flex flex-col justify-between">
-                          <div className="space-y-1.5">
-                            <div className="flex items-start justify-between gap-2">
-                              <h3 className="font-bold text-sm text-[#0F172A] leading-snug">
-                                {item.food_name}
-                              </h3>
+                            <div className="flex items-center gap-1.5">
                               {item.ci_score != null && (
                                 <span className="text-[10px] font-mono font-bold bg-[#ECFDF5] text-[#047857] border border-[#A7F3D0] px-1.5 py-0.5 rounded shrink-0">
                                   V = {Number(item.ci_score).toFixed(3)}
                                 </span>
                               )}
+                              {isRank1 && (
+                                <span className="text-[11px] text-[#64748B] font-mono bg-[#F1F5F9] px-2 py-0.5 rounded border border-[#E2E8F0]">
+                                  #{item.id}
+                                </span>
+                              )}
                             </div>
+                          </div>
+
+                          {/* Food title & Donor & Portion Badges */}
+                          <div className="space-y-2">
+                            <h3 className="font-bold text-base text-[#0F172A] leading-snug">
+                              {item.food_name}
+                            </h3>
 
                             <p className="text-xs text-[#64748B] flex items-center gap-1">
                               <MapPin size={11} className="text-[#94A3B8] shrink-0" />
-                              <span className="truncate">{item.donor_name || "Mitra Donatur"}</span>
+                              <span className="truncate font-medium">{item.donor_name || "Mitra Donatur"}</span>
                             </p>
+
+                            <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-[#334155] pt-1">
+                              <span className="px-2 py-0.5 bg-[#F1F5F9] text-[#334155] rounded border border-[#E2E8F0]">
+                                {item.portion_count} Porsi
+                              </span>
+                              <span className="flex items-center gap-1 px-2 py-0.5 bg-[#ECFDF5] text-[#065F46] rounded border border-[#A7F3D0]">
+                                <Clock size={11} /> Sisa {item.hours_valid || 6} Jam
+                              </span>
+                            </div>
 
                             <div className="flex flex-wrap gap-1.5 pt-1 text-[11px] font-medium">
                               {item.protein_per_portion ? (
@@ -617,34 +624,35 @@ export function RecipientDashboard() {
                               ) : null}
                             </div>
                           </div>
+                        </div>
 
-                          <div className="pt-2.5 border-t border-[#F1F5F9] flex items-center gap-2">
-                            <button
-                              type="button"
-                              onClick={() => openTopsisAudit(item)}
-                              className="px-2.5 py-2 rounded-lg border border-[#E2E8F0] hover:bg-[#F8FAFC] text-xs font-semibold text-[#0F172A] flex items-center gap-1 transition-colors cursor-pointer"
-                              title="Audit Perankingan TOPSIS & Simulasi AKG"
-                            >
-                              <BarChart3 size={13} className="text-[#2D7A4F]" />
-                              <span>Audit TOPSIS</span>
-                            </button>
+                        {/* Actions */}
+                        <div className="pt-2.5 border-t border-[#F1F5F9] flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => openTopsisAudit(item)}
+                            className="px-2.5 py-2 rounded-lg border border-[#E2E8F0] hover:bg-[#F8FAFC] text-xs font-semibold text-[#0F172A] flex items-center gap-1 transition-colors cursor-pointer"
+                            title="Audit Perankingan TOPSIS & Simulasi AKG"
+                          >
+                            <BarChart3 size={13} className="text-[#2D7A4F]" />
+                            <span>Audit TOPSIS</span>
+                          </button>
 
-                            <button
-                              type="button"
-                              onClick={() => handleClaim(item.id)}
-                              disabled={isClaimingThis}
-                              className="flex-1 py-2 rounded-lg bg-[#2D7A4F] hover:bg-[#235F3D] text-white font-semibold text-xs shadow-xs transition-colors flex items-center justify-center gap-1 cursor-pointer disabled:opacity-50"
-                            >
-                              {isClaimingThis ? (
-                                <span>Mengonfirmasi...</span>
-                              ) : (
-                                <>
-                                  <Heart size={13} className="fill-white" />
-                                  <span>Ambil Donasi</span>
-                                </>
-                              )}
-                            </button>
-                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleClaim(item.id)}
+                            disabled={isClaimingThis}
+                            className="flex-1 py-2 rounded-lg bg-[#2D7A4F] hover:bg-[#235F3D] text-white font-semibold text-xs shadow-xs transition-colors flex items-center justify-center gap-1 cursor-pointer disabled:opacity-50"
+                          >
+                            {isClaimingThis ? (
+                              <span>Mengonfirmasi...</span>
+                            ) : (
+                              <>
+                                <Heart size={13} className="fill-white" />
+                                <span>Ambil Donasi</span>
+                              </>
+                            )}
+                          </button>
                         </div>
                       </div>
                     );

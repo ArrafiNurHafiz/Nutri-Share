@@ -523,41 +523,40 @@ export function DonorDashboard() {
                         key={item.id}
                         className="bg-white rounded-xl border border-[#E2E8F0] p-4.5 shadow-2xs flex flex-col justify-between gap-3.5 hover:border-[#CBD5E1] transition-colors"
                       >
-                        <div
-                          className="relative h-32 bg-[#F1F5F9] overflow-hidden rounded-t-xl"
-                        >
-                          <img
-                            src={item.photo_url || "/images/fresh-food.webp"}
-                            alt={item.food_name}
-                            className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                          <div className="absolute top-2.5 left-2.5">
-                            <span className={`text-[10px] font-bold px-2.5 py-1 rounded shadow-xs ${
-                              isDone
-                                ? "bg-[#ECFDF5] text-[#065F46] border border-[#A7F3D0]"
-                                : isClaimed
-                                ? "bg-[#EFF6FF] text-[#1E40AF] border border-[#BFDBFE]"
-                                : "bg-white/90 text-[#475569] border border-[#E2E8F0]"
-                            }`}>
+                        <div className="space-y-3">
+                          {/* Top Status & Meta Header */}
+                          <div className="flex items-center justify-between gap-2">
+                            <span
+                              className={`text-[10px] font-bold px-2.5 py-1 rounded shadow-xs ${
+                                isDone
+                                  ? "bg-[#ECFDF5] text-[#065F46] border border-[#A7F3D0]"
+                                  : isClaimed
+                                  ? "bg-[#EFF6FF] text-[#1E40AF] border border-[#BFDBFE]"
+                                  : "bg-[#F8FAFC] text-[#475569] border border-[#E2E8F0]"
+                              }`}
+                            >
                               {isDone ? "Selesai Diserahkan" : isClaimed ? "Sedang Dijemput" : "Tersedia & Menunggu Klaim"}
                             </span>
+                            <span className="text-[11px] text-[#64748B] font-mono bg-[#F1F5F9] px-2 py-0.5 rounded border border-[#E2E8F0]">
+                              #{item.id}
+                            </span>
                           </div>
-                          <div className="absolute top-2.5 right-2.5 text-[11px] text-white/90 font-mono bg-black/40 px-2 py-0.5 rounded">
-                            #{item.id}
-                          </div>
-                          <div className="absolute bottom-2 left-2.5 right-2.5 flex items-center justify-between text-white text-[11px] font-semibold">
-                            <span className="bg-black/40 px-2 py-0.5 rounded">{item.portion_count} Porsi</span>
-                            <span className="bg-black/40 px-2 py-0.5 rounded text-[#A7F3D0]">Sisa {item.hours_valid || 6} Jam</span>
-                          </div>
-                        </div>
 
-                        <div className="p-4 space-y-2 flex-1 flex flex-col justify-between">
+                          {/* Food Name & Badges */}
                           <div>
-                            <h3 className="font-bold text-sm text-[#0F172A]">{item.food_name}</h3>
+                            <h3 className="font-bold text-base text-[#0F172A]">{item.food_name}</h3>
+                            <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-[#334155] mt-2">
+                              <span className="px-2 py-0.5 bg-[#F1F5F9] text-[#334155] rounded border border-[#E2E8F0]">
+                                {item.portion_count} Porsi
+                              </span>
+                              <span className="px-2 py-0.5 bg-[#ECFDF5] text-[#065F46] rounded border border-[#A7F3D0]">
+                                Sisa {item.hours_valid || 6} Jam
+                              </span>
+                            </div>
+
                             <div className="flex items-center gap-2 text-[11px] text-[#475569] font-medium mt-2">
-                              <span className="px-2 py-0.5 bg-[#F1F5F9] rounded">Protein: {item.protein_per_portion || 0}g</span>
-                              <span className="px-2 py-0.5 bg-[#F1F5F9] rounded">Kalori: {item.calorie_per_portion || 0} kkal</span>
+                              <span className="px-2 py-0.5 bg-[#F8FAFC] rounded border border-[#E2E8F0]/70">Protein: {item.protein_per_portion || 0}g</span>
+                              <span className="px-2 py-0.5 bg-[#F8FAFC] rounded border border-[#E2E8F0]/70">Kalori: {item.calorie_per_portion || 0} kkal</span>
                             </div>
 
                             {item.recipient_name && (
@@ -567,6 +566,7 @@ export function DonorDashboard() {
                               </p>
                             )}
                           </div>
+                        </div>
 
                           <div className="pt-2.5 border-t border-[#F1F5F9] flex flex-wrap items-center justify-between gap-2">
                             <div className="flex items-center gap-1.5 flex-1 min-w-[140px]">
@@ -621,8 +621,7 @@ export function DonorDashboard() {
                             </div>
                           </div>
                         </div>
-                      </div>
-                    );
+                      );
                   })}
                 </div>
               )}
