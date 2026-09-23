@@ -13,7 +13,14 @@ export default function InstallPrompt() {
     updateServiceWorker,
   } = usePWA();
   const [isInstalling, setIsInstalling] = useState(false);
-  const [dismissed, setDismissed] = useState(false);
+  const [dismissed, setDismissed] = useState(() => {
+    return sessionStorage.getItem("nutrishare_pwa_dismissed") === "true";
+  });
+
+  const handleDismiss = () => {
+    sessionStorage.setItem("nutrishare_pwa_dismissed", "true");
+    setDismissed(true);
+  };
 
   if (isInstalled || dismissed) {
     return null;
@@ -22,7 +29,7 @@ export default function InstallPrompt() {
   // Show update notification
   if (swUpdateAvailable) {
     return (
-      <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-80 bg-blue-600 text-white p-4 rounded-lg shadow-lg z-50">
+      <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-80 bg-blue-600 text-white p-4 rounded-lg shadow-lg z-40">
         <p className="font-medium mb-2">Update Available!</p>
         <p className="text-sm mb-3">
           A new version of NutriShare is available.
@@ -35,7 +42,7 @@ export default function InstallPrompt() {
             Update
           </button>
           <button
-            onClick={() => setDismissed(true)}
+            onClick={handleDismiss}
             className="px-3 py-2 text-blue-100 hover:text-white"
           >
             Later
@@ -57,7 +64,7 @@ export default function InstallPrompt() {
   };
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-80 bg-emerald-600 text-white p-4 rounded-lg shadow-lg z-50">
+    <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-80 bg-emerald-600 text-white p-4 rounded-lg shadow-lg z-40">
       <p className="font-medium mb-2">Install NutriShare</p>
       <p className="text-sm mb-3">
         Install the app for faster access and donation notifications.
@@ -71,7 +78,7 @@ export default function InstallPrompt() {
           {isInstalling ? "Installing..." : "Install"}
         </button>
         <button
-          onClick={() => setDismissed(true)}
+          onClick={handleDismiss}
           className="px-3 py-2 text-emerald-100 hover:text-white"
         >
           Later

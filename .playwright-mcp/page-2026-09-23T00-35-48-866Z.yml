@@ -1,0 +1,9 @@
+- generic [ref=f4e2]:
+  - status [ref=f4e18]: Logged in successfully!
+  - generic [ref=f4e19]: Memuat halaman....
+  - generic [ref=f4e29]:
+    - paragraph [ref=f4e30]: Install NutriShare
+    - paragraph [ref=f4e31]: Install the app for faster access and donation notifications.
+    - generic [ref=f4e32]:
+      - button "Install" [ref=f4e33]
+      - button "Later" [ref=f4e34]

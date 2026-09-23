@@ -665,7 +665,7 @@ export function DonorDashboard() {
 
       {/* Pop-up Donation Form */}
       {showModal && (
-        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+        <div className="fixed inset-0 z-[1000] bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
           <div className="bg-white rounded-2xl w-full max-w-lg shadow-xl border border-[#E2E8F0] overflow-hidden my-auto">
             <div className="p-4 border-b border-[#E2E8F0] flex items-center justify-between">
               <h3 className="font-bold text-sm text-[#0F172A]">Bagikan Surplus Makanan</h3>

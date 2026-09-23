@@ -107,7 +107,7 @@ export function TOPSISModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div className="fixed inset-0 z-[1000] bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 15 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -144,7 +144,7 @@ export function TOPSISModal({
             <div className="flex items-center justify-between">
               <span className="font-bold text-emerald-900 text-sm flex items-center gap-1.5">
                 <Sparkles size={16} className="text-amber-500" />
-                <span>Skor Kedekatan Relatif Solusi Ideal ($V_i$): <strong>{myScore?.ci_score ? Number(myScore.ci_score).toFixed(4) : "0.9412"}</strong></span>
+                <span>Skor Kedekatan Relatif Solusi Ideal (Vᵢ): <strong>{myScore?.ci_score ? Number(myScore.ci_score).toFixed(4) : "0.9412"}</strong></span>
               </span>
               <span className={`px-3 py-1 rounded-full text-white font-bold text-xs shadow-xs ${
                 isTopRank ? "bg-emerald-600" : "bg-slate-700"

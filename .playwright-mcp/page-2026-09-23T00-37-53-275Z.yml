@@ -1,0 +1,75 @@
+- generic [ref=f5e2]:
+  - generic [ref=f5e35]:
+    - banner [ref=f5e36]:
+      - generic [ref=f5e37]:
+        - generic [ref=f5e38]:
+          - generic [ref=f5e39]:
+            - generic [ref=f5e40]:
+              - link "NutriShare NutriShare" [ref=f5e41] [cursor=pointer]:
+                - /url: /
+                - img "NutriShare" [ref=f5e42]
+                - generic [ref=f5e43]: NutriShare
+              - generic [ref=f5e44]: Command Center
+            - paragraph [ref=f5e45]: Platform pusat orkestrasi surplus pangan, penentuan prioritas gizi Hybrid TOPSIS, dan verifikasi mitra.
+          - generic [ref=f5e46]:
+            - generic [ref=f5e47]: Realtime Synced
+            - link "Peta Sebaran" [ref=f5e50] [cursor=pointer]:
+              - /url: /peta
+            - button "Refresh Data" [ref=f5e55] [cursor=pointer]
+            - button "Admin" [ref=f5e61] [cursor=pointer]
+            - button "Keluar" [ref=f5e66] [cursor=pointer]
+        - generic [ref=f5e70]:
+          - button "Overview & Metrik" [ref=f5e71] [cursor=pointer]
+          - button "Verifikasi & Klaim" [ref=f5e77] [cursor=pointer]
+          - button "Data Mitra & Penerima" [active] [ref=f5e81] [cursor=pointer]
+          - button "Log Aktivitas" [ref=f5e87] [cursor=pointer]
+    - main [ref=f5e91]:
+      - textbox "Cari data mitra donatur, panti asuhan penerima, donasi, atau klaim..." [ref=f5e96]
+      - generic [ref=f5e116]:
+        - generic [ref=f5e117]:
+          - heading "Daftar Mitra Donatur (1)" [level=3] [ref=f5e119]
+          - table [ref=f5e121]:
+            - rowgroup [ref=f5e122]:
+              - row [ref=f5e123]:
+                - columnheader "Nama Bisnis" [ref=f5e124] [cursor=pointer]
+                - columnheader "Tipe" [ref=f5e127]
+                - columnheader "Email & Kontak" [ref=f5e128]
+                - columnheader "Total Donasi" [ref=f5e129] [cursor=pointer]
+                - columnheader "Status" [ref=f5e133] [cursor=pointer]
+                - columnheader "Aksi" [ref=f5e137]
+            - rowgroup [ref=f5e138]:
+              - row [ref=f5e139]:
+                - cell "Hotel Merapi Merbabu" [ref=f5e140]
+                - cell "hotel" [ref=f5e141]
+                - cell "arrafinur2@gmail.com • 0274-8881111" [ref=f5e142]
+                - cell "47 Porsi" [ref=f5e143]
+                - cell "verified" [ref=f5e144]
+                - cell [ref=f5e145]:
+                  - button "Hapus Akun" [ref=f5e146] [cursor=pointer]
+        - generic [ref=f5e150]:
+          - heading "Daftar Lembaga Penerima (1)" [level=3] [ref=f5e152]
+          - table [ref=f5e154]:
+            - rowgroup [ref=f5e155]:
+              - row [ref=f5e156]:
+                - columnheader "Nama Lembaga" [ref=f5e157] [cursor=pointer]
+                - columnheader "Tipe" [ref=f5e160]
+                - columnheader "Binaan" [ref=f5e161]
+                - columnheader "Skor Urgensi" [ref=f5e162] [cursor=pointer]
+                - columnheader "Darurat" [ref=f5e166] [cursor=pointer]
+                - columnheader "Aksi" [ref=f5e170]
+            - rowgroup [ref=f5e171]:
+              - row [ref=f5e172]:
+                - cell "Panti Asuhan Al-Furqon" [ref=f5e173]
+                - cell "panti asuhan" [ref=f5e174]
+                - cell "35 Orang" [ref=f5e175]
+                - cell "Tingkat 3" [ref=f5e176]
+                - cell [ref=f5e177]:
+                  - button "Aktif (Prioritas)" [ref=f5e178] [cursor=pointer]
+                - cell [ref=f5e179]:
+                  - button "Hapus Akun" [ref=f5e180] [cursor=pointer]
+  - generic [ref=f5e29]:
+    - paragraph [ref=f5e30]: Install NutriShare
+    - paragraph [ref=f5e31]: Install the app for faster access and donation notifications.
+    - generic [ref=f5e32]:
+      - button "Install" [ref=f5e33]
+      - button "Later" [ref=f5e34]

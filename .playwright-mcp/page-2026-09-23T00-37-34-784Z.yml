@@ -1,0 +1,42 @@
+- generic [ref=f5e2]:
+  - generic [ref=f5e35]:
+    - banner [ref=f5e36]:
+      - generic [ref=f5e37]:
+        - generic [ref=f5e38]:
+          - generic [ref=f5e39]:
+            - generic [ref=f5e40]:
+              - link "NutriShare NutriShare" [ref=f5e41] [cursor=pointer]:
+                - /url: /
+                - img "NutriShare" [ref=f5e42]
+                - generic [ref=f5e43]: NutriShare
+              - generic [ref=f5e44]: Command Center
+            - paragraph [ref=f5e45]: Platform pusat orkestrasi surplus pangan, penentuan prioritas gizi Hybrid TOPSIS, dan verifikasi mitra.
+          - generic [ref=f5e46]:
+            - generic [ref=f5e47]: Realtime Synced
+            - link "Peta Sebaran" [ref=f5e50] [cursor=pointer]:
+              - /url: /peta
+            - button "Refresh Data" [ref=f5e55] [cursor=pointer]
+            - button "Admin" [ref=f5e61] [cursor=pointer]
+            - button "Keluar" [ref=f5e66] [cursor=pointer]
+        - generic [ref=f5e70]:
+          - button "Overview & Metrik" [ref=f5e71] [cursor=pointer]
+          - button "Verifikasi & Klaim" [active] [ref=f5e77] [cursor=pointer]
+          - button "Data Mitra & Penerima" [ref=f5e81] [cursor=pointer]
+          - button "Log Aktivitas" [ref=f5e87] [cursor=pointer]
+    - main [ref=f5e91]:
+      - textbox "Cari data mitra donatur, panti asuhan penerima, donasi, atau klaim..." [ref=f5e96]
+      - generic [ref=f5e97]:
+        - generic [ref=f5e98]:
+          - generic [ref=f5e100]:
+            - heading "Persetujuan Klaim Donasi (0)" [level=3] [ref=f5e101]
+            - paragraph [ref=f5e106]: Klaim dari panti asuhan/lembaga yang menunggu verifikasi admin sebelum proses penjemputan.
+          - generic [ref=f5e107]: Tidak ada antrean klaim yang tertunda. Semua klaim telah diproses.
+        - generic [ref=f5e108]:
+          - heading "Verifikasi Pendaftaran Mitra & Lembaga (0)" [level=3] [ref=f5e110]
+          - generic [ref=f5e115]: Semua akun mitra donatur dan penerima manfaat telah terverifikasi.
+  - generic [ref=f5e29]:
+    - paragraph [ref=f5e30]: Install NutriShare
+    - paragraph [ref=f5e31]: Install the app for faster access and donation notifications.
+    - generic [ref=f5e32]:
+      - button "Install" [ref=f5e33]
+      - button "Later" [ref=f5e34]

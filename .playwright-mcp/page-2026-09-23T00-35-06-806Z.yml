@@ -1,0 +1,137 @@
+- generic [ref=f3e35]:
+  - banner [ref=f3e36]:
+    - generic [ref=f3e37]:
+      - generic [ref=f3e38]:
+        - link [ref=f3e39] [cursor=pointer]:
+          - /url: /
+          - img "NutriShare" [ref=f3e40]
+        - generic [ref=f3e42]: Hotel Merapi Merbabu
+      - generic [ref=f3e48]:
+        - link "Peta Sebaran" [ref=f3e49] [cursor=pointer]:
+          - /url: /peta
+        - button "Donasikan Makanan" [ref=f3e54] [cursor=pointer]
+        - button "Profil" [ref=f3e57] [cursor=pointer]
+        - button "Keluar" [ref=f3e61] [cursor=pointer]
+  - main [ref=f3e65]:
+    - generic [ref=f3e69]:
+      - generic [ref=f3e70]:
+        - generic [ref=f3e71]:
+          - generic [ref=f3e72]: Portal Mitra Donatur (HoReKa)
+          - generic [ref=f3e73]: Rating 4.8
+        - heading "Hotel Merapi Merbabu" [level=1] [ref=f3e76]
+        - paragraph [ref=f3e77]: Pusat manajemen distribusi surplus pangan hotel, restoran, dan katering Anda secara aman, termonitor, dan tepat sasaran.
+        - generic [ref=f3e78]:
+          - generic [ref=f3e79]: "Pilihan Cepat:"
+          - button "Nasi & Lauk" [ref=f3e80] [cursor=pointer]
+          - button "Roti & Pastry" [ref=f3e81] [cursor=pointer]
+          - button "Buah & Sayur" [ref=f3e82] [cursor=pointer]
+          - button "Lauk Protein" [ref=f3e83] [cursor=pointer]
+      - generic [ref=f3e84]:
+        - generic [ref=f3e85]:
+          - generic [ref=f3e86]: Porsi Selesai
+          - text: "1425"
+        - generic [ref=f3e87]:
+          - generic [ref=f3e88]: Dijemput
+          - text: "0"
+        - generic [ref=f3e89]:
+          - generic [ref=f3e90]: Ulasan
+          - text: "5"
+    - generic [ref=f3e91]:
+      - generic [ref=f3e92]:
+        - generic [ref=f3e93]:
+          - generic [ref=f3e94]:
+            - generic [ref=f3e95]: Transparansi Distribusi Presisi
+            - generic [ref=f3e96]: Berdasarkan Standar AKG Kemenkes RI
+          - heading "Kontribusi Angka Kecukupan Gizi (AKG) & Akurasi TOPSIS" [level=2] [ref=f3e97]
+        - generic [ref=f3e98]: Hybrid Shannon Entropy-TOPSIS
+      - generic [ref=f3e108]:
+        - generic [ref=f3e109]:
+          - generic [ref=f3e110]: Total Protein Disalurkan
+          - generic [ref=f3e115]: 17.7 kg
+          - generic [ref=f3e116]: ~443 Porsi Kebutuhan Protein Anak
+        - generic [ref=f3e117]:
+          - generic [ref=f3e118]: Total Energi Kalori
+          - generic [ref=f3e122]: 346.4 Mkal
+          - generic [ref=f3e123]: Suplai Energi Siap Konsumsi
+        - generic [ref=f3e124]:
+          - generic [ref=f3e125]: Objektivitas Penyaluran
+          - generic [ref=f3e131]: 100%
+          - generic [ref=f3e132]: Bebas Intervensi Manual
+        - generic [ref=f3e133]:
+          - generic [ref=f3e134]: Panti/Yayasan Binaan
+          - generic [ref=f3e138]: 1 Mitra
+          - generic [ref=f3e139]: Penerima Tervalidasi
+    - generic [ref=f3e140]:
+      - generic [ref=f3e141]:
+        - button "Donasi Berjalan (4)" [ref=f3e142] [cursor=pointer]
+        - button "Riwayat Selesai (26)" [ref=f3e143] [cursor=pointer]
+        - button "Ulasan Lembaga (5)" [ref=f3e144] [cursor=pointer]
+      - generic [ref=f3e146]:
+        - generic [ref=f3e147]:
+          - generic [ref=f3e148]:
+            - img "ayam goreng" [ref=f3e149]
+            - generic [ref=f3e151]: Tersedia & Menunggu Klaim
+            - generic [ref=f3e152]: "#459"
+            - generic [ref=f3e153]:
+              - generic [ref=f3e154]: 35 Porsi
+              - generic [ref=f3e155]: Sisa 6 Jam
+          - generic [ref=f3e156]:
+            - generic [ref=f3e157]:
+              - heading "ayam goreng" [level=3] [ref=f3e158]
+              - generic [ref=f3e159]:
+                - generic [ref=f3e160]: "Protein: 28g"
+                - generic [ref=f3e161]: "Kalori: 320 kkal"
+            - generic [ref=f3e162]:
+              - button "Audit TOPSIS & AKG" [ref=f3e164] [cursor=pointer]
+              - generic [ref=f3e168]: Terdaftar TOPSIS
+        - generic [ref=f3e174]:
+          - generic [ref=f3e175]:
+            - img "ayam bakar" [ref=f3e176]
+            - generic [ref=f3e178]: Tersedia & Menunggu Klaim
+            - generic [ref=f3e179]: "#458"
+            - generic [ref=f3e180]:
+              - generic [ref=f3e181]: 35 Porsi
+              - generic [ref=f3e182]: Sisa 6 Jam
+          - generic [ref=f3e183]:
+            - generic [ref=f3e184]:
+              - heading "ayam bakar" [level=3] [ref=f3e185]
+              - generic [ref=f3e186]:
+                - generic [ref=f3e187]: "Protein: 28g"
+                - generic [ref=f3e188]: "Kalori: 320 kkal"
+            - generic [ref=f3e189]:
+              - button "Audit TOPSIS & AKG" [ref=f3e191] [cursor=pointer]
+              - generic [ref=f3e195]: Terdaftar TOPSIS
+        - generic [ref=f3e201]:
+          - generic [ref=f3e202]:
+            - img "Paket Nasi Kotak Rendang Spesial" [ref=f3e203]
+            - generic [ref=f3e205]: Tersedia & Menunggu Klaim
+            - generic [ref=f3e206]: "#456"
+            - generic [ref=f3e207]:
+              - generic [ref=f3e208]: 30 Porsi
+              - generic [ref=f3e209]: Sisa 6 Jam
+          - generic [ref=f3e210]:
+            - generic [ref=f3e211]:
+              - heading "Paket Nasi Kotak Rendang Spesial" [level=3] [ref=f3e212]
+              - generic [ref=f3e213]:
+                - generic [ref=f3e214]: "Protein: 22g"
+                - generic [ref=f3e215]: "Kalori: 490 kkal"
+            - generic [ref=f3e216]:
+              - button "Audit TOPSIS & AKG" [ref=f3e218] [cursor=pointer]
+              - generic [ref=f3e222]: Terdaftar TOPSIS
+        - generic [ref=f3e228]:
+          - generic [ref=f3e229]:
+            - img "Paket Nasi Kotak Rendang Spesial" [ref=f3e230]
+            - generic [ref=f3e232]: Tersedia & Menunggu Klaim
+            - generic [ref=f3e233]: "#455"
+            - generic [ref=f3e234]:
+              - generic [ref=f3e235]: 30 Porsi
+              - generic [ref=f3e236]: Sisa 6 Jam
+          - generic [ref=f3e237]:
+            - generic [ref=f3e238]:
+              - heading "Paket Nasi Kotak Rendang Spesial" [level=3] [ref=f3e239]
+              - generic [ref=f3e240]:
+                - generic [ref=f3e241]: "Protein: 22g"
+                - generic [ref=f3e242]: "Kalori: 490 kkal"
+            - generic [ref=f3e243]:
+              - button "Audit TOPSIS & AKG" [ref=f3e245] [cursor=pointer]
+              - generic [ref=f3e249]: Terdaftar TOPSIS

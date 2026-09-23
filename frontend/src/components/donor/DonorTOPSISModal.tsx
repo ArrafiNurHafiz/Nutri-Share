@@ -88,7 +88,7 @@ export function DonorTOPSISModal({ donation, topsisData = [], onClose }: Props) 
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div className="fixed inset-0 z-[1000] bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
       <motion.div
         initial={{ opacity: 0, scale: 0.96, y: 15 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -209,7 +209,7 @@ export function DonorTOPSISModal({ donation, topsisData = [], onClose }: Props) 
                 </div>
               </div>
               <span className="text-[10px] font-bold text-[#2563EB] bg-[#EFF6FF] border border-[#BFDBFE] px-2.5 py-0.5 rounded-full self-start sm:self-auto">
-                Koefisien Kedekatan ($V_i$)
+                Koefisien Kedekatan (Vᵢ)
               </span>
             </div>
 
@@ -228,9 +228,8 @@ export function DonorTOPSISModal({ donation, topsisData = [], onClose }: Props) 
                       maintainAspectRatio: false,
                       scales: {
                         r: {
-                          beginAtZero: true,
-                          max: 10,
-                          grid: { color: "#e2e8f0" },
+                          suggestedMin: 0,
+                          suggestedMax: 100,
                           ticks: { display: false },
                           pointLabels: {
                             font: { size: 9, weight: "bold" },
@@ -238,92 +237,79 @@ export function DonorTOPSISModal({ donation, topsisData = [], onClose }: Props) 
                           },
                         },
                       },
-                      plugins: { legend: { display: false } },
+                      plugins: {
+                        legend: { display: false },
+                      },
                     }}
                   />
                 </div>
               </div>
 
-              {/* 5 Entropy Criteria Weights */}
-              <div className="md:col-span-7 space-y-2">
-                <div className="bg-[#F0FDF4] p-2.5 rounded-xl border border-[#BBF7D0] text-[10px] space-y-1.5">
-                  <div className="flex items-center justify-between text-[#065F46] font-bold">
-                    <span>5 Kriteria Hybrid Shannon Entropy:</span>
-                    <span className="text-[9px] bg-white px-1.5 py-0.5 rounded">Objektif & Bebas Bias</span>
+              {/* Shannon Entropy Objective Weights */}
+              <div className="md:col-span-7 flex flex-col justify-between gap-3">
+                <div className="p-3 bg-[#ECFDF5] rounded-2xl border border-[#A7F3D0]/60 space-y-2">
+                  <div className="flex items-center justify-between text-[11px] font-bold text-[#065F46]">
+                    <span className="flex items-center gap-1">
+                      <Scale size={13} /> 5 Kriteria Hybrid Shannon Entropy:
+                    </span>
+                    <span className="text-[9px] bg-white px-2 py-0.5 rounded-full border border-[#A7F3D0] text-[#047857]">
+                      Objektif & Bebas Bias
+                    </span>
                   </div>
-                  <div className="grid grid-cols-5 gap-1 text-center font-bold text-[9px]">
-                    <div className="bg-white p-1 rounded border border-[#DCFCE7]">
-                      <span className="text-[#64748B] block text-[8px]">C1: Gizi</span>
-                      <span className="text-[#059669]">25%</span>
+                  <div className="grid grid-cols-5 gap-1 text-center">
+                    <div className="p-1.5 bg-white rounded-lg border border-[#A7F3D0]/50">
+                      <div className="text-[8px] text-[#64748B]">C1: Gizi</div>
+                      <div className="font-bold text-[10px] text-[#047857]">25%</div>
                     </div>
-                    <div className="bg-white p-1 rounded border border-[#DCFCE7]">
-                      <span className="text-[#64748B] block text-[8px]">C2: Urgensi</span>
-                      <span className="text-[#059669]">25%</span>
+                    <div className="p-1.5 bg-white rounded-lg border border-[#A7F3D0]/50">
+                      <div className="text-[8px] text-[#64748B]">C2: Urgensi</div>
+                      <div className="font-bold text-[10px] text-[#047857]">25%</div>
                     </div>
-                    <div className="bg-white p-1 rounded border border-[#DCFCE7]">
-                      <span className="text-[#64748B] block text-[8px]">C3: Waktu</span>
-                      <span className="text-[#059669]">15%</span>
+                    <div className="p-1.5 bg-white rounded-lg border border-[#A7F3D0]/50">
+                      <div className="text-[8px] text-[#64748B]">C3: Waktu</div>
+                      <div className="font-bold text-[10px] text-[#047857]">15%</div>
                     </div>
-                    <div className="bg-white p-1 rounded border border-[#DCFCE7]">
-                      <span className="text-[#64748B] block text-[8px]">C4: Jarak</span>
-                      <span className="text-[#059669]">20%</span>
+                    <div className="p-1.5 bg-white rounded-lg border border-[#A7F3D0]/50">
+                      <div className="text-[8px] text-[#64748B]">C4: Jarak</div>
+                      <div className="font-bold text-[10px] text-[#047857]">20%</div>
                     </div>
-                    <div className="bg-white p-1 rounded border border-[#DCFCE7]">
-                      <span className="text-[#64748B] block text-[8px]">C5: Keadilan</span>
-                      <span className="text-[#059669]">15%</span>
+                    <div className="p-1.5 bg-white rounded-lg border border-[#A7F3D0]/50">
+                      <div className="text-[8px] text-[#64748B]">C5: Keadilan</div>
+                      <div className="font-bold text-[10px] text-[#047857]">15%</div>
                     </div>
                   </div>
                 </div>
 
-                {/* Ranked List */}
-                <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1">
-                  {rankings.length === 0 ? (
-                    <div className="p-4 bg-[#F8FAFC] rounded-xl border border-[#E2E8F0] text-center text-[#64748B] text-[11px]">
-                      Sedang menghitung matriks TOPSIS untuk panti terverifikasi...
-                    </div>
-                  ) : (
-                    rankings.map((r: any, idx: number) => {
-                      const rankNum = r.rank_position || idx + 1;
-                      const score = Number(r.ci_score || 0.9 - idx * 0.08).toFixed(3);
-                      const isRank1 = rankNum === 1;
-
-                      return (
-                        <div
-                          key={r.id || idx}
-                          className={`p-2 rounded-xl border flex items-center justify-between gap-2 text-[11px] ${
-                            isRank1
-                              ? "bg-[#ECFDF5] border-[#A7F3D0] font-bold"
-                              : "bg-white border-[#E2E8F0]"
-                          }`}
-                        >
-                          <div className="flex items-center gap-2 min-w-0">
-                            <span
-                              className={`w-5 h-5 rounded-full text-[10px] font-bold flex items-center justify-center shrink-0 ${
-                                isRank1 ? "bg-[#10B981] text-white" : "bg-slate-100 text-slate-600"
-                              }`}
-                            >
-                              {rankNum}
-                            </span>
-                            <div className="min-w-0 truncate">
-                              <span className="text-[#0F172A] truncate block">
-                                {r.institution_name || `Lembaga Penerima #${r.recipient_id}`}
-                              </span>
-                              <span className="text-[10px] text-[#64748B] font-normal flex items-center gap-1">
-                                <MapPin size={10} className="text-[#10B981]" />
-                                Jarak: {r.raw_c4 ? Number(r.raw_c4).toFixed(1) : "2.4"} km
-                              </span>
-                            </div>
+                {/* Ranked List Preview */}
+                <div className="space-y-1.5">
+                  <div className="text-[10px] font-bold text-[#64748B] uppercase tracking-wider">
+                    Penerima Prioritas Teratas Hasil Rekomendasi:
+                  </div>
+                  {topsisData.slice(0, 2).map((item, idx) => (
+                    <div
+                      key={item.recipient_id || idx}
+                      className="p-2.5 bg-[#F8FAF8] rounded-xl border border-[#E2E8F0] flex items-center justify-between"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="w-5 h-5 rounded-full bg-[#047857] text-white text-[10px] font-black flex items-center justify-center font-mono">
+                          {item.rank_position || idx + 1}
+                        </span>
+                        <div>
+                          <div className="font-bold text-xs text-[#0F172A]">
+                            {item.recipient_name}
                           </div>
-
-                          <div className="text-right shrink-0">
-                            <span className="font-mono text-xs font-bold text-[#047857]">
-                              V = {score}
-                            </span>
+                          <div className="text-[10px] text-[#64748B]">
+                            Jarak: {Number(item.distance_km || 0).toFixed(1)} km
                           </div>
                         </div>
-                      );
-                    })
-                  )}
+                      </div>
+                      <div className="text-right">
+                        <span className="text-xs font-black text-[#047857] font-mono">
+                          V = {Number(item.ci_score || 0).toFixed(3)}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -335,13 +321,13 @@ export function DonorTOPSISModal({ donation, topsisData = [], onClose }: Props) 
               <Info size={14} className="text-[#2563EB]" /> Rumus Matematis yang Diterapkan:
             </span>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 text-[10px] font-mono text-[#334155]">
-              <div>1. Normalisasi: $r_{'{ij}'} = x_{'{ij}'} / \sqrt{'{'}\sum x_{'{ij}'}^2{'}'}$</div>
-              <div>2. Entropi Shannon: $E_j = -k \sum p_{'{ij}'} \ln(p_{'{ij}'})$</div>
-              <div>3. Solusi Ideal: $A^+ = \max(v_{'{ij}'}), A^- = \min(v_{'{ij}'})$</div>
-              <div>4. Skor Preferensi: $V_i = D_i^- / (D_i^+ + D_i^-)$</div>
+              <div>1. Normalisasi: rᵢⱼ = xᵢⱼ / √(∑ xᵢⱼ²)</div>
+              <div>2. Entropi Shannon: Eⱼ = -k ∑ pᵢⱼ ln(pᵢⱼ)</div>
+              <div>3. Solusi Ideal: A⁺ = max(vᵢⱼ), A⁻ = min(vᵢⱼ)</div>
+              <div>4. Skor Preferensi: Vᵢ = Dᵢ⁻ / (Dᵢ⁺ + Dᵢ⁻)</div>
             </div>
             <p className="text-[10px] text-[#64748B] pt-1">
-              Platform NutriShare menjamin 100% transparansi bebas intervensi manual. Donasi makanan Anda langsung dialokasikan ke panti yang memiliki skor $V_i$ tertinggi.
+              Platform NutriShare menjamin 100% transparansi bebas intervensi manual. Donasi makanan Anda langsung dialokasikan ke panti yang memiliki skor Vᵢ tertinggi.
             </p>
           </div>
         </div>

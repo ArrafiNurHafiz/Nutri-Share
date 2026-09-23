@@ -1,0 +1,229 @@
+- generic [ref=f3e2]:
+  - generic [ref=f3e35]:
+    - banner [ref=f3e36]:
+      - generic [ref=f3e37]:
+        - generic [ref=f3e38]:
+          - link [ref=f3e39] [cursor=pointer]:
+            - /url: /
+            - img "NutriShare" [ref=f3e40]
+          - generic [ref=f3e42]: Hotel Merapi Merbabu
+        - generic [ref=f3e48]:
+          - link "Peta Sebaran" [ref=f3e49] [cursor=pointer]:
+            - /url: /peta
+          - button "Donasikan Makanan" [ref=f3e54] [cursor=pointer]
+          - button "Profil" [ref=f3e57] [cursor=pointer]
+          - button "Keluar" [ref=f3e61] [cursor=pointer]
+    - main [ref=f3e65]:
+      - generic [ref=f3e69]:
+        - generic [ref=f3e70]:
+          - generic [ref=f3e71]:
+            - generic [ref=f3e72]: Portal Mitra Donatur (HoReKa)
+            - generic [ref=f3e73]: Rating 4.8
+          - heading "Hotel Merapi Merbabu" [level=1] [ref=f3e76]
+          - paragraph [ref=f3e77]: Pusat manajemen distribusi surplus pangan hotel, restoran, dan katering Anda secara aman, termonitor, dan tepat sasaran.
+          - generic [ref=f3e78]:
+            - generic [ref=f3e79]: "Pilihan Cepat:"
+            - button "Nasi & Lauk" [ref=f3e80] [cursor=pointer]
+            - button "Roti & Pastry" [ref=f3e81] [cursor=pointer]
+            - button "Buah & Sayur" [ref=f3e82] [cursor=pointer]
+            - button "Lauk Protein" [ref=f3e83] [cursor=pointer]
+        - generic [ref=f3e84]:
+          - generic [ref=f3e85]:
+            - generic [ref=f3e86]: Porsi Selesai
+            - text: "1425"
+          - generic [ref=f3e87]:
+            - generic [ref=f3e88]: Dijemput
+            - text: "0"
+          - generic [ref=f3e89]:
+            - generic [ref=f3e90]: Ulasan
+            - text: "5"
+      - generic [ref=f3e91]:
+        - generic [ref=f3e92]:
+          - generic [ref=f3e93]:
+            - generic [ref=f3e94]:
+              - generic [ref=f3e95]: Transparansi Distribusi Presisi
+              - generic [ref=f3e96]: Berdasarkan Standar AKG Kemenkes RI
+            - heading "Kontribusi Angka Kecukupan Gizi (AKG) & Akurasi TOPSIS" [level=2] [ref=f3e97]
+          - generic [ref=f3e98]: Hybrid Shannon Entropy-TOPSIS
+        - generic [ref=f3e108]:
+          - generic [ref=f3e109]:
+            - generic [ref=f3e110]: Total Protein Disalurkan
+            - generic [ref=f3e115]: 17.7 kg
+            - generic [ref=f3e116]: ~443 Porsi Kebutuhan Protein Anak
+          - generic [ref=f3e117]:
+            - generic [ref=f3e118]: Total Energi Kalori
+            - generic [ref=f3e122]: 346.4 Mkal
+            - generic [ref=f3e123]: Suplai Energi Siap Konsumsi
+          - generic [ref=f3e124]:
+            - generic [ref=f3e125]: Objektivitas Penyaluran
+            - generic [ref=f3e131]: 100%
+            - generic [ref=f3e132]: Bebas Intervensi Manual
+          - generic [ref=f3e133]:
+            - generic [ref=f3e134]: Panti/Yayasan Binaan
+            - generic [ref=f3e138]: 1 Mitra
+            - generic [ref=f3e139]: Penerima Tervalidasi
+      - generic [ref=f3e140]:
+        - generic [ref=f3e141]:
+          - button "Donasi Berjalan (4)" [ref=f3e142] [cursor=pointer]
+          - button "Riwayat Selesai (26)" [ref=f3e143] [cursor=pointer]
+          - button "Ulasan Lembaga (5)" [ref=f3e144] [cursor=pointer]
+        - generic [ref=f3e146]:
+          - generic [ref=f3e147]:
+            - generic [ref=f3e148]:
+              - img "ayam goreng" [ref=f3e149]
+              - generic [ref=f3e151]: Tersedia & Menunggu Klaim
+              - generic [ref=f3e152]: "#459"
+              - generic [ref=f3e153]:
+                - generic [ref=f3e154]: 35 Porsi
+                - generic [ref=f3e155]: Sisa 6 Jam
+            - generic [ref=f3e156]:
+              - generic [ref=f3e157]:
+                - heading "ayam goreng" [level=3] [ref=f3e158]
+                - generic [ref=f3e159]:
+                  - generic [ref=f3e160]: "Protein: 28g"
+                  - generic [ref=f3e161]: "Kalori: 320 kkal"
+              - generic [ref=f3e162]:
+                - button "Audit TOPSIS & AKG" [active] [ref=f3e164] [cursor=pointer]
+                - generic [ref=f3e168]: Terdaftar TOPSIS
+          - generic [ref=f3e174]:
+            - generic [ref=f3e175]:
+              - img "ayam bakar" [ref=f3e176]
+              - generic [ref=f3e178]: Tersedia & Menunggu Klaim
+              - generic [ref=f3e179]: "#458"
+              - generic [ref=f3e180]:
+                - generic [ref=f3e181]: 35 Porsi
+                - generic [ref=f3e182]: Sisa 6 Jam
+            - generic [ref=f3e183]:
+              - generic [ref=f3e184]:
+                - heading "ayam bakar" [level=3] [ref=f3e185]
+                - generic [ref=f3e186]:
+                  - generic [ref=f3e187]: "Protein: 28g"
+                  - generic [ref=f3e188]: "Kalori: 320 kkal"
+              - generic [ref=f3e189]:
+                - button "Audit TOPSIS & AKG" [ref=f3e191] [cursor=pointer]
+                - generic [ref=f3e195]: Terdaftar TOPSIS
+          - generic [ref=f3e201]:
+            - generic [ref=f3e202]:
+              - img "Paket Nasi Kotak Rendang Spesial" [ref=f3e203]
+              - generic [ref=f3e205]: Tersedia & Menunggu Klaim
+              - generic [ref=f3e206]: "#456"
+              - generic [ref=f3e207]:
+                - generic [ref=f3e208]: 30 Porsi
+                - generic [ref=f3e209]: Sisa 6 Jam
+            - generic [ref=f3e210]:
+              - generic [ref=f3e211]:
+                - heading "Paket Nasi Kotak Rendang Spesial" [level=3] [ref=f3e212]
+                - generic [ref=f3e213]:
+                  - generic [ref=f3e214]: "Protein: 22g"
+                  - generic [ref=f3e215]: "Kalori: 490 kkal"
+              - generic [ref=f3e216]:
+                - button "Audit TOPSIS & AKG" [ref=f3e218] [cursor=pointer]
+                - generic [ref=f3e222]: Terdaftar TOPSIS
+          - generic [ref=f3e228]:
+            - generic [ref=f3e229]:
+              - img "Paket Nasi Kotak Rendang Spesial" [ref=f3e230]
+              - generic [ref=f3e232]: Tersedia & Menunggu Klaim
+              - generic [ref=f3e233]: "#455"
+              - generic [ref=f3e234]:
+                - generic [ref=f3e235]: 30 Porsi
+                - generic [ref=f3e236]: Sisa 6 Jam
+            - generic [ref=f3e237]:
+              - generic [ref=f3e238]:
+                - heading "Paket Nasi Kotak Rendang Spesial" [level=3] [ref=f3e239]
+                - generic [ref=f3e240]:
+                  - generic [ref=f3e241]: "Protein: 22g"
+                  - generic [ref=f3e242]: "Kalori: 490 kkal"
+              - generic [ref=f3e243]:
+                - button "Audit TOPSIS & AKG" [ref=f3e245] [cursor=pointer]
+                - generic [ref=f3e249]: Terdaftar TOPSIS
+    - generic [ref=f3e256]:
+      - generic [ref=f3e257]:
+        - generic [ref=f3e258]:
+          - generic [ref=f3e259]: Transparansi Algoritma & Dampak AKG
+          - 'heading "Audit Penyaluran Makanan #459" [level=3] [ref=f3e269]'
+          - paragraph [ref=f3e270]:
+            - text: "Menu:"
+            - strong [ref=f3e271]: ayam goreng
+            - text: • 35 Porsi Siap Santap
+        - button "Tutup modal" [ref=f3e272] [cursor=pointer]
+      - generic [ref=f3e276]:
+        - generic [ref=f3e277]:
+          - generic [ref=f3e278]:
+            - generic [ref=f3e284]:
+              - heading "Kalkulasi Kontribusi Angka Kecukupan Gizi (AKG)" [level=4] [ref=f3e285]
+              - paragraph [ref=f3e286]: Berdasarkan standar Angka Kecukupan Gizi Kemenkes RI
+            - generic [ref=f3e287]: Tervalidasi Gizi
+          - generic [ref=f3e291]:
+            - generic [ref=f3e292]:
+              - generic [ref=f3e293]: Total Protein
+              - generic [ref=f3e294]: 980 g
+              - generic [ref=f3e295]: 28g / porsi
+            - generic [ref=f3e296]:
+              - generic [ref=f3e297]: Total Energi
+              - generic [ref=f3e298]: 11.200 kkal
+              - generic [ref=f3e299]: 320 kkal / porsi
+            - generic [ref=f3e300]:
+              - generic [ref=f3e301]: Zat Besi (Fe)
+              - generic [ref=f3e302]: 87.5 mg
+              - generic [ref=f3e303]: Cegah Anemia
+            - generic [ref=f3e304]:
+              - generic [ref=f3e305]: Vitamin C
+              - generic [ref=f3e306]: 0.0 mg
+              - generic [ref=f3e307]: Imunitas Binaan
+          - generic [ref=f3e312]:
+            - text: Donasi makanan Anda setara dengan
+            - strong [ref=f3e313]: 24.5 porsi kebutuhan protein harian penuh
+            - text: anak panti asuhan, membantu mencegah defisit nutrisi & stunting secara terukur.
+        - generic [ref=f3e314]:
+          - generic [ref=f3e315]:
+            - generic [ref=f3e322]:
+              - heading "Peringkat Prioritas Algoritma Hybrid TOPSIS" [level=4] [ref=f3e323]
+              - paragraph [ref=f3e324]: Urutan panti & yayasan penerima terhitung otomatis berdasarkan entropi objektif
+            - generic [ref=f3e325]: Koefisien Kedekatan ($V_i$)
+          - generic [ref=f3e326]:
+            - generic [ref=f3e327]: Dimensi Pencocokan Solusi Ideal
+            - generic [ref=f3e331]:
+              - generic [ref=f3e332]:
+                - generic [ref=f3e333]:
+                  - generic [ref=f3e334]: "5 Kriteria Hybrid Shannon Entropy:"
+                  - generic [ref=f3e335]: Objektif & Bebas Bias
+                - generic [ref=f3e336]:
+                  - generic [ref=f3e337]:
+                    - generic [ref=f3e338]: "C1: Gizi"
+                    - text: 25%
+                  - generic [ref=f3e339]:
+                    - generic [ref=f3e340]: "C2: Urgensi"
+                    - text: 25%
+                  - generic [ref=f3e341]:
+                    - generic [ref=f3e342]: "C3: Waktu"
+                    - text: 15%
+                  - generic [ref=f3e343]:
+                    - generic [ref=f3e344]: "C4: Jarak"
+                    - text: 20%
+                  - generic [ref=f3e345]:
+                    - generic [ref=f3e346]: "C5: Keadilan"
+                    - text: 15%
+              - generic [ref=f3e348]:
+                - generic [ref=f3e349]:
+                  - generic [ref=f3e350]: "1"
+                  - generic [ref=f3e351]:
+                    - generic [ref=f3e352]: Panti Asuhan Al-Furqon
+                    - generic [ref=f3e353]: "Jarak: 28.8 km"
+                - generic [ref=f3e357]: V = 0.150
+        - generic [ref=f3e359]:
+          - generic [ref=f3e360]: "Rumus Matematis yang Diterapkan:"
+          - generic [ref=f3e363]:
+            - generic [ref=f3e364]: "1. Normalisasi: $r_{ij} = x_{ij} / \\sqrt{\\sum x_{ij}^2}$"
+            - generic [ref=f3e365]: "2. Entropi Shannon: $E_j = -k \\sum p_{ij} \\ln(p_{ij})$"
+            - generic [ref=f3e366]: "3. Solusi Ideal: $A^+ = \\max(v_{ij}), A^- = \\min(v_{ij})$"
+            - generic [ref=f3e367]: "4. Skor Preferensi: $V_i = D_i^- / (D_i^+ + D_i^-)$"
+          - paragraph [ref=f3e368]: Platform NutriShare menjamin 100% transparansi bebas intervensi manual. Donasi makanan Anda langsung dialokasikan ke panti yang memiliki skor $V_i$ tertinggi.
+      - generic [ref=f3e369]:
+        - generic [ref=f3e370]: Data diverifikasi secara real-time oleh modul kecerdasan buatan NutriShare.
+        - button "Tutup Audit" [ref=f3e371] [cursor=pointer]
+  - generic [ref=f3e29]:
+    - paragraph [ref=f3e30]: Install NutriShare
+    - paragraph [ref=f3e31]: Install the app for faster access and donation notifications.
+    - generic [ref=f3e32]:
+      - button "Install" [ref=f3e33]
+      - button "Later" [ref=f3e34]
