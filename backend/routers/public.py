@@ -244,12 +244,17 @@ async def get_public_topsis_priority(session: SessionDep):
             )
 
             if weights_summary is None:
+                w1 = round(r.weight_c1 * 100, 1) if r.weight_c1 > 0 else 25.0
+                w2 = round(r.weight_c2 * 100, 1) if r.weight_c2 > 0 else 25.0
+                w3 = round(r.weight_c3 * 100, 1) if r.weight_c3 > 0 else 15.0
+                w4 = round(r.weight_c4 * 100, 1) if r.weight_c4 > 0 else 20.0
+                w5 = round(r.weight_c5 * 100, 1) if r.weight_c5 > 0 else 15.0
                 weights_summary = {
-                    "c1_protein": round(r.weight_c1, 4),
-                    "c2_urgency": round(r.weight_c2, 4),
-                    "c3_shelf_life": round(r.weight_c3, 4),
-                    "c4_distance": round(r.weight_c4, 4),
-                    "c5_fairness": round(r.weight_c5, 4),
+                    "c1_protein": w1,
+                    "c2_urgency": w2,
+                    "c3_shelf_life": w3,
+                    "c4_distance": w4,
+                    "c5_fairness": w5,
                 }
 
             enriched.append({

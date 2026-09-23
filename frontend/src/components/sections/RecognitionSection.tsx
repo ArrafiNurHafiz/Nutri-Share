@@ -309,23 +309,33 @@ export function RecognitionSection({
                   <div className="grid grid-cols-5 gap-1 text-center font-semibold text-[9px] text-[#0F172A]">
                     <div className="bg-white/90 p-1 rounded border border-[#DCFCE7]">
                       <span className="text-[#64748B] block text-[8px]">C1: Nutrisi</span>
-                      <span className="text-[#059669]">25%</span>
+                      <span className="text-[#059669]">
+                        {topsisData?.weights?.c1_protein ? `${topsisData.weights.c1_protein}%` : "25%"}
+                      </span>
                     </div>
                     <div className="bg-white/90 p-1 rounded border border-[#DCFCE7]">
                       <span className="text-[#64748B] block text-[8px]">C2: Urgensi</span>
-                      <span className="text-[#059669]">25%</span>
+                      <span className="text-[#059669]">
+                        {topsisData?.weights?.c2_urgency ? `${topsisData.weights.c2_urgency}%` : "25%"}
+                      </span>
                     </div>
                     <div className="bg-white/90 p-1 rounded border border-[#DCFCE7]">
                       <span className="text-[#64748B] block text-[8px]">C3: Kelayakan</span>
-                      <span className="text-[#059669]">15%</span>
+                      <span className="text-[#059669]">
+                        {topsisData?.weights?.c3_shelf_life ? `${topsisData.weights.c3_shelf_life}%` : "15%"}
+                      </span>
                     </div>
                     <div className="bg-white/90 p-1 rounded border border-[#DCFCE7]">
                       <span className="text-[#64748B] block text-[8px]">C4: Jarak</span>
-                      <span className="text-[#059669]">20%</span>
+                      <span className="text-[#059669]">
+                        {topsisData?.weights?.c4_distance ? `${topsisData.weights.c4_distance}%` : "20%"}
+                      </span>
                     </div>
                     <div className="bg-white/90 p-1 rounded border border-[#DCFCE7]">
                       <span className="text-[#64748B] block text-[8px]">C5: Keadilan</span>
-                      <span className="text-[#059669]">15%</span>
+                      <span className="text-[#059669]">
+                        {topsisData?.weights?.c5_fairness ? `${topsisData.weights.c5_fairness}%` : "15%"}
+                      </span>
                     </div>
                   </div>
                 </div>
