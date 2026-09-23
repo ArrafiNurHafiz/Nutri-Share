@@ -8,7 +8,6 @@ import {
   Send,
   HelpCircle,
   ChevronDown,
-  ShieldCheck,
   Headphones,
   Check,
   MessageCircle,
@@ -19,77 +18,77 @@ import toast from "react-hot-toast";
 interface FAQItem {
   q: string;
   a: string;
-  category: "umum" | "donatur" | "penerima" | "keamanan";
+  category: "all" | "general" | "donors" | "recipients" | "safety";
 }
 
 const FAQS: FAQItem[] = [
   {
-    category: "umum",
-    q: "Apa itu NutriShare dan bagaimana cara kerjanya?",
-    a: "NutriShare adalah platform jembatan pangan yang menghubungkan hotel, restoran, katering, dan supermarket yang memiliki surplus makanan layak konsumsi dengan panti asuhan, yayasan sosial, dan panti lansia terverifikasi di Yogyakarta menggunakan sistem perankingan prioritas cerdas (TOPSIS).",
+    category: "general",
+    q: "What is NutriShare and how does it work?",
+    a: "NutriShare is an intelligent food rescue platform that connects hotels, restaurants, catering services, and supermarkets that have wholesome edible surplus meals directly to verified orphanages and social shelters across Yogyakarta using the Hybrid Shannon Entropy - TOPSIS optimization algorithm.",
   },
   {
-    category: "umum",
-    q: "Apakah layanan NutriShare dipungut biaya?",
-    a: "Tidak sama sekali. Layanan NutriShare 100% gratis baik bagi pihak donatur maupun penerima manfaat. Misi kami adalah mencegah food waste dan mengatasi kerentanan pangan di masyarakat.",
+    category: "general",
+    q: "Are there any service or platform fees?",
+    a: "None at all. NutriShare is 100% free for both donor partners and beneficiary welfare shelters. Our mission is to eliminate organic food waste and alleviate local food insecurity.",
   },
   {
-    category: "donatur",
-    q: "Bagaimana cara hotel atau resto menyalurkan donasi makanan?",
-    a: "Daftar sebagai Donatur melalui menu registrasi, lengkapi profil usaha Anda. Setelah diverifikasi admin, Anda dapat langsung membuat postingan donasi surplus makanan dengan detail porsi, batas waktu konsumsi, dan foto makanan melalui Dashboard Donatur.",
+    category: "donors",
+    q: "How do hospitality food businesses post surplus meals?",
+    a: "Register as a Donor through the registration portal. Once verified by the administrator, you can immediately post surplus food batches with portion counts, safe consumption hours, and nutrient details directly via your Donor Portal.",
   },
   {
-    category: "keamanan",
-    q: "Bagaimana NutriShare menjamin higienitas dan keamanan pangan?",
-    a: "Setiap donasi wajib mematuhi standar SOP keamanan pangan NutriShare: makanan belum tersentuh konsumen (clean surplus), dikemas rapat dan bersih, disimpan dalam suhu aman, serta mencantumkan estimasi waktu aman konsumsi (best before pickup).",
+    category: "safety",
+    q: "How does NutriShare guarantee food safety and hygiene?",
+    a: "Every donation strictly follows HACCP and BPOM compliance: meals must be untouched (clean surplus), packaged securely in food-grade containers, stored under temperature control (cold chain <4°C), and verified before pickup.",
   },
   {
-    category: "penerima",
-    q: "Bagaimana proses verifikasi bagi panti asuhan atau yayasan?",
-    a: "Pihak pengurus panti/yayasan mendaftar sebagai Penerima dengan melampirkan dokumen legalitas (SK Kemenkumham/Dinsos atau surat izin operasional). Tim verifikator NutriShare akan memvalidasi data dalam 1x24 jam.",
+    category: "recipients",
+    q: "What is the verification procedure for orphanages and shelters?",
+    a: "Shelter administrators register by providing legal organizational credentials (Ministry of Social Affairs / Kemenkumham permit). Our verification team validates documentation within 24 hours.",
   },
   {
-    category: "donatur",
-    q: "Siapa yang mengurus penjemputan dan pengantaran donasi?",
-    a: "Donasi dapat diambil langsung oleh perwakilan panti asuhan yang berhasil mengklaim, atau diantarkan melalui bantuan jejaring relawan armada NutriShare untuk donasi porsi besar atau kondisi darurat.",
+    category: "donors",
+    q: "Who handles logistics, pickup, and transportation?",
+    a: "Meals can be picked up directly by the recipient shelter assigned by TOPSIS ranking, or transported via NutriShare volunteer dispatch network for large bulk batches and emergency situations.",
   },
 ];
 
 export function Support() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
-  const [faqCategory, setFaqCategory] = useState<"semua" | "umum" | "donatur" | "penerima" | "keamanan">("semua");
-  const [form, setForm] = useState({ name: "", email: "", phone: "", message: "", subject: "Pertanyaan Umum" });
+  const [faqCategory, setFaqCategory] = useState<"all" | "general" | "donors" | "recipients" | "safety">("all");
+  const [form, setForm] = useState({ name: "", email: "", phone: "", message: "", subject: "General Inquiry" });
   const [submitting, setSubmitting] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const filteredFaqs = faqCategory === "semua" ? FAQS : FAQS.filter((f) => f.category === faqCategory);
+  const filteredFaqs = faqCategory === "all" ? FAQS : FAQS.filter((f) => f.category === faqCategory);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
     setTimeout(() => {
       setSubmitting(false);
-      toast.success("Pesan bantuan berhasil dikirim! Tim kami akan menghubungi Anda segera.");
-      setForm({ name: "", email: "", phone: "", message: "", subject: "Pertanyaan Umum" });
+      toast.success("Support ticket sent! Our team will contact you shortly.");
+      setForm({ name: "", email: "", phone: "", message: "", subject: "General Inquiry" });
     }, 800);
   };
 
   const handleCopyWa = () => {
     navigator.clipboard.writeText("081234567890");
     setCopied(true);
-    toast.success("Nomor WhatsApp berhasil disalin!");
+    toast.success("WhatsApp hotline number copied!");
     setTimeout(() => setCopied(false), 2000);
   };
 
   return (
     <div className="min-h-screen bg-[#f4fbf7] bg-emerald-grid font-sans text-emerald-950 flex flex-col">
-      <SEO title="Pusat Bantuan & Kontak | NutriShare" description="Layanan pengaduan, panduan sistem, dan pusat bantuan NutriShare DIY." />
+      <SEO title="Support & Help Center | NutriShare" description="User guides, FAQ, and technical support hotline for NutriShare." />
 
       {/* Top Header Navigation */}
       <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-xl border-b border-emerald-100 shadow-xs">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <Link to="/" className="inline-flex items-center gap-2 text-xs font-bold text-emerald-800 hover:text-emerald-950 transition-colors">
-            <ArrowLeft size={16} /> <span>Kembali ke Beranda</span>
+            <ArrowLeft size={16} /> <span>Back to Home</span>
           </Link>
           <div className="flex items-center gap-2.5">
             <img
@@ -98,7 +97,7 @@ export function Support() {
               className="w-8 h-8 object-contain"
             />
             <span className="font-heading font-extrabold text-base text-emerald-950">
-              Help Center &amp; Support
+              Support &amp; FAQ
             </span>
           </div>
         </div>
@@ -110,13 +109,13 @@ export function Support() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 text-center space-y-4 relative z-10">
           <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-emerald-500/20 text-[#e1fcad] text-xs font-bold border border-emerald-400/30">
             <Headphones size={13} />
-            <span>Layanan Pengaduan &amp; Panduan Komunitas</span>
+            <span>Community Help Center &amp; Inquiry Portal</span>
           </span>
           <h1 className="font-heading font-extrabold text-3xl sm:text-5xl text-white tracking-tight">
-            Ada yang Bisa Kami Bantu?
+            How Can We Assist You?
           </h1>
           <p className="text-xs sm:text-sm text-emerald-100/80 max-w-xl mx-auto leading-relaxed">
-            Temukan jawaban atas pertanyaan umum terkait sistem distribusi pangan, verifikasi panti, atau hubungi tim teknis kami.
+            Find answers to frequently asked questions about the food rescue protocol, shelter verification, or reach our technical support team.
           </p>
         </div>
       </section>
@@ -131,7 +130,7 @@ export function Support() {
               <MessageCircle size={20} />
             </div>
             <h3 className="font-bold text-sm text-slate-900">WhatsApp Hotline</h3>
-            <p className="text-xs text-slate-500 leading-relaxed">Respon cepat koordinasi distribusi pangan dan logistik darurat.</p>
+            <p className="text-xs text-slate-500 leading-relaxed">Instant coordination for urgent food pickups and logistics dispatch.</p>
             <button
               onClick={handleCopyWa}
               className="mt-2 inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 hover:text-emerald-900 cursor-pointer"
@@ -145,8 +144,8 @@ export function Support() {
             <div className="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold">
               <Mail size={20} />
             </div>
-            <h3 className="font-bold text-sm text-slate-900">Email Resmi</h3>
-            <p className="text-xs text-slate-500 leading-relaxed">Untuk kemitraan formal perhotelan, CSR perusahaan, dan dinas sosial.</p>
+            <h3 className="font-bold text-sm text-slate-900">Official Email</h3>
+            <p className="text-xs text-slate-500 leading-relaxed">For formal enterprise hospitality partnerships, corporate CSR, and social affairs.</p>
             <a href="mailto:support@nutrishare.org" className="mt-2 inline-block text-xs font-bold text-emerald-700 hover:underline">
               support@nutrishare.org
             </a>
@@ -156,10 +155,10 @@ export function Support() {
             <div className="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold">
               <Clock size={20} />
             </div>
-            <h3 className="font-bold text-sm text-slate-900">Jam Operasional</h3>
-            <p className="text-xs text-slate-500 leading-relaxed">Senin - Minggu (07.00 - 22.00 WIB) Siaga pemantauan surplus sarapan &amp; makan malam.</p>
+            <h3 className="font-bold text-sm text-slate-900">Operating Hours</h3>
+            <p className="text-xs text-slate-500 leading-relaxed">Monday - Sunday (07:00 - 22:00 WIB) Active monitoring for breakfast and dinner banquet surplus.</p>
             <span className="text-[11px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md inline-block">
-              Siaga 7 Hari / Minggu
+              Active 7 Days / Week
             </span>
           </div>
         </div>
@@ -172,25 +171,31 @@ export function Support() {
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <HelpCircle size={16} className="text-emerald-700" />
-                <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider">Pertanyaan Populer</span>
+                <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider">Frequently Asked Questions</span>
               </div>
               <h2 className="font-heading font-extrabold text-2xl text-emerald-950">
-                Frequently Asked Questions
+                Community FAQ
               </h2>
             </div>
 
             {/* Filter Categories */}
             <div className="flex flex-wrap items-center gap-1.5 p-1 bg-white rounded-2xl border border-emerald-100 shadow-xs text-xs">
-              {(["semua", "umum", "donatur", "penerima", "keamanan"] as const).map((cat) => (
+              {[
+                { id: "all", label: "All Topics" },
+                { id: "general", label: "General" },
+                { id: "donors", label: "Donors" },
+                { id: "recipients", label: "Recipients" },
+                { id: "safety", label: "Food Safety" },
+              ].map((cat) => (
                 <button
-                  key={cat}
+                  key={cat.id}
                   type="button"
-                  onClick={() => setFaqCategory(cat)}
+                  onClick={() => setFaqCategory(cat.id as any)}
                   className={`px-3.5 py-1.5 rounded-xl font-bold uppercase text-[11px] transition-all cursor-pointer ${
-                    faqCategory === cat ? "bg-emerald-600 text-white shadow-xs" : "text-slate-600 hover:text-emerald-900 hover:bg-emerald-50"
+                    faqCategory === cat.id ? "bg-emerald-600 text-white shadow-xs" : "text-slate-600 hover:text-emerald-900 hover:bg-emerald-50"
                   }`}
                 >
-                  {cat}
+                  {cat.label}
                 </button>
               ))}
             </div>
@@ -223,18 +228,18 @@ export function Support() {
           {/* Right Message Form */}
           <div className="lg:col-span-5 rounded-3xl bg-white border border-emerald-200/90 p-8 shadow-xl space-y-6">
             <div>
-              <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider block">Kirim Pesan Bantuan</span>
-              <h3 className="font-heading font-extrabold text-xl text-emerald-950 mt-1">Formulir Kontak Tim</h3>
+              <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider block">Get in Touch</span>
+              <h3 className="font-heading font-extrabold text-xl text-emerald-950 mt-1">Direct Support Ticket</h3>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="text-xs font-bold text-emerald-950 block mb-1">Nama Lengkap</label>
+                <label className="text-xs font-bold text-emerald-950 block mb-1">Full Name</label>
                 <input
                   required
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  placeholder="Nama pengurus / PIC"
+                  placeholder="Your Name / PIC"
                   className="w-full px-3.5 py-2.5 rounded-xl bg-emerald-50/40 border border-emerald-200 text-xs font-medium focus:bg-white focus:ring-2 focus:ring-emerald-600/30 outline-none"
                 />
               </div>
@@ -265,28 +270,28 @@ export function Support() {
               </div>
 
               <div>
-                <label className="text-xs font-bold text-emerald-950 block mb-1">Topik Bantuan</label>
+                <label className="text-xs font-bold text-emerald-950 block mb-1">Support Category</label>
                 <select
                   value={form.subject}
                   onChange={(e) => setForm({ ...form, subject: e.target.value })}
                   className="w-full px-3.5 py-2.5 rounded-xl bg-emerald-50/40 border border-emerald-200 text-xs font-semibold focus:bg-white focus:ring-2 focus:ring-emerald-600/30 outline-none"
                 >
-                  <option value="Pertanyaan Umum">Pertanyaan Umum</option>
-                  <option value="Verifikasi Akun">Kendala Verifikasi Akun</option>
-                  <option value="Teknis TOPSIS">Penjelasan Algoritma TOPSIS</option>
-                  <option value="Kerjasama Donatur">Kerjasama Mitra Donatur</option>
-                  <option value="Kendala Lainnya">Lainnya</option>
+                  <option value="General Inquiry">General Inquiry</option>
+                  <option value="Account Verification">Account Verification Status</option>
+                  <option value="TOPSIS Inquiries">TOPSIS Algorithm Inquiries</option>
+                  <option value="Partnership">Hospitality Partnership</option>
+                  <option value="Other">Other Assistance</option>
                 </select>
               </div>
 
               <div>
-                <label className="text-xs font-bold text-emerald-950 block mb-1">Pesan</label>
+                <label className="text-xs font-bold text-emerald-950 block mb-1">Message</label>
                 <textarea
                   required
                   rows={3}
                   value={form.message}
                   onChange={(e) => setForm({ ...form, message: e.target.value })}
-                  placeholder="Tuliskan kendala atau pertanyaan Anda..."
+                  placeholder="Describe your inquiry or issue..."
                   className="w-full px-3.5 py-2.5 rounded-xl bg-emerald-50/40 border border-emerald-200 text-xs font-medium focus:bg-white focus:ring-2 focus:ring-emerald-600/30 outline-none"
                 />
               </div>
@@ -297,7 +302,7 @@ export function Support() {
                 className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-700/20 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
               >
                 <Send size={13} />
-                <span>{submitting ? "Mengirim..." : "Kirim Pertanyaan"}</span>
+                <span>{submitting ? "Sending..." : "Submit Support Ticket"}</span>
               </button>
             </form>
           </div>
@@ -308,4 +313,5 @@ export function Support() {
     </div>
   );
 }
+
 export default Support;
