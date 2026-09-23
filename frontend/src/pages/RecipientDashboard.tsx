@@ -13,6 +13,7 @@ import {
   LogOut,
   Compass,
   Star,
+  Sparkles,
   ShieldCheck,
   BarChart3,
   CheckCircle2,
@@ -571,8 +572,8 @@ export function RecipientDashboard() {
                           {/* Header row: rank/badge + score & ID */}
                           <div className="flex items-center justify-between gap-2">
                             {isRank1 ? (
-                              <span className="bg-[#2D7A4F] text-white text-[10px] font-bold px-2.5 py-1 rounded shadow-xs border border-emerald-400/30 flex items-center gap-1">
-                                <Star size={11} className="fill-current text-amber-300" /> Rekomendasi TOPSIS #1
+                              <span className="bg-[#2D7A4F] text-white text-[10px] font-bold px-2.5 py-1 rounded shadow-xs border border-emerald-400/30 flex items-center gap-1.5">
+                                <Sparkles size={12} className="text-emerald-200" /> Rekomendasi TOPSIS #1
                               </span>
                             ) : (
                               <span className="text-[11px] text-[#64748B] font-mono bg-[#F1F5F9] px-2 py-0.5 rounded border border-[#E2E8F0]">
