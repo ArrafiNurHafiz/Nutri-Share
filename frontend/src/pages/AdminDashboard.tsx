@@ -763,20 +763,20 @@ export function AdminDashboard() {
                 <div className="border-b border-[#F1F5F9] pb-3">
                   <h3 className="font-bold text-sm text-[#0F172A] flex items-center gap-2">
                     <UserCheck size={16} className="text-[#2D7A4F]" />
-                    Verifikasi Pendaftaran Mitra & Lembaga ({pendingDonors.length + pendingRecipients.length})
+                    Partner &amp; Shelter Verification Queue ({pendingDonors.length + pendingRecipients.length})
                   </h3>
                 </div>
 
                 {pendingDonors.length === 0 && pendingRecipients.length === 0 ? (
                   <div className="py-8 text-center text-xs text-[#94A3B8]">
-                    Semua akun mitra donatur dan penerima manfaat telah terverifikasi.
+                    All donor partners and beneficiary institutions are verified.
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {pendingDonors.map((d: any) => (
                       <div key={d.id} className="p-4 bg-[#F8FAFC] rounded-xl border border-[#E2E8F0] flex flex-col justify-between gap-3">
                         <div className="space-y-1">
-                          <span className="text-[10px] font-bold text-[#2D7A4F] uppercase">Mitra Donatur (HoReKa)</span>
+                          <span className="text-[10px] font-bold text-[#2D7A4F] uppercase">HoReKa Donor Partner</span>
                           <h4 className="font-bold text-sm text-[#0F172A]">{d.business_name || d.name}</h4>
                           <p className="text-xs text-[#64748B]">{d.email} • {d.business_type} • Telp: {d.phone || "-"}</p>
                           <p className="text-[11px] text-[#94A3B8] truncate">{d.address || "Yogyakarta"}</p>
@@ -786,7 +786,7 @@ export function AdminDashboard() {
                           onClick={() => handleVerify(d.id)}
                           className="w-full py-2 bg-[#2D7A4F] hover:bg-[#235F3D] text-white rounded-lg text-xs font-bold transition-colors cursor-pointer"
                         >
-                          Verifikasi Akun Donatur
+                          Verify Donor Account
                         </button>
                       </div>
                     ))}
@@ -795,9 +795,9 @@ export function AdminDashboard() {
                     {pendingRecipients.map((r: any) => (
                       <div key={r.id} className="p-4 bg-[#F8FAFC] rounded-xl border border-[#E2E8F0] flex flex-col justify-between gap-3">
                         <div className="space-y-1">
-                          <span className="text-[10px] font-bold text-[#2563EB] uppercase">Lembaga Penerima (Panti/Sosial)</span>
+                          <span className="text-[10px] font-bold text-[#2563EB] uppercase">Beneficiary Shelter</span>
                           <h4 className="font-bold text-sm text-[#0F172A]">{r.institution_name || r.name}</h4>
-                          <p className="text-xs text-[#64748B]">{r.email} • {r.resident_count || 0} Warga Binaan</p>
+                          <p className="text-xs text-[#64748B]">{r.email} • {r.resident_count || 0} Residents</p>
                           <p className="text-[11px] text-[#94A3B8] truncate">{r.address || "Yogyakarta"}</p>
                         </div>
                         <div className="flex gap-2">
@@ -806,14 +806,14 @@ export function AdminDashboard() {
                             onClick={() => handleVerify(r.id, 3)}
                             className="flex-1 py-2 bg-[#2D7A4F] hover:bg-[#235F3D] text-white rounded-lg text-xs font-bold transition-colors cursor-pointer"
                           >
-                            Verifikasi (Urgensi Tinggi)
+                            Verify (High Priority)
                           </button>
                           <button
                             type="button"
                             onClick={() => handleVerify(r.id, 1)}
                             className="px-3 py-2 bg-white border border-[#CBD5E1] text-[#334155] hover:bg-[#F8FAFC] rounded-lg text-xs font-bold transition-colors cursor-pointer"
                           >
-                            Standar
+                            Standard
                           </button>
                         </div>
                       </div>
@@ -838,18 +838,18 @@ export function AdminDashboard() {
               {/* Donors Table Card */}
               <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 shadow-xs space-y-4">
                 <div className="flex items-center justify-between border-b border-[#F1F5F9] pb-3">
-                  <h3 className="font-bold text-sm text-[#0F172A]">Daftar Mitra Donatur ({filteredDonors.length})</h3>
+                  <h3 className="font-bold text-sm text-[#0F172A]">Donor Partners List ({filteredDonors.length})</h3>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-xs text-left">
                     <thead>
                       <tr className="border-b border-[#F1F5F9] text-[#64748B] uppercase tracking-wider font-semibold">
-                        <th className="pb-3 cursor-pointer" onClick={() => handleSort("name")}>Nama Bisnis <SortIcon k="name" /></th>
-                        <th className="pb-3">Tipe</th>
-                        <th className="pb-3">Email & Kontak</th>
-                        <th className="pb-3 cursor-pointer" onClick={() => handleSort("total")}>Total Donasi <SortIcon k="total" /></th>
+                        <th className="pb-3 cursor-pointer" onClick={() => handleSort("name")}>Business Name <SortIcon k="name" /></th>
+                        <th className="pb-3">Type</th>
+                        <th className="pb-3">Email &amp; Phone</th>
+                        <th className="pb-3 cursor-pointer" onClick={() => handleSort("total")}>Total Donations <SortIcon k="total" /></th>
                         <th className="pb-3 cursor-pointer" onClick={() => handleSort("status")}>Status <SortIcon k="status" /></th>
-                        <th className="pb-3 text-right">Aksi</th>
+                        <th className="pb-3 text-right">Action</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-[#F1F5F9]">
@@ -858,7 +858,7 @@ export function AdminDashboard() {
                           <td className="py-3 font-bold text-[#0F172A]">{d.business_name || d.name}</td>
                           <td className="py-3 text-[#64748B] capitalize">{d.business_type || "-"}</td>
                           <td className="py-3 text-[#64748B]">{d.email} {d.phone && `• ${d.phone}`}</td>
-                          <td className="py-3 font-bold text-[#2D7A4F]">{d.total_donations || 0} Porsi</td>
+                          <td className="py-3 font-bold text-[#2D7A4F]">{d.total_donations || 0} Portions</td>
                           <td className="py-3">
                             <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
                               d.status === "verified" ? "bg-[#ECFDF5] text-[#065F46]" : "bg-[#FFFBEB] text-[#92400E]"
@@ -871,7 +871,7 @@ export function AdminDashboard() {
                               type="button"
                               onClick={() => setDeleteTarget({ id: d.id, name: d.business_name || d.name })}
                               className="text-red-500 hover:text-red-700 p-1 cursor-pointer"
-                              title="Hapus Akun"
+                              title="Delete Account"
                             >
                               <Trash2 size={14} />
                             </button>
@@ -886,27 +886,27 @@ export function AdminDashboard() {
               {/* Recipients Table Card */}
               <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 shadow-xs space-y-4">
                 <div className="flex items-center justify-between border-b border-[#F1F5F9] pb-3">
-                  <h3 className="font-bold text-sm text-[#0F172A]">Daftar Lembaga Penerima ({filteredRecipients.length})</h3>
+                  <h3 className="font-bold text-sm text-[#0F172A]">Beneficiary Institutions List ({filteredRecipients.length})</h3>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-xs text-left">
                     <thead>
                       <tr className="border-b border-[#F1F5F9] text-[#64748B] uppercase tracking-wider font-semibold">
-                        <th className="pb-3 cursor-pointer" onClick={() => handleSort("name")}>Nama Lembaga <SortIcon k="name" /></th>
-                        <th className="pb-3">Tipe</th>
-                        <th className="pb-3">Binaan</th>
-                        <th className="pb-3 cursor-pointer" onClick={() => handleSort("urgency")}>Skor Urgensi <SortIcon k="urgency" /></th>
-                        <th className="pb-3 cursor-pointer" onClick={() => handleSort("emergency")}>Darurat <SortIcon k="emergency" /></th>
-                        <th className="pb-3 text-right">Aksi</th>
+                        <th className="pb-3 cursor-pointer" onClick={() => handleSort("name")}>Institution Name <SortIcon k="name" /></th>
+                        <th className="pb-3">Type</th>
+                        <th className="pb-3">Residents</th>
+                        <th className="pb-3 cursor-pointer" onClick={() => handleSort("urgency")}>Urgency Level <SortIcon k="urgency" /></th>
+                        <th className="pb-3 cursor-pointer" onClick={() => handleSort("emergency")}>Emergency <SortIcon k="emergency" /></th>
+                        <th className="pb-3 text-right">Action</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-[#F1F5F9]">
                       {filteredRecipients.map((r: any) => (
                         <tr key={r.id} className="hover:bg-[#F8FAFC]">
                           <td className="py-3 font-bold text-[#0F172A]">{r.institution_name || r.name}</td>
-                          <td className="py-3 text-[#64748B] capitalize">{r.institution_type?.replace("_", " ") || "-"}</td>
-                          <td className="py-3 text-[#64748B]">{r.resident_count || 0} Orang</td>
-                          <td className="py-3 font-bold text-[#2563EB]">Tingkat {r.urgency_score || 1}</td>
+                          <td className="py-3 text-[#64748B] capitalize">{r.institution_type?.replace(/_/g, " ") || "-"}</td>
+                          <td className="py-3 text-[#64748B]">{r.resident_count || 0} People</td>
+                          <td className="py-3 font-bold text-[#2563EB]">Level {r.urgency_score || 1}</td>
                           <td className="py-3">
                             <button
                               type="button"
@@ -917,7 +917,7 @@ export function AdminDashboard() {
                                   : "bg-[#F1F5F9] text-[#64748B]"
                               }`}
                             >
-                              {r.emergency === "approved" || r.emergency === "pending" ? "Aktif (Prioritas)" : "Normal"}
+                              {r.emergency === "approved" || r.emergency === "pending" ? "Active (Priority)" : "Normal"}
                             </button>
                           </td>
                           <td className="py-3 text-right">
@@ -925,7 +925,7 @@ export function AdminDashboard() {
                               type="button"
                               onClick={() => setDeleteTarget({ id: r.id, name: r.institution_name || r.name })}
                               className="text-red-500 hover:text-red-700 p-1 cursor-pointer"
-                              title="Hapus Akun"
+                              title="Delete Account"
                             >
                               <Trash2 size={14} />
                             </button>
