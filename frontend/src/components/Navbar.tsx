@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X, ArrowRight } from "lucide-react";
 import { useHideOnScroll } from "../lib/useHideOnScroll";
 import { motion, AnimatePresence } from "motion/react";
@@ -17,38 +17,36 @@ export function Navbar({ onLoginClick }: { onLoginClick?: () => void }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { navVisible } = useHideOnScroll();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const handleNav = (path: string) => {
+    setMobileOpen(false);
+
     if (path === "/") {
       if (location.pathname === "/") {
         window.scrollTo({ top: 0, behavior: "smooth" });
       } else {
-        window.location.href = "/";
+        navigate("/");
       }
-      setMobileOpen(false);
       return;
     }
 
-    if (path.includes("#")) {
-      const hash = path.substring(path.indexOf("#"));
+    if (path.startsWith("/#")) {
+      const targetId = path.substring(2);
       if (location.pathname !== "/") {
-        window.location.href = "/" + hash;
+        navigate("/" + "#" + targetId);
         return;
       }
 
-      const targetId = hash.substring(1);
       const el = document.getElementById(targetId);
-
       if (el) {
         const y = el.getBoundingClientRect().top + window.scrollY - 80;
         window.scrollTo({ top: y, behavior: "smooth" });
       }
-      setMobileOpen(false);
       return;
     }
 
-    window.location.href = path;
-    setMobileOpen(false);
+    navigate(path);
   };
 
   return (
@@ -78,23 +76,42 @@ export function Navbar({ onLoginClick }: { onLoginClick?: () => void }) {
 
           {/* Desktop Navigation Links */}
           <nav className="hidden lg:flex items-center gap-1 bg-emerald-50/80 p-1.5 rounded-full border border-emerald-200/60">
-            {NAV_ITEMS.map((item) => (
-              <a
-                key={item.path}
-                href={item.path}
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleNav(item.path);
-                }}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-                  item.path === "/" && location.pathname === "/"
-                    ? "bg-emerald-600 text-white shadow-xs"
-                    : "text-emerald-900/80 hover:text-emerald-950 hover:bg-white/80"
-                }`}
-              >
-                {item.label}
-              </a>
-            ))}
+            {NAV_ITEMS.map((item) => {
+              const isSupport = item.path === "/support";
+              if (isSupport) {
+                return (
+                  <Link
+                    key={item.path}
+                    to="/support"
+                    className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                      location.pathname === "/support"
+                        ? "bg-emerald-600 text-white shadow-xs"
+                        : "text-emerald-900/80 hover:text-emerald-950 hover:bg-white/80"
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              }
+
+              return (
+                <a
+                  key={item.path}
+                  href={item.path}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleNav(item.path);
+                  }}
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                    item.path === "/" && location.pathname === "/"
+                      ? "bg-emerald-600 text-white shadow-xs"
+                      : "text-emerald-900/80 hover:text-emerald-950 hover:bg-white/80"
+                  }`}
+                >
+                  {item.label}
+                </a>
+              );
+            })}
           </nav>
 
           {/* Action CTAs */}
@@ -142,17 +159,21 @@ export function Navbar({ onLoginClick }: { onLoginClick?: () => void }) {
           >
             <nav className="flex flex-col gap-1.5 mb-6">
               {NAV_ITEMS.map((item) => (
-                <a
+                <Link
                   key={item.path}
-                  href={item.path}
+                  to={item.path.startsWith("/#") ? "/" : item.path}
                   onClick={(e) => {
-                    e.preventDefault();
-                    handleNav(item.path);
+                    if (item.path.startsWith("/#") || item.path === "/") {
+                      e.preventDefault();
+                      handleNav(item.path);
+                    } else {
+                      setMobileOpen(false);
+                    }
                   }}
                   className="px-3.5 py-2.5 rounded-xl text-sm font-semibold text-emerald-900 hover:bg-emerald-50 hover:text-emerald-950 transition-colors"
                 >
                   {item.label}
-                </a>
+                </Link>
               ))}
             </nav>
 
