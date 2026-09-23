@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { Star, ChevronLeft, ChevronRight } from "lucide-react";
 import { GlossyLeafDecor } from "./EcoVisuals";
@@ -8,43 +8,11 @@ interface Review {
   rating: number;
   comment: string;
   recipient_name: string;
-  location: string;
-  avatarBg: string;
-  initials: string;
+  donor_name?: string;
+  location?: string;
+  avatarBg?: string;
+  initials?: string;
 }
-
-const DEFAULT_REVIEWS: Review[] = [
-  {
-    id: 1,
-    rating: 5,
-    comment:
-      "Bantuan dari NutriShare sangat membantu anak-anak di panti kami. Makanan yang diterima selalu layak dan bergizi.",
-    recipient_name: "Panti Asuhan Al-Furqan",
-    location: "Yogyakarta",
-    avatarBg: "bg-[#DCFCE7] text-[#15803D]",
-    initials: "PA",
-  },
-  {
-    id: 2,
-    rating: 5,
-    comment:
-      "Program ini benar-benar bermanfaat. Anak-anak jadi lebih semangat karena mendapat makanan yang sehat dan variatif. Terima kasih NutriShare!",
-    recipient_name: "Yayasan Kasih Mulia",
-    location: "Sleman",
-    avatarBg: "bg-[#D1FAE5] text-[#047857]",
-    initials: "YK",
-  },
-  {
-    id: 3,
-    rating: 5,
-    comment:
-      "Proses klaim sangat mudah dan transparan. Kami merasa didukung dengan data yang jelas dan komunikasi yang baik.",
-    recipient_name: "Panti Karya Insani",
-    location: "Bantul",
-    avatarBg: "bg-[#BBF7D0] text-[#166534]",
-    initials: "PK",
-  },
-];
 
 function Stars({ rating }: { rating: number }) {
   return (
@@ -63,14 +31,52 @@ function Stars({ rating }: { rating: number }) {
 }
 
 export function Testimonials() {
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
-  const displayList = DEFAULT_REVIEWS;
+
+  useEffect(() => {
+    fetch("/api/public/reviews")
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data: any[]) => {
+        if (Array.isArray(data)) {
+          const AVATAR_COLORS = [
+            "bg-[#DCFCE7] text-[#15803D]",
+            "bg-[#D1FAE5] text-[#047857]",
+            "bg-[#BBF7D0] text-[#166534]",
+            "bg-[#FEF3C7] text-[#B45309]",
+          ];
+          const mapped = data.map((r, idx) => {
+            const name = r.recipient_name || "Penerima Manfaat";
+            const parts = name.split(" ");
+            const initials = parts.length > 1
+              ? (parts[0][0] + parts[1][0]).toUpperCase()
+              : name.slice(0, 2).toUpperCase();
+            return {
+              id: r.id,
+              rating: r.rating || 5,
+              comment: r.comment,
+              recipient_name: name,
+              donor_name: r.donor_name ? `Mitra: ${r.donor_name}` : "Mitra NutriShare",
+              location: r.donor_name ? `Mitra: ${r.donor_name}` : "Yogyakarta",
+              avatarBg: AVATAR_COLORS[idx % AVATAR_COLORS.length],
+              initials,
+            };
+          });
+          setReviews(mapped);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const displayList = reviews;
 
   const handlePrev = () => {
+    if (displayList.length === 0) return;
     setActiveIndex((prev: number) => (prev > 0 ? prev - 1 : displayList.length - 1));
   };
 
   const handleNext = () => {
+    if (displayList.length === 0) return;
     setActiveIndex((prev: number) => (prev < displayList.length - 1 ? prev + 1 : 0));
   };
 
@@ -132,45 +138,51 @@ export function Testimonials() {
             <ChevronLeft size={16} />
           </button>
 
-          {/* 3 Testimonials Cards matching reference */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {displayList.map((r, i) => (
-              <motion.div
-                key={r.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="bg-white rounded-2xl border border-[#E2E8F0] p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between space-y-5"
-              >
-                <div className="space-y-3.5">
-                  {/* 5 Stars Rating */}
-                  <Stars rating={r.rating} />
+          {/* Testimonials Cards from live database */}
+          {displayList.length === 0 ? (
+            <div className="text-center py-10 text-xs text-[#64748B]">
+              Belum ada ulasan donasi publik yang tercatat di database.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              {displayList.slice(0, 3).map((r, i) => (
+                <motion.div
+                  key={r.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 }}
+                  className="bg-white rounded-2xl border border-[#E2E8F0] p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between space-y-5"
+                >
+                  <div className="space-y-3.5">
+                    {/* 5 Stars Rating */}
+                    <Stars rating={r.rating} />
 
-                  {/* Comment quote */}
-                  <p className="text-xs text-[#334155] leading-relaxed">
-                    "{r.comment}"
-                  </p>
-                </div>
-
-                {/* Author & Location Footer */}
-                <div className="pt-3.5 border-t border-[#F1F5F9] flex items-center gap-3">
-                  <div className={`w-8 h-8 rounded-full ${r.avatarBg} font-extrabold text-[11px] flex items-center justify-center shrink-0`}>
-                    {r.initials}
-                  </div>
-
-                  <div className="min-w-0 flex-1">
-                    <h4 className="font-bold text-xs text-[#0F172A] truncate">
-                      {r.recipient_name}
-                    </h4>
-                    <p className="text-[10px] text-[#94A3B8] truncate">
-                      {r.location}
+                    {/* Comment quote */}
+                    <p className="text-xs text-[#334155] leading-relaxed">
+                      "{r.comment}"
                     </p>
                   </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+
+                  {/* Author & Location Footer */}
+                  <div className="pt-3.5 border-t border-[#F1F5F9] flex items-center gap-3">
+                    <div className={`w-8 h-8 rounded-full ${r.avatarBg} font-extrabold text-[11px] flex items-center justify-center shrink-0`}>
+                      {r.initials}
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                      <h4 className="font-bold text-xs text-[#0F172A] truncate">
+                        {r.recipient_name}
+                      </h4>
+                      <p className="text-[10px] text-[#94A3B8] truncate">
+                        {r.location}
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
 
           {/* Right Navigation Chevron */}
           <button

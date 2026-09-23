@@ -57,21 +57,21 @@ export function HeroSection({ stats }: { stats?: any }) {
   const impactItems = [
     {
       icon: Leaf,
-      value: stats?.total_food_saved_kg || 1360,
+      value: stats?.total_food_saved_kg ?? stats?.food_waste_kg ?? 0,
       suffix: " kg",
       label: "Food Waste Saved",
       iconColor: "text-[#10B981]",
     },
     {
       icon: Users,
-      value: stats?.total_beneficiaries || 520,
+      value: stats?.total_beneficiaries ?? stats?.people_helped ?? 0,
       suffix: " Orang",
       label: "Penerima Manfaat Terbantu",
       iconColor: "text-[#10B981]",
     },
     {
       icon: Utensils,
-      value: stats?.total_portions_distributed || 4120,
+      value: stats?.total_portions_distributed ?? stats?.total_portions ?? 0,
       suffix: " Porsi",
       label: "Porsi Makanan Tersalurkan",
       iconColor: "text-[#10B981]",

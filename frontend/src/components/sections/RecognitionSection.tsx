@@ -15,147 +15,40 @@ export function RecognitionSection({
   const [activeTab, setActiveTab] = useState<"donors" | "topsis">("donors");
   const [topsisData, setTopsisData] = useState<any>(null);
 
-  const foodDistributed = stats?.total_food_saved_kg || 1360;
-  const beneficiaries = stats?.total_beneficiaries || 520;
-  const mealsServed = stats?.total_portions_distributed || 4120;
-  const co2Saved = Number(((foodDistributed * 2.5) / 1000).toFixed(1)) || 2.4;
-
-  const defaultDonorsList = [
-    {
-      rank: 1,
-      name: "Hotel Merapi Merbabu",
-      weight: "245 kg",
-      donations: "12 donations",
-      logo: "/images/hotel_logo.webp",
-      fallbackImg: "/images/donor_kitchen.jpg",
-      badgeBg: "bg-[#10B981] text-white",
-    },
-    {
-      rank: 2,
-      name: "Restoran Dapur Rasa Nusantara",
-      weight: "180 kg",
-      donations: "9 donations",
-      logo: "/images/restaurant_logo.webp",
-      fallbackImg: "/images/fresh-food.webp",
-      badgeBg: "bg-[#059669] text-white",
-    },
-    {
-      rank: 3,
-      name: "Cafe Tugu Jogja",
-      weight: "150 kg",
-      donations: "7 donations",
-      logo: "/images/cafe_logo.webp",
-      fallbackImg: "/images/fresh-food.webp",
-      badgeBg: "bg-[#047857] text-white",
-    },
-    {
-      rank: 4,
-      name: "Catering Sehat Kita",
-      weight: "120 kg",
-      donations: "6 donations",
-      logo: "/images/food_pack.jpg",
-      fallbackImg: "/images/fresh-food.webp",
-      badgeBg: "bg-[#E2E8F0] text-[#64748B]",
-    },
-    {
-      rank: 5,
-      name: "Hotel Malioboro Indah",
-      weight: "100 kg",
-      donations: "5 donations",
-      logo: "/images/donor_kitchen.jpg",
-      fallbackImg: "/images/donor_kitchen.jpg",
-      badgeBg: "bg-[#E2E8F0] text-[#64748B]",
-    },
-  ];
-
-  const defaultTopsisRankings = [
-    {
-      rank: 1,
-      institution_name: "Panti Asuhan Al-Furqan",
-      beneficiary_count: 65,
-      address: "Sleman, DI Yogyakarta",
-      ci_score: 0.942,
-      distance_km: 2.4,
-      urgency_level: 9.2,
-      match_reasons: ["Urgensi gizi mendesak", "Jarak 2.4 km (prioritas kilat)", "Indeks Keadilan Tertinggi (+14 hari)"],
-    },
-    {
-      rank: 2,
-      institution_name: "Yayasan Kasih Mulia",
-      beneficiary_count: 48,
-      address: "Kota Yogyakarta, DIY",
-      ci_score: 0.887,
-      distance_km: 3.8,
-      urgency_level: 8.5,
-      match_reasons: ["Urgensi tinggi", "Jarak terjangkau (3.8 km)"],
-    },
-    {
-      rank: 3,
-      institution_name: "Panti Karya Insani",
-      beneficiary_count: 55,
-      address: "Bantul, DI Yogyakarta",
-      ci_score: 0.795,
-      distance_km: 5.2,
-      urgency_level: 7.8,
-      match_reasons: ["Kepadatan gizi sesuai profil anak", "Jarak 5.2 km"],
-    },
-    {
-      rank: 4,
-      institution_name: "Rumah Singgah Harapan Kita",
-      beneficiary_count: 35,
-      address: "Depok, Sleman",
-      ci_score: 0.718,
-      distance_km: 4.1,
-      urgency_level: 7.2,
-      match_reasons: ["Terjangkau jalur logistik"],
-    },
-    {
-      rank: 5,
-      institution_name: "Panti Wreda Bina Sejahtera",
-      beneficiary_count: 40,
-      address: "Bantul, DIY",
-      ci_score: 0.652,
-      distance_km: 6.8,
-      urgency_level: 6.5,
-      match_reasons: ["Kebutuhan nutrisi lansia"],
-    },
-  ];
+  const foodDistributed = stats?.total_food_saved_kg ?? stats?.food_waste_kg ?? 0;
+  const beneficiaries = stats?.total_beneficiaries ?? stats?.people_helped ?? 0;
+  const mealsServed = stats?.total_portions_distributed ?? stats?.total_portions ?? 0;
+  const co2Saved = stats?.co2_saved_tons ?? Number(((foodDistributed * 2.5) / 1000).toFixed(1));
 
   useEffect(() => {
     fetch("/api/public/topsis-priority")
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
-        if (data && data.rankings && data.rankings.length > 0) {
+        if (data && data.rankings) {
           setTopsisData(data);
         }
       })
       .catch(() => {});
   }, []);
 
-  const donors =
-    topDonors && topDonors.length > 0
-      ? topDonors.slice(0, 5).map((d, idx) => ({
-          rank: idx + 1,
-          name: d.name || d.business_name || `Partner #${idx + 1}`,
-          weight: `${d.total_weight_kg || d.total_kg || 245 - idx * 35} kg`,
-          donations: `${d.donation_count || 12 - idx * 2} donations`,
-          logo: d.avatar_url || defaultDonorsList[idx]?.logo || "/images/hotel_logo.webp",
-          fallbackImg: "/images/donor_kitchen.jpg",
-          badgeBg:
-            idx === 0
-              ? "bg-[#10B981] text-white"
-              : idx === 1
-                ? "bg-[#059669] text-white"
-                : idx === 2
-                  ? "bg-[#047857] text-white"
-                  : "bg-[#E2E8F0] text-[#64748B]",
-        }))
-      : defaultDonorsList;
+  const donors = (topDonors || []).map((d, idx) => ({
+    rank: idx + 1,
+    name: d.business_name || d.name || `Mitra Donatur #${idx + 1}`,
+    weight: `${Math.round((d.total_donations || 1) * 3)} kg pangan`,
+    donations: `${d.total_donations || 0} donasi disalurkan`,
+    logo: d.logo_url || "/images/hotel_logo.webp",
+    fallbackImg: "/images/donor_kitchen.jpg",
+    badgeBg:
+      idx === 0
+        ? "bg-[#10B981] text-white"
+        : idx === 1
+          ? "bg-[#059669] text-white"
+          : idx === 2
+            ? "bg-[#047857] text-white"
+            : "bg-[#E2E8F0] text-[#64748B]",
+  }));
 
-  const topsisList =
-    topsisData?.rankings && topsisData.rankings.length > 0
-      ? topsisData.rankings
-      : defaultTopsisRankings;
+  const topsisList = topsisData?.rankings || [];
 
   return (
     <section id="dampak" className="relative py-24 bg-[#F8FAF8] overflow-hidden">
@@ -354,42 +247,48 @@ export function RecognitionSection({
                 <p className="text-[11px] text-[#64748B] mb-1">
                   Mitra hotel, restoran, dan kafe paling aktif dalam menyalurkan surplus makanan bergizi.
                 </p>
-                {donors.map((d: any) => (
-                  <div
-                    key={d.rank}
-                    className="flex items-center gap-3 p-2 rounded-xl hover:bg-[#F8FAFC] transition-colors border border-transparent hover:border-[#E2E8F0]"
-                  >
-                    <span
-                      className={`w-5 h-5 rounded-full text-[11px] font-bold flex items-center justify-center shrink-0 ${d.badgeBg}`}
-                    >
-                      {d.rank}
-                    </span>
-
-                    <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 border border-[#E2E8F0] bg-stone-100 shadow-xs">
-                      <img
-                        src={d.logo}
-                        alt={d.name}
-                        className="w-full h-full object-cover"
-                        onError={(e: any) => {
-                          (e.target as HTMLImageElement).src = d.fallbackImg;
-                        }}
-                      />
-                    </div>
-
-                    <div className="min-w-0 flex-1">
-                      <h4 className="font-bold text-[12px] text-[#0F172A] truncate">
-                        {d.name}
-                      </h4>
-                      <p className="text-[10px] text-[#94A3B8]">
-                        {d.donations}
-                      </p>
-                    </div>
-
-                    <span className="text-xs font-bold text-[#0F172A] shrink-0">
-                      {d.weight}
-                    </span>
+                {donors.length === 0 ? (
+                  <div className="text-center py-8 text-xs text-[#64748B]">
+                    Belum ada riwayat donatur tercatat di database.
                   </div>
-                ))}
+                ) : (
+                  donors.map((d: any) => (
+                    <div
+                      key={d.rank}
+                      className="flex items-center gap-3 p-2 rounded-xl hover:bg-[#F8FAFC] transition-colors border border-transparent hover:border-[#E2E8F0]"
+                    >
+                      <span
+                        className={`w-5 h-5 rounded-full text-[11px] font-bold flex items-center justify-center shrink-0 ${d.badgeBg}`}
+                      >
+                        {d.rank}
+                      </span>
+
+                      <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 border border-[#E2E8F0] bg-stone-100 shadow-xs">
+                        <img
+                          src={d.logo}
+                          alt={d.name}
+                          className="w-full h-full object-cover"
+                          onError={(e: any) => {
+                            (e.target as HTMLImageElement).src = d.fallbackImg;
+                          }}
+                        />
+                      </div>
+
+                      <div className="min-w-0 flex-1">
+                        <h4 className="font-bold text-[12px] text-[#0F172A] truncate">
+                          {d.name}
+                        </h4>
+                        <p className="text-[10px] text-[#94A3B8]">
+                          {d.donations}
+                        </p>
+                      </div>
+
+                      <span className="text-xs font-bold text-[#0F172A] shrink-0">
+                        {d.weight}
+                      </span>
+                    </div>
+                  ))
+                )}
               </div>
             )}
 
@@ -433,7 +332,12 @@ export function RecognitionSection({
 
                 {/* Ranked Recipient Priority Queue */}
                 <div className="space-y-2">
-                  {topsisList.map((item: any, idx: number) => {
+                  {topsisList.length === 0 ? (
+                    <div className="text-center py-8 text-xs text-[#64748B]">
+                      Belum ada perhitungan perankingan donasi aktif saat ini.
+                    </div>
+                  ) : (
+                    topsisList.map((item: any, idx: number) => {
                     const rankNum = item.rank || idx + 1;
                     const score = Number(item.ci_score || 0.9 - idx * 0.08).toFixed(3);
                     const isTop1 = rankNum === 1;
@@ -503,7 +407,7 @@ export function RecognitionSection({
                         )}
                       </div>
                     );
-                  })}
+                  }))}
                 </div>
 
                 {/* Transparency Guarantee Note */}

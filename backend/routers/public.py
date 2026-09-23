@@ -57,10 +57,14 @@ async def public_stats(session: SessionDep):
 
     result = {
         "food_waste_kg": food_waste_kg,
+        "total_food_saved_kg": food_waste_kg,
         "people_helped": people_helped,
+        "total_beneficiaries": people_helped,
         "partner_count": partner_count,
         "completed_donations": completed_donations,
         "total_portions": total_portions,
+        "total_portions_distributed": total_portions,
+        "co2_saved_tons": round((food_waste_kg * 2.5) / 1000, 1),
     }
 
     # Cache the result
@@ -269,72 +273,16 @@ async def get_public_topsis_priority(session: SessionDep):
             "algorithm": "Hybrid Shannon Entropy-TOPSIS (50% Policy + 50% Data Entropy)",
         }
 
-    # If no results yet, return realistic verified recipient transparency sample
+    # If no results yet, return empty transparency status
     return {
-        "donation_id": 1,
+        "donation_id": None,
         "weights": {
-            "c1_protein": 0.245,
-            "c2_urgency": 0.285,
-            "c3_shelf_life": 0.145,
-            "c4_distance": 0.185,
-            "c5_fairness": 0.140,
+            "c1_protein": 0.25,
+            "c2_urgency": 0.25,
+            "c3_shelf_life": 0.15,
+            "c4_distance": 0.20,
+            "c5_fairness": 0.15,
         },
-        "rankings": [
-            {
-                "rank": 1,
-                "institution_name": "Panti Asuhan Al-Furqan",
-                "beneficiary_count": 65,
-                "address": "Sleman, DI Yogyakarta",
-                "ci_score": 0.942,
-                "distance_km": 2.4,
-                "urgency_level": 9.2,
-                "protein_fulfill_pct": 88.5,
-                "match_reasons": ["Urgensi kebutuhan gizi sangat tinggi", "Jarak dekat (2.4 km) - distribusi kilat", "Keadilan distribusi (+14 hari belum menerima)"],
-            },
-            {
-                "rank": 2,
-                "institution_name": "Yayasan Kasih Mulia",
-                "beneficiary_count": 48,
-                "address": "Kota Yogyakarta, DIY",
-                "ci_score": 0.887,
-                "distance_km": 3.8,
-                "urgency_level": 8.5,
-                "protein_fulfill_pct": 82.0,
-                "match_reasons": ["Tingkat kebutuhan mendesak", "Jarak terjangkau (3.8 km)"],
-            },
-            {
-                "rank": 3,
-                "institution_name": "Panti Karya Insani",
-                "beneficiary_count": 55,
-                "address": "Bantul, DI Yogyakarta",
-                "ci_score": 0.795,
-                "distance_km": 5.2,
-                "urgency_level": 7.8,
-                "protein_fulfill_pct": 74.0,
-                "match_reasons": ["Jarak terjangkau (5.2 km)", "Kepadatan nutrisi cocok untuk anak"],
-            },
-            {
-                "rank": 4,
-                "institution_name": "Rumah Singgah Harapan Kita",
-                "beneficiary_count": 35,
-                "address": "Depok, Sleman",
-                "ci_score": 0.718,
-                "distance_km": 4.1,
-                "urgency_level": 7.2,
-                "protein_fulfill_pct": 68.0,
-                "match_reasons": ["Lokasi dalam jangkauan kurir"],
-            },
-            {
-                "rank": 5,
-                "institution_name": "Panti Wreda Bina Sejahtera",
-                "beneficiary_count": 40,
-                "address": "Bantul, DIY",
-                "ci_score": 0.652,
-                "distance_km": 6.8,
-                "urgency_level": 6.5,
-                "protein_fulfill_pct": 62.0,
-                "match_reasons": ["Menu sesuai diet lansia"],
-            },
-        ],
+        "rankings": [],
         "algorithm": "Hybrid Shannon Entropy-TOPSIS (50% Policy + 50% Data Entropy)",
     }
