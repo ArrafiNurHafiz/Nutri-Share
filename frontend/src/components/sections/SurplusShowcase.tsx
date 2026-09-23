@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Clock, CheckCircle2, ArrowUpRight, ShieldCheck, Package } from "lucide-react";
 import { Link } from "react-router-dom";
+import { api } from "../../lib/api";
 
 interface FoodItem {
-  id: string;
+  id: string | number;
   batchCode: string;
   title: string;
   category: "all" | "prepared" | "fresh" | "bakery";
@@ -22,91 +23,86 @@ interface FoodItem {
   ciScore: string;
 }
 
-const SAMPLE_ITEMS: FoodItem[] = [
-  {
-    id: "item-1",
-    batchCode: "BATCH-8901",
-    title: "Liwet Rice & Roasted Chicken Meal",
-    category: "prepared",
-    categoryLabel: "Prepared Meals",
-    donorName: "Hotel Merapi Merbabu",
-    location: "Depok, Sleman",
-    portions: 35,
-    expiryHours: 3.5,
-    image: "/images/donor_kitchen.jpg",
-    nutrients: {
-      calories: "450 kcal",
-      protein: "24g protein",
-      specs: ["Sealed Packaging", "Temperature Controlled", "HACCP Certified"],
-    },
-    priorityRecipient: "Al-Furqan Orphanage",
-    ciScore: "0.942",
-  },
-  {
-    id: "item-2",
-    batchCode: "BATCH-8902",
-    title: "Fresh Green Vegetables & Local Fruits",
-    category: "fresh",
-    categoryLabel: "Fresh Produce",
-    donorName: "Dapur Nusantara Resto",
-    location: "Bantul, DIY",
-    portions: 20,
-    expiryHours: 8.0,
-    image: "/images/vegetables_fresh.jpg",
-    nutrients: {
-      calories: "120 kcal",
-      protein: "6g fiber",
-      specs: ["Grade-A Fresh", "Rich in Vitamin C", "Residue Free"],
-    },
-    priorityRecipient: "Kasih Bunda Nursing Home",
-    ciScore: "0.885",
-  },
-  {
-    id: "item-3",
-    batchCode: "BATCH-8903",
-    title: "Nutritious Rice Box & Tempeh Bacem",
-    category: "prepared",
-    categoryLabel: "Prepared Meals",
-    donorName: "Sehat Kita Catering",
-    location: "Yogyakarta City",
-    portions: 45,
-    expiryHours: 4.0,
-    image: "/images/food_pack.jpg",
-    nutrients: {
-      calories: "380 kcal",
-      protein: "18g protein",
-      specs: ["Cooked <2h", "Low Sodium", "Eco Package"],
-    },
-    priorityRecipient: "Harapan Bangsa Shelter",
-    ciScore: "0.912",
-  },
-  {
-    id: "item-4",
-    batchCode: "BATCH-8904",
-    title: "Whole Wheat Bread & Assorted Pastries",
-    category: "bakery",
-    categoryLabel: "Bakery & Bread",
-    donorName: "Tugu Jogja Cafe",
-    location: "Kraton, Yogyakarta",
-    portions: 25,
-    expiryHours: 12.0,
-    image: "/images/fresh-food.webp",
-    nutrients: {
-      calories: "280 kcal",
-      protein: "8g fiber",
-      specs: ["Whole Grain", "No Preservatives", "Hygienic Sealed"],
-    },
-    priorityRecipient: "Muhammadiyah Orphanage",
-    ciScore: "0.864",
-  },
-];
-
 export function SurplusShowcase() {
   const [activeCategory, setActiveCategory] = useState<"all" | "prepared" | "fresh" | "bakery">("all");
+  const [items, setItems] = useState<FoodItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchPublicSurplus() {
+      try {
+        const [donations, topsis] = await Promise.all([
+          api.fetchJSON("/api/donations?limit=8").catch(() => []),
+          api.fetchJSON("/api/public/topsis-priority").catch(() => null),
+        ]);
+
+        if (Array.isArray(donations) && donations.length > 0) {
+          const topRecipient = topsis?.rankings?.[0]?.institution_name || "Verified Social Shelter";
+          const topCi = topsis?.rankings?.[0]?.ci_score ? Number(topsis.rankings[0].ci_score).toFixed(3) : "0.942";
+
+          const mapped: FoodItem[] = donations.map((d: any, idx: number) => {
+            const foodType = d.food_type || "makanan_berat";
+            let category: "prepared" | "fresh" | "bakery" = "prepared";
+            let categoryLabel = "Prepared Meals";
+
+            if (foodType === "sayur") {
+              category = "fresh";
+              categoryLabel = "Fresh Produce";
+            } else if (foodType === "snack") {
+              category = "bakery";
+              categoryLabel = "Bakery & Bread";
+            }
+
+            let expiryHours = 6;
+            if (d.valid_until) {
+              const diffMs = new Date(d.valid_until).getTime() - new Date().getTime();
+              const hrs = Math.max(1, Math.round(diffMs / (1000 * 60 * 60)));
+              expiryHours = hrs > 72 ? 12 : hrs;
+            }
+
+            const images = [
+              "/images/donor_kitchen.jpg",
+              "/images/food_pack.jpg",
+              "/images/fresh-food.webp",
+              "/images/vegetables_fresh.jpg",
+            ];
+
+            return {
+              id: d.id,
+              batchCode: `BATCH-${d.id + 8400}`,
+              title: d.food_name || "Nutritious Food Box",
+              category,
+              categoryLabel,
+              donorName: d.donor_name || "HoReKa Food Partner",
+              location: d.donor_city || "Yogyakarta",
+              portions: d.portion_count || 30,
+              expiryHours,
+              image: d.photo_url || images[idx % images.length],
+              nutrients: {
+                calories: `${Math.round(d.calorie_per_portion || 400)} kcal`,
+                protein: `${Math.round(d.protein_per_portion || 20)}g protein`,
+                specs: ["HACCP Verified", "Temperature Controlled", "Hygiene Sealed"],
+              },
+              priorityRecipient: topRecipient,
+              ciScore: topCi,
+            };
+          });
+
+          setItems(mapped);
+        }
+      } catch {
+        /* fallback empty */
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchPublicSurplus();
+  }, []);
 
   const filteredItems = activeCategory === "all"
-    ? SAMPLE_ITEMS
-    : SAMPLE_ITEMS.filter((item) => item.category === activeCategory);
+    ? items
+    : items.filter((item) => item.category === activeCategory);
 
   return (
     <section id="catalog" className="relative py-20 sm:py-28 bg-[#f8fafc] text-slate-900 border-b border-emerald-100">
@@ -117,7 +113,7 @@ export function SurplusShowcase() {
           <div className="space-y-3 max-w-xl">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold">
               <Package size={13} className="text-emerald-700" />
-              <span>Live Food Inventory</span>
+              <span>Real-Time Database Records</span>
             </div>
             <h2 className="font-heading font-extrabold text-3xl sm:text-4xl text-emerald-950 tracking-tight">
               Verified Surplus Food Catalog
@@ -151,76 +147,84 @@ export function SurplusShowcase() {
           </div>
         </div>
 
-        {/* 4 Cards Bento Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {filteredItems.map((item) => (
-            <div
-              key={item.id}
-              className="rounded-3xl bg-white border border-emerald-100/90 hover:border-emerald-300 overflow-hidden flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 shadow-xs hover:shadow-md group"
-            >
-              <div>
-                {/* Photo with Overlay Badge */}
-                <div className="relative h-48 w-full bg-emerald-50 overflow-hidden">
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute top-3 left-3 px-2.5 py-1 rounded-lg bg-white/90 backdrop-blur-md text-emerald-900 text-[11px] font-bold border border-emerald-200/60 shadow-xs">
-                    {item.categoryLabel}
+        {/* Real Data Grid */}
+        {filteredItems.length === 0 ? (
+          <div className="text-center py-16 bg-white rounded-3xl border border-emerald-100 p-8">
+            <Package size={32} className="mx-auto text-emerald-600 mb-2" />
+            <h3 className="font-bold text-base text-slate-800">No surplus food currently listed</h3>
+            <p className="text-xs text-slate-500 mt-1">All verified surplus batches have been distributed or are awaiting new donor postings.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {filteredItems.map((item) => (
+              <div
+                key={item.id}
+                className="rounded-3xl bg-white border border-emerald-100/90 hover:border-emerald-300 overflow-hidden flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 shadow-xs hover:shadow-md group"
+              >
+                <div>
+                  {/* Photo with Overlay Badge */}
+                  <div className="relative h-48 w-full bg-emerald-50 overflow-hidden">
+                    <img
+                      src={item.image}
+                      alt={item.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute top-3 left-3 px-2.5 py-1 rounded-lg bg-white/90 backdrop-blur-md text-emerald-900 text-[11px] font-bold border border-emerald-200/60 shadow-xs">
+                      {item.categoryLabel}
+                    </div>
+                    <div className="absolute bottom-3 right-3 px-2.5 py-1 rounded-lg bg-emerald-950/85 backdrop-blur-md text-white text-[11px] font-semibold">
+                      {item.portions} Portions
+                    </div>
                   </div>
-                  <div className="absolute bottom-3 right-3 px-2.5 py-1 rounded-lg bg-emerald-950/85 backdrop-blur-md text-white text-[11px] font-semibold">
-                    {item.portions} Portions
+
+                  {/* Details */}
+                  <div className="p-5 space-y-3">
+                    <div>
+                      <span className="text-[11px] font-semibold text-emerald-700 block truncate">
+                        {item.donorName} &bull; {item.location}
+                      </span>
+                      <h3 className="font-heading font-bold text-base text-slate-900 leading-snug mt-1 line-clamp-1">
+                        {item.title}
+                      </h3>
+                    </div>
+
+                    {/* Nutrients Pills */}
+                    <div className="flex items-center gap-2 text-xs font-medium">
+                      <span className="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700">{item.nutrients.calories}</span>
+                      <span className="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 font-semibold">{item.nutrients.protein}</span>
+                    </div>
+
+                    {/* Expiry Hours */}
+                    <div className="flex items-center justify-between text-xs pt-2 border-t border-slate-100">
+                      <span className="flex items-center gap-1.5 text-amber-700 font-medium">
+                        <Clock size={13} />
+                        Approx. {item.expiryHours}h Remaining
+                      </span>
+                      <span className="text-emerald-600 font-semibold flex items-center gap-1">
+                        <CheckCircle2 size={13} />
+                        Safe
+                      </span>
+                    </div>
                   </div>
                 </div>
 
-                {/* Details */}
-                <div className="p-5 space-y-3">
-                  <div>
-                    <span className="text-[11px] font-semibold text-emerald-700 block truncate">
-                      {item.donorName} &bull; {item.location}
-                    </span>
-                    <h3 className="font-heading font-bold text-base text-slate-900 leading-snug mt-1 line-clamp-1">
-                      {item.title}
-                    </h3>
+                {/* Priority Recipient Allocation Footer */}
+                <div className="px-5 py-3.5 bg-emerald-50/50 border-t border-emerald-100 flex items-center justify-between text-xs">
+                  <div className="min-w-0 pr-2">
+                    <span className="text-[10px] text-slate-500 block uppercase tracking-wider">TOPSIS Allocation</span>
+                    <strong className="text-emerald-950 block truncate font-semibold">
+                      {item.priorityRecipient}
+                    </strong>
                   </div>
-
-                  {/* Nutrients Pills */}
-                  <div className="flex items-center gap-2 text-xs font-medium">
-                    <span className="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700">{item.nutrients.calories}</span>
-                    <span className="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 font-semibold">{item.nutrients.protein}</span>
-                  </div>
-
-                  {/* Expiry Hours */}
-                  <div className="flex items-center justify-between text-xs pt-2 border-t border-slate-100">
-                    <span className="flex items-center gap-1.5 text-amber-700 font-medium">
-                      <Clock size={13} />
-                      Approx. {item.expiryHours}h Remaining
-                    </span>
-                    <span className="text-emerald-600 font-semibold flex items-center gap-1">
-                      <CheckCircle2 size={13} />
-                      Safe
-                    </span>
-                  </div>
+                  <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[11px] shrink-0 font-mono">
+                    Ci {item.ciScore}
+                  </span>
                 </div>
+
               </div>
-
-              {/* Priority Recipient Allocation Footer */}
-              <div className="px-5 py-3.5 bg-emerald-50/50 border-t border-emerald-100 flex items-center justify-between text-xs">
-                <div className="min-w-0 pr-2">
-                  <span className="text-[10px] text-slate-500 block uppercase tracking-wider">TOPSIS Priority Target</span>
-                  <strong className="text-emerald-950 block truncate font-semibold">
-                    {item.priorityRecipient}
-                  </strong>
-                </div>
-                <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[11px] shrink-0 font-mono">
-                  Ci {item.ciScore}
-                </span>
-              </div>
-
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
         {/* Bottom Banner */}
         <div className="mt-12 p-6 rounded-3xl bg-white border border-emerald-100 shadow-xs flex flex-col md:flex-row items-center justify-between gap-4">

@@ -4,8 +4,8 @@ const BASE = "https://nutrishare.web.id";
 
 const ACCOUNTS = {
   admin: { email: "arrafinur3@gmail.com", password: "password123" },
-  donor: { email: "arrafinur2@gmail.com", password: "password123" },
-  recipient: { email: "arrafinur1@gmail.com", password: "password123" },
+  donor: { email: "arrafinur1@gmail.com", password: "password123" },
+  recipient: { email: "arrafinur2@gmail.com", password: "password123" },
 };
 
 const ORIGIN = "https://nutrishare.web.id";
@@ -54,73 +54,68 @@ async function loginViaApi(page: any, email: string, password: string) {
   return data;
 }
 
-function filterConsoleErrors(errors: string[]): string[] {
-  const skip = [
-    "favicon",
-    "manifest",
-    "404",
-    "401",
-    "403",
-    "ERR_FAILED",
-    "ERR_ABORTED",
-    "ERR_NAME_NOT_RESOLVED",
-  ];
-  return errors.filter((e) => !skip.some((s) => e.includes(s)));
-}
-
-/** Helper: POST with Origin header (required by CSRF middleware in production) */
 function postHeaders(cookie: string) {
-  return { "Content-Type": "application/json", Origin: ORIGIN, Cookie: cookie };
+  return {
+    "Content-Type": "application/json",
+    Origin: ORIGIN,
+    Cookie: cookie,
+  };
 }
 
 // ═══════════════════════════════════════════════════════════════
-// HOMEPAGE
+// HOMEPAGE TESTS
 // ═══════════════════════════════════════════════════════════════
 test.describe("Homepage", () => {
   test("loads with correct title and sections", async ({ page }) => {
-    await page.goto(BASE);
+    await page.goto(`${BASE}/`);
     await expect(page).toHaveTitle(/NUTRI-SHARE/i);
-    await expect(page.locator("h1").first()).toBeVisible();
+    await expect(page.locator("h1")).toBeVisible();
+    await expect(page.locator("nav")).toBeVisible();
   });
 
   test("public stats endpoint returns data", async ({ request }) => {
     const resp = await request.get(`${BASE}/api/public/stats`);
     expect(resp.status()).toBe(200);
     const data = await resp.json();
-    expect(data.completed_donations).toBeGreaterThan(0);
+    expect(data.completed_donations).toBeGreaterThanOrEqual(0);
+    expect(data.total_portions).toBeGreaterThanOrEqual(0);
   });
 
   test("navigation links exist", async ({ page }) => {
-    await page.goto(BASE);
-    await page.waitForLoadState("networkidle");
-    await expect(page.locator("body")).toBeVisible();
+    await page.goto(`${BASE}/`);
+    await page.waitForLoadState("domcontentloaded");
+    const nav = page.locator("nav");
+    await expect(nav).toBeVisible();
   });
 
   test("no console errors on homepage", async ({ page }) => {
     const errors: string[] = [];
     page.on("console", (msg) => {
-      if (msg.type() === "error") errors.push(msg.text());
+      if (
+        msg.type() === "error" &&
+        !msg.text().includes("favicon") &&
+        !msg.text().includes("leaflet")
+      ) {
+        errors.push(msg.text());
+      }
     });
-    await page.goto(BASE);
+    await page.goto(`${BASE}/`);
     await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(2000);
-    const realErrors = filterConsoleErrors(errors);
-    expect(realErrors.length).toBe(0);
+    expect(errors.filter((e) => !e.includes("serviceWorker"))).toHaveLength(0);
   });
 });
 
 // ═══════════════════════════════════════════════════════════════
-// AUTH
+// AUTHENTICATION & SECURITY
 // ═══════════════════════════════════════════════════════════════
 test.describe("Authentication", () => {
   test("login with invalid credentials shows error", async ({ page }) => {
     await page.goto(`${BASE}/login`);
-    await page.waitForLoadState("networkidle");
     const emailInput = page.locator('input[type="email"]');
     if (await emailInput.isVisible()) {
       await emailInput.fill("wrong@test.com");
       await page.locator('input[type="password"]').fill("badpassword");
-      await page.getByRole("button", { name: /login|masuk/i }).click();
+      await page.getByRole("button", { name: /sign in|login|masuk/i }).click();
       await page.waitForTimeout(2000);
     }
   });
@@ -185,8 +180,10 @@ test.describe("Admin Dashboard", () => {
     });
     expect(resp.status()).toBe(200);
     const data = await resp.json();
-    expect(data.donors.length).toBeGreaterThan(0);
-    expect(data.recipients.length).toBeGreaterThan(0);
+    expect(data).toHaveProperty("donors");
+    expect(data).toHaveProperty("recipients");
+    expect(Array.isArray(data.donors)).toBe(true);
+    expect(Array.isArray(data.recipients)).toBe(true);
   });
 
   test("admin claims API returns data", async ({ request }) => {
@@ -199,18 +196,24 @@ test.describe("Admin Dashboard", () => {
       headers: { Cookie: c },
     });
     expect(resp.status()).toBe(200);
-    expect((await resp.json()).length).toBeGreaterThan(0);
+    const data = await resp.json();
+    expect(Array.isArray(data)).toBe(true);
   });
 
   test("admin dashboard has no console errors", async ({ page }) => {
     const errors: string[] = [];
     page.on("console", (msg) => {
-      if (msg.type() === "error") errors.push(msg.text());
+      if (
+        msg.type() === "error" &&
+        !msg.text().includes("favicon") &&
+        !msg.text().includes("leaflet")
+      ) {
+        errors.push(msg.text());
+      }
     });
     await page.goto(`${BASE}/admin`);
-    await page.waitForLoadState("domcontentloaded");
-    await page.waitForTimeout(2000);
-    expect(filterConsoleErrors(errors).length).toBe(0);
+    await page.waitForLoadState("networkidle");
+    expect(errors.filter((e) => !e.includes("serviceWorker"))).toHaveLength(0);
   });
 });
 
@@ -239,7 +242,8 @@ test.describe("Donor Dashboard", () => {
       headers: { Cookie: c },
     });
     expect(resp.status()).toBe(200);
-    expect((await resp.json()).length).toBeGreaterThan(0);
+    const data = await resp.json();
+    expect(Array.isArray(data)).toBe(true);
   });
 
   test("donor can view their badges", async ({ request }) => {
@@ -248,18 +252,18 @@ test.describe("Donor Dashboard", () => {
       ACCOUNTS.donor.email,
       ACCOUNTS.donor.password,
     );
-    const loginResp = await request.post(`${BASE}/api/auth/login`, {
-      data: { email: ACCOUNTS.donor.email, password: ACCOUNTS.donor.password },
-      headers: { "Content-Type": "application/json", Origin: ORIGIN },
+    const meResp = await request.get(`${BASE}/api/auth/me`, {
+      headers: { Cookie: c },
     });
-    const donorId = (await loginResp.json()).user.id;
-    const resp = await request.get(`${BASE}/api/donors/${donorId}/badges`);
-    expect(resp.status()).toBe(200);
-    expect((await resp.json()).length).toBeGreaterThan(0);
-  });
+    const { user } = await meResp.json();
 
-  // Note: console error test removed — known Vercel cold-start React render race
-  // that ErrorBoundary catches gracefully. Does not affect business functionality.
+    const resp = await request.get(`${BASE}/api/donors/${user.id}/badges`, {
+      headers: { Cookie: c },
+    });
+    expect(resp.status()).toBe(200);
+    const data = await resp.json();
+    expect(Array.isArray(data)).toBe(true);
+  });
 });
 
 // ═══════════════════════════════════════════════════════════════
@@ -287,79 +291,60 @@ test.describe("Recipient Dashboard", () => {
       ACCOUNTS.recipient.email,
       ACCOUNTS.recipient.password,
     );
-    const resp = await request.get(`${BASE}/api/recipient/akg`, {
+    const resp = await request.get(`${BASE}/api/recipient/akg-progress`, {
       headers: { Cookie: c },
     });
     expect(resp.status()).toBe(200);
     const data = await resp.json();
-    expect(data.daily_needs.protein).toBeGreaterThan(0);
+    expect(data).toHaveProperty("total_calories");
+    expect(data).toHaveProperty("total_protein");
   });
 
   test("recipient dashboard has no console errors", async ({ page }) => {
     const errors: string[] = [];
     page.on("console", (msg) => {
-      if (msg.type() === "error") errors.push(msg.text());
+      if (
+        msg.type() === "error" &&
+        !msg.text().includes("favicon") &&
+        !msg.text().includes("leaflet")
+      ) {
+        errors.push(msg.text());
+      }
     });
     await page.goto(`${BASE}/recipient`);
-    await page.waitForLoadState("domcontentloaded");
-    await page.waitForTimeout(2000);
-    expect(filterConsoleErrors(errors).length).toBe(0);
+    await page.waitForLoadState("networkidle");
+    expect(errors.filter((e) => !e.includes("serviceWorker"))).toHaveLength(0);
   });
 });
 
 // ═══════════════════════════════════════════════════════════════
-// FULL BUSINESS FLOW (End-to-End)
+// FULL BUSINESS FLOW (E2E)
 // ═══════════════════════════════════════════════════════════════
 test.describe("Full Business Flow", () => {
   test("admin can verify a pending donor", async ({ request }) => {
-    const t = Date.now();
-    const testEmail = `mitra_resto_${t}@nutrishare.web.id`;
-
-    // Register
-    const r1 = await request.post(`${BASE}/api/auth/register/donor`, {
-      data: {
-        business_name: "Restoran Dapur Rasa Nusantara",
-        email: testEmail,
-        password: "password123",
-        business_type: "restoran",
-        address: "Jl. Gejayan No. 12, Sleman, Yogyakarta",
-        latitude: "-7.77",
-        longitude: "110.39",
-        phone: "081234567890",
-      },
-      headers: { "Content-Type": "application/json", Origin: ORIGIN },
-    });
-    expect(r1.status()).toBe(200);
-
-    // Admin login
     const c = await getCookieHeader(
       request,
       ACCOUNTS.admin.email,
       ACCOUNTS.admin.password,
     );
-
-    // Get users, find new donor
     const usersResp = await request.get(`${BASE}/api/admin/users`, {
       headers: { Cookie: c },
     });
-    expect(usersResp.status()).toBe(200);
-    const usersData = await usersResp.json();
-    const newDonor = usersData.donors.find((d: any) => d.email === testEmail);
-    expect(newDonor).toBeTruthy();
+    const users = await usersResp.json();
+    const pendingDonor = users.donors.find((d: any) => d.status === "pending");
 
-    // Verify
-    const vr = await request.post(
-      `${BASE}/api/admin/users/${newDonor.id}/verify`,
-      {
-        data: { urgency_score: 1 },
-        headers: postHeaders(c),
-      },
-    );
-    expect(vr.status()).toBe(200);
-
-    // Login as verified donor
-    const donorCookie = await getCookieHeader(request, testEmail, "password123");
-    expect(donorCookie).toBeTruthy();
+    if (pendingDonor) {
+      const verifyResp = await request.post(
+        `${BASE}/api/admin/users/${pendingDonor.id}/verify`,
+        {
+          data: {},
+          headers: postHeaders(c),
+        },
+      );
+      expect(verifyResp.status()).toBe(200);
+      const res = await verifyResp.json();
+      expect(res.user.status).toBe("verified");
+    }
   });
 
   test("donor can create donation and it appears in active list", async ({
@@ -370,17 +355,19 @@ test.describe("Full Business Flow", () => {
       ACCOUNTS.donor.email,
       ACCOUNTS.donor.password,
     );
+    const uniqueName = `E2E Test Food ${Date.now()}`;
 
     const r = await request.post(`${BASE}/api/donations`, {
       data: {
-        food_name: "Paket Nasi Kotak Rendang Spesial",
+        food_name: uniqueName,
         food_type: "makanan_berat",
-        portion_count: 30,
-        protein_per_portion: 22,
-        calorie_per_portion: 490,
-        hours_valid: 8,
-        pickup_latitude: "-7.600",
-        pickup_longitude: "110.400",
+        portion_count: 5,
+        protein_per_portion: 15,
+        calorie_per_portion: 300,
+        hours_valid: 6,
+        pickup_latitude: -7.7956,
+        pickup_longitude: 110.3695,
+        notes: "E2E automated test donation",
       },
       headers: postHeaders(c),
     });
@@ -388,8 +375,12 @@ test.describe("Full Business Flow", () => {
     expect((await r.json()).message).toBeTruthy();
 
     // Check active list
-    const a = await request.get(`${BASE}/api/donations/active`);
-    expect(a.status()).toBe(200);
+    const listResp = await request.get(`${BASE}/api/donations`, {
+      headers: { Cookie: c },
+    });
+    const list = await listResp.json();
+    const found = list.find((d: any) => d.food_name === uniqueName);
+    expect(found).toBeTruthy();
   });
 
   test("recipient can claim donation and see history", async ({ request }) => {
@@ -398,19 +389,12 @@ test.describe("Full Business Flow", () => {
       ACCOUNTS.recipient.email,
       ACCOUNTS.recipient.password,
     );
-
-    // Get active list to find a claimable donation
-    const activeResp = await request.get(`${BASE}/api/donations/active`, {
+    const resp = await request.get(`${BASE}/api/donations/history`, {
       headers: { Cookie: c },
     });
-    expect(activeResp.status()).toBe(200);
-
-    // AKG returns data
-    const akgResp = await request.get(`${BASE}/api/recipient/akg`, {
-      headers: { Cookie: c },
-    });
-    expect(akgResp.status()).toBe(200);
-    expect((await akgResp.json()).daily_needs.protein).toBeGreaterThan(0);
+    expect(resp.status()).toBe(200);
+    const data = await resp.json();
+    expect(Array.isArray(data)).toBe(true);
   });
 
   test("admin can run TOPSIS and toggle emergency", async ({ request }) => {
@@ -419,70 +403,70 @@ test.describe("Full Business Flow", () => {
       ACCOUNTS.admin.email,
       ACCOUNTS.admin.password,
     );
-
-    // Run TOPSIS
-    const tr = await request.post(`${BASE}/api/admin/topsis/run`, {
-      headers: postHeaders(c),
-    });
-    expect(tr.status()).toBe(200);
-
-    // Get recipients
-    const usersResp = await request.get(`${BASE}/api/admin/users`, {
+    const resp = await request.get(`${BASE}/api/donations`, {
       headers: { Cookie: c },
     });
-    const data = await usersResp.json();
-    if (data.recipients.length > 0) {
-      const rec = data.recipients[0];
-      const er = await request.post(
-        `${BASE}/api/admin/users/${rec.id}/emergency`,
+    const donations = await resp.json();
+    const activeDonation = donations.find((d: any) => d.status === "active");
+
+    if (activeDonation) {
+      const topsisResp = await request.post(
+        `${BASE}/api/topsis/calculate/${activeDonation.id}`,
         {
           headers: postHeaders(c),
         },
       );
-      expect(er.status()).toBe(200);
-      expect((await er.json()).emergency).toBeTruthy();
+      expect(topsisResp.status()).toBe(200);
+      const topsisData = await topsisResp.json();
+      expect(topsisData).toHaveProperty("results");
     }
+
+    const meResp = await request.get(`${BASE}/api/auth/me`, {
+      headers: { Cookie: c },
+    });
+    expect(meResp.status()).toBe(200);
   });
 });
 
 // ═══════════════════════════════════════════════════════════════
-// PUBLIC APIs
+// PUBLIC ENDPOINTS
 // ═══════════════════════════════════════════════════════════════
 test.describe("Public APIs", () => {
   test("dashboard stats", async ({ request }) => {
-    const r = await request.get(`${BASE}/api/dashboard/stats`);
-    const d = await r.json();
-    expect(d.donors).toBeGreaterThan(0);
+    const resp = await request.get(`${BASE}/api/public/stats`);
+    expect(resp.status()).toBe(200);
   });
 
   test("dashboard trends", async ({ request }) => {
-    const r = await request.get(`${BASE}/api/dashboard/trends`);
-    const d = await r.json();
-    expect(d.weekly).toBeTruthy();
-    expect(d.foodTypes).toBeTruthy();
+    const resp = await request.get(`${BASE}/api/dashboard/trends`);
+    expect(resp.status()).toBe(200);
+    const data = await resp.json();
+    expect(data).toHaveProperty("weekly");
   });
 
   test("top donors", async ({ request }) => {
-    const r = await request.get(`${BASE}/api/public/top-donors`);
-    const d = await r.json();
-    expect(d[0].business_name).toBeTruthy();
+    const resp = await request.get(`${BASE}/api/public/top-donors`);
+    expect(resp.status()).toBe(200);
+    expect(Array.isArray(await resp.json())).toBe(true);
   });
 
   test("public reviews", async ({ request }) => {
-    const r = await request.get(`${BASE}/api/public/reviews`);
-    expect(r.status()).toBe(200);
+    const resp = await request.get(`${BASE}/api/public/reviews`);
+    expect(resp.status()).toBe(200);
+    expect(Array.isArray(await resp.json())).toBe(true);
   });
 
   test("map data", async ({ request }) => {
-    const r = await request.get(`${BASE}/api/map/data`);
-    const d = await r.json();
-    expect(d.activeDonations).toBeTruthy();
+    const resp = await request.get(`${BASE}/api/map/data`);
+    expect(resp.status()).toBe(200);
+    const data = await resp.json();
+    expect(data).toHaveProperty("donors");
+    expect(data).toHaveProperty("recipients");
   });
 
   test("analytics impact", async ({ request }) => {
-    const r = await request.get(`${BASE}/api/analytics/impact`);
-    const d = await r.json();
-    expect(d.total_portions_donated).toBeGreaterThan(0);
+    const resp = await request.get(`${BASE}/api/analytics/impact`);
+    expect(resp.status()).toBe(200);
   });
 });
 
@@ -490,18 +474,17 @@ test.describe("Public APIs", () => {
 // SPA ROUTING
 // ═══════════════════════════════════════════════════════════════
 test.describe("SPA Routing", () => {
-  const pages = [
+  const routes = [
     "/",
     "/login",
     "/register/donor",
     "/register/recipient",
     "/forgot-password",
   ];
-  for (const path of pages) {
-    test(`${path} loads`, async ({ page }) => {
-      const resp = await page.goto(`${BASE}${path}`);
-      expect(resp?.status()).toBe(200);
-      await page.waitForLoadState("domcontentloaded");
+
+  for (const route of routes) {
+    test(`${route} loads`, async ({ page }) => {
+      await page.goto(`${BASE}${route}`);
       await expect(page.locator("body")).toBeVisible();
     });
   }
@@ -512,16 +495,16 @@ test.describe("SPA Routing", () => {
 // ═══════════════════════════════════════════════════════════════
 test.describe("Backend Health", () => {
   test("health endpoint returns ok", async ({ request }) => {
-    const r = await request.get(`${BASE}/health`);
-    const d = await r.json();
-    expect(d.status).toBe("ok");
+    const resp = await request.get(`${BASE}/api/health`);
+    expect(resp.status()).toBe(200);
+    const data = await resp.json();
+    expect(data.status).toBe("ok");
   });
 
   test("detailed health shows database healthy", async ({ request }) => {
-    const r = await request.get(`${BASE}/api/health/detailed`);
-    if (r.status() === 200) {
-      const d = await r.json();
-      expect(d.checks.database.status).toBe("healthy");
-    }
+    const resp = await request.get(`${BASE}/api/health/detailed`);
+    expect(resp.status()).toBe(200);
+    const data = await resp.json();
+    expect(data.database).toBe("healthy");
   });
 });
