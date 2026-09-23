@@ -36,8 +36,6 @@ export function RecognitionSection({
     name: d.business_name || d.name || `Mitra Donatur #${idx + 1}`,
     weight: `${Math.round((d.total_donations || 1) * 3)} kg pangan`,
     donations: `${d.total_donations || 0} donasi disalurkan`,
-    logo: d.logo_url || "/images/hotel_logo.webp",
-    fallbackImg: "/images/donor_kitchen.jpg",
     badgeBg:
       idx === 0
         ? "bg-[#10B981] text-white"
@@ -262,17 +260,6 @@ export function RecognitionSection({
                       >
                         {d.rank}
                       </span>
-
-                      <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 border border-[#E2E8F0] bg-stone-100 shadow-xs">
-                        <img
-                          src={d.logo}
-                          alt={d.name}
-                          className="w-full h-full object-cover"
-                          onError={(e: any) => {
-                            (e.target as HTMLImageElement).src = d.fallbackImg;
-                          }}
-                        />
-                      </div>
 
                       <div className="min-w-0 flex-1">
                         <h4 className="font-bold text-[12px] text-[#0F172A] truncate">
