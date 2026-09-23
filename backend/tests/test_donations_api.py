@@ -116,9 +116,24 @@ class TestDonationsTransit:
 class TestDonationsClaim:
     """Tests for donation claim flow."""
 
-    async def test_claim_donation_success(self, client: AsyncClient, recipient_token: str, test_donation: dict):
+    async def test_claim_donation_success(self, client: AsyncClient, recipient_token: str, test_donation: dict, db_session):
         """Test claiming a donation."""
+        from backend.auth import decode_token
+        from backend.models import TopsisResult
+        from datetime import datetime, timezone
+
         donation_id = test_donation["id"]
+        recip_id = decode_token(recipient_token)["id"]
+        tr = TopsisResult(
+            donation_id=donation_id,
+            recipient_id=recip_id,
+            rank_position=1,
+            ci_score=0.95,
+            calculated_at=datetime.now(timezone.utc).isoformat(),
+        )
+        db_session.add(tr)
+        await db_session.commit()
+
         client.cookies.set("nutrishare_token", recipient_token)
         response = await client.post(f"/api/donations/{donation_id}/claim")
         assert response.status_code == 200

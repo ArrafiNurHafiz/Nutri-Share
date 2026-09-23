@@ -26,4 +26,5 @@ __pycache__/
 graphify-out/
 prd.json
 progress.txt
+.playwright-mcp/
 

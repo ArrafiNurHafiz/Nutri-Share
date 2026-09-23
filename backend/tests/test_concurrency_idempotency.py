@@ -2,13 +2,13 @@
 from __future__ import annotations
 
 import asyncio
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import pytest
 from httpx import AsyncClient
 from sqlmodel import select
 
 from backend.auth import hash_password, sign_token
-from backend.models import Claim, Donation, DonorProfile, RecipientProfile, User, Review
+from backend.models import Claim, Donation, DonorProfile, RecipientProfile, User, Review, TopsisResult
 
 
 @pytest.mark.asyncio
@@ -36,7 +36,7 @@ class TestConcurrencyAndIdempotency:
             portion_count=10,
             protein_per_portion=5.0,
             calorie_per_portion=250.0,
-            valid_until=datetime.now(timezone.utc).isoformat(),
+            valid_until=(datetime.now(timezone.utc) + timedelta(hours=6)).isoformat(),
             pickup_latitude=-6.2,
             pickup_longitude=106.8,
             status="active",
@@ -45,6 +45,16 @@ class TestConcurrencyAndIdempotency:
         db_session.add(donation)
         await db_session.commit()
         await db_session.refresh(donation)
+
+        tr = TopsisResult(
+            donation_id=donation.id,
+            recipient_id=recip.id,
+            rank_position=1,
+            ci_score=0.99,
+            calculated_at=datetime.now(timezone.utc).isoformat(),
+        )
+        db_session.add(tr)
+        await db_session.commit()
 
         recip_token = sign_token(recip)
         client.cookies.set("nutrishare_token", recip_token)
@@ -56,7 +66,7 @@ class TestConcurrencyAndIdempotency:
         # Second immediate claim (double click) -> REJECTED 400
         r2 = await client.post(f"/api/donations/{donation.id}/claim")
         assert r2.status_code == 400
-        assert "already submitted" in r2.json()["message"].lower()
+        assert "already submitted" in r2.json()["message"].lower() or "sudah" in r2.json()["message"].lower()
 
     async def test_claim_non_active_donation_fails(self, client: AsyncClient, db_session):
         """Completed or inactive donation cannot be claimed."""
@@ -78,7 +88,7 @@ class TestConcurrencyAndIdempotency:
             portion_count=5,
             protein_per_portion=8.0,
             calorie_per_portion=300.0,
-            valid_until=datetime.now(timezone.utc).isoformat(),
+            valid_until=(datetime.now(timezone.utc) + timedelta(hours=6)).isoformat(),
             pickup_latitude=-6.2,
             pickup_longitude=106.8,
             status="completed",

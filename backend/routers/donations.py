@@ -25,7 +25,11 @@ from backend.schemas import CreateDonationRequest
 from backend.services.cache import cache
 from backend.services.notifications import notify_user
 from backend.services.realtime import broker
-from backend.services.topsis import calculate_topsis_for_donation
+from backend.services.topsis import (
+    calculate_topsis_for_donation,
+    get_donation_escalation_stage,
+    sweep_auto_expire_donations,
+)
 from backend.utils.logger import log_activity, logger
 from backend.utils.rate_limit import rate_limit_dependency
 
@@ -138,6 +142,9 @@ async def list_donations(
     page: int = Query(1, ge=1),
     limit: int = Query(100, ge=1, le=500),
 ):
+    # Auto-expire active donations that passed valid_until
+    await sweep_auto_expire_donations(session)
+
     offset = (page - 1) * limit
     query = select(Donation)
 
@@ -181,6 +188,9 @@ async def list_donations(
         recipient_info = None
         if rp:
             recipient_info = {"name": rp.institution_name, "lat": rp.latitude, "lon": rp.longitude}
+
+        escalation = get_donation_escalation_stage(d.created_at, d.valid_until)
+
         enriched.append({
             **d.model_dump(),
             "recipient_info": recipient_info,
@@ -194,6 +204,11 @@ async def list_donations(
             "recipient_address": rp.address if rp else None,
             "recipient_lat": rp.latitude if rp else None,
             "recipient_lon": rp.longitude if rp else None,
+            "escalation_stage": escalation["current_stage"],
+            "escalation_stage_name": escalation["stage_name"],
+            "max_allowed_rank": escalation["max_allowed_rank"],
+            "seconds_until_next_stage": escalation["seconds_until_next_stage"],
+            "fraction_elapsed": escalation["fraction_elapsed"],
         })
 
     return enriched
@@ -204,6 +219,9 @@ async def list_active_donations(
     session: SessionDep,
     recipient_id: int | None = Query(None),
 ):
+    # Auto-expire active donations that passed valid_until
+    await sweep_auto_expire_donations(session)
+
     result = await session.execute(
         select(Donation).where(Donation.status == "active")
     )
@@ -248,6 +266,10 @@ async def list_active_donations(
         topsis = topsis_map.get(d.id)
         donor_prof = donor_profiles.get(d.donor_id)
         claim = claim_map.get(d.id)
+        user_rank = topsis.rank_position if topsis else 999
+
+        escalation = get_donation_escalation_stage(d.created_at, d.valid_until)
+        is_claim_eligible = (not escalation["is_expired"]) and (user_rank <= escalation["max_allowed_rank"])
 
         enriched.append({
             **d.model_dump(),
@@ -256,6 +278,12 @@ async def list_active_donations(
             "donor_name": donor_prof.business_name if donor_prof else None,
             "donor_address": donor_prof.address if donor_prof else None,
             "my_claim_status": claim.status if claim else None,
+            "escalation_stage": escalation["current_stage"],
+            "escalation_stage_name": escalation["stage_name"],
+            "max_allowed_rank": escalation["max_allowed_rank"],
+            "seconds_until_next_stage": escalation["seconds_until_next_stage"],
+            "fraction_elapsed": escalation["fraction_elapsed"],
+            "is_claim_eligible": is_claim_eligible,
         })
 
     enriched.sort(key=lambda x: (x["rank"] or 999))
@@ -448,13 +476,22 @@ async def claim_donation(
     if current_user.role != "recipient":
         raise HTTPException(status_code=403, detail="Access denied")
 
-    # Validate donation exists and is active
+    # Validate donation exists and check expiration
     d_check = await session.execute(select(Donation).where(Donation.id == donation_id))
     d = d_check.scalar_one_or_none()
     if not d:
         raise HTTPException(status_code=404, detail="Donation not found")
+
+    escalation = get_donation_escalation_stage(d.created_at, d.valid_until)
+    if escalation["is_expired"] or d.status == "expired":
+        if d.status != "expired":
+            d.status = "expired"
+            session.add(d)
+            await session.commit()
+        raise HTTPException(status_code=400, detail="Masa simpan aman makanan telah habis (Donasi Kadaluarsa).")
+
     if d.status != "active":
-        raise HTTPException(status_code=400, detail="Donation is no longer available for claim")
+        raise HTTPException(status_code=400, detail="Donasi sudah tidak tersedia untuk diklaim (Donation is no longer available for claim)")
 
     # Prevent duplicate claim submissions by the same recipient
     existing_claim = await session.execute(
@@ -465,7 +502,7 @@ async def claim_donation(
         )
     )
     if existing_claim.scalar_one_or_none():
-        raise HTTPException(status_code=400, detail="You have already submitted a claim for this donation")
+        raise HTTPException(status_code=400, detail="Anda sudah mengajukan klaim untuk donasi ini")
 
     t = await session.execute(
         select(TopsisResult)
@@ -476,7 +513,30 @@ async def claim_donation(
         .order_by(TopsisResult.id.desc())
     )
     topsis = t.scalars().first()
-    rank = topsis.rank_position if topsis else 99
+    if not topsis:
+        try:
+            await calculate_topsis_for_donation(session, donation_id)
+            t = await session.execute(
+                select(TopsisResult)
+                .where(
+                    TopsisResult.donation_id == donation_id,
+                    TopsisResult.recipient_id == current_user.id,
+                )
+                .order_by(TopsisResult.id.desc())
+            )
+            topsis = t.scalars().first()
+        except Exception:
+            pass
+
+    rank = topsis.rank_position if topsis else 1
+
+    # Enforce priority escalation window based on 1/4 Safe Shelf Life
+    if rank > escalation["max_allowed_rank"]:
+        wait_mins = max(1, int(escalation["seconds_until_next_stage"] // 60))
+        raise HTTPException(
+            status_code=403,
+            detail=f"Donasi saat ini dalam tahap {escalation['stage_name']}. Hak klaim Peringkat #{rank} akan dibuka dalam {wait_mins} menit lagi jika belum diambil prioritas sebelumnya."
+        )
 
     claim = Claim(
         donation_id=donation_id,

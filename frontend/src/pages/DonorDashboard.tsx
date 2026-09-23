@@ -156,7 +156,7 @@ export function DonorDashboard() {
   // Strictly only UNCOMPLETED donations in active view
   const activeList = donations.filter((d) => d.status === "active" || d.status === "claimed");
   const inTransitList = donations.filter((d) => d.status === "claimed");
-  const historyList = donations.filter((d) => d.status === "completed");
+  const historyList = donations.filter((d) => d.status === "completed" || d.status === "expired");
 
   const totalPortionsShared = historyList.reduce((acc, d) => acc + (d.portion_count || 0), 0);
   const totalProteinSharedGrams = donations.reduce(
@@ -517,6 +517,7 @@ export function DonorDashboard() {
                   {(activeTab === "active" ? activeList : historyList).map((item) => {
                     const isClaimed = item.status === "claimed";
                     const isDone = item.status === "completed";
+                    const isExpired = item.status === "expired";
 
                     return (
                       <div
@@ -530,12 +531,20 @@ export function DonorDashboard() {
                               className={`text-[10px] font-bold px-2.5 py-1 rounded shadow-xs ${
                                 isDone
                                   ? "bg-[#ECFDF5] text-[#065F46] border border-[#A7F3D0]"
+                                  : isExpired
+                                  ? "bg-[#FEF2F2] text-[#991B1B] border border-[#FECACA]"
                                   : isClaimed
                                   ? "bg-[#EFF6FF] text-[#1E40AF] border border-[#BFDBFE]"
                                   : "bg-[#F8FAFC] text-[#475569] border border-[#E2E8F0]"
                               }`}
                             >
-                              {isDone ? "Selesai Diserahkan" : isClaimed ? "Sedang Dijemput" : "Tersedia & Menunggu Klaim"}
+                              {isDone
+                                ? "Selesai Diserahkan"
+                                : isExpired
+                                ? "Kadaluarsa (Tidak Terambil)"
+                                : isClaimed
+                                ? "Sedang Dijemput"
+                                : "Tersedia & Menunggu Klaim"}
                             </span>
                             <span className="text-[11px] text-[#64748B] font-mono bg-[#F1F5F9] px-2 py-0.5 rounded border border-[#E2E8F0]">
                               #{item.id}

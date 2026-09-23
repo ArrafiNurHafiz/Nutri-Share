@@ -556,6 +556,7 @@ export function RecipientDashboard() {
                   {filteredExplore.map((item) => {
                     const isRank1 = item.rank === 1;
                     const isClaimingThis = claimingId === item.id;
+                    const isClaimEligible = item.is_claim_eligible !== false;
 
                     return (
                       <div
@@ -573,7 +574,7 @@ export function RecipientDashboard() {
                               </span>
                             ) : (
                               <span className="text-[11px] text-[#64748B] font-mono bg-[#F1F5F9] px-2 py-0.5 rounded border border-[#E2E8F0]">
-                                #{item.id}
+                                #{item.id} {item.rank ? `(Peringkat #${item.rank})` : ""}
                               </span>
                             )}
 
@@ -609,6 +610,19 @@ export function RecipientDashboard() {
                               <span className="flex items-center gap-1 px-2 py-0.5 bg-[#ECFDF5] text-[#065F46] rounded border border-[#A7F3D0]">
                                 <Clock size={11} /> Sisa {item.hours_valid || 6} Jam
                               </span>
+                              {item.escalation_stage_name && (
+                                <span className={`px-2 py-0.5 rounded border text-[10px] ${
+                                  item.escalation_stage === 1
+                                    ? "bg-amber-50 text-amber-800 border-amber-200"
+                                    : item.escalation_stage === 2
+                                    ? "bg-blue-50 text-blue-800 border-blue-200"
+                                    : item.escalation_stage === 3
+                                    ? "bg-indigo-50 text-indigo-800 border-indigo-200"
+                                    : "bg-purple-50 text-purple-800 border-purple-200"
+                                }`}>
+                                  {item.escalation_stage_name}
+                                </span>
+                              )}
                             </div>
 
                             <div className="flex flex-wrap gap-1.5 pt-1 text-[11px] font-medium">
@@ -641,11 +655,22 @@ export function RecipientDashboard() {
                           <button
                             type="button"
                             onClick={() => handleClaim(item.id)}
-                            disabled={isClaimingThis}
-                            className="flex-1 py-2 rounded-lg bg-[#2D7A4F] hover:bg-[#235F3D] text-white font-semibold text-xs shadow-xs transition-colors flex items-center justify-center gap-1 cursor-pointer disabled:opacity-50"
+                            disabled={isClaimingThis || !isClaimEligible}
+                            className={`flex-1 py-2 rounded-lg font-semibold text-xs shadow-xs transition-colors flex items-center justify-center gap-1 ${
+                              !isClaimEligible
+                                ? "bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed"
+                                : "bg-[#2D7A4F] hover:bg-[#235F3D] text-white cursor-pointer"
+                            } disabled:opacity-75`}
+                            title={
+                              !isClaimEligible
+                                ? `Menunggu giliran kuarter prioritas (Peringkat Anda: #${item.rank || 'N/A'})`
+                                : "Klaim donasi ini"
+                            }
                           >
                             {isClaimingThis ? (
                               <span>Mengonfirmasi...</span>
+                            ) : !isClaimEligible ? (
+                              <span>Menunggu Giliran (#{item.rank || 'N/A'})</span>
                             ) : (
                               <>
                                 <Heart size={13} className="fill-white" />

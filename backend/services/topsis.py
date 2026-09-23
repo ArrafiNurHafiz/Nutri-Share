@@ -371,3 +371,109 @@ async def _persist_results(session, donation_id, donation, recipients, recipient
                 "did": donation_id, "now": now_str,
             })
 
+
+# --- Safe Shelf Life Priority Escalation & Expiration Logic ---
+
+def _parse_iso_datetime(dt_str: str) -> datetime:
+    if not dt_str:
+        return datetime.now(timezone.utc)
+    try:
+        dt = datetime.fromisoformat(dt_str.replace("Z", "+00:00"))
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        return dt
+    except Exception:
+        return datetime.now(timezone.utc)
+
+
+def get_donation_escalation_stage(created_at_str: str, valid_until_str: str, now: datetime | None = None) -> dict:
+    """Calculate the tiered priority escalation stage based on 1/4 of total safe shelf life."""
+    if now is None:
+        now = datetime.now(timezone.utc)
+    elif now.tzinfo is None:
+        now = now.replace(tzinfo=timezone.utc)
+
+    t_created = _parse_iso_datetime(created_at_str)
+    t_valid = _parse_iso_datetime(valid_until_str)
+
+    total_duration_sec = max(60.0, (t_valid - t_created).total_seconds())
+    elapsed_sec = (now - t_created).total_seconds()
+    remaining_sec = (t_valid - now).total_seconds()
+
+    quarter_sec = total_duration_sec / 4.0
+
+    if remaining_sec <= 0:
+        return {
+            "is_expired": True,
+            "current_stage": 5,
+            "stage_name": "Kadaluarsa",
+            "max_allowed_rank": 0,
+            "fraction_elapsed": 1.0,
+            "seconds_until_next_stage": 0.0,
+            "seconds_remaining": 0.0,
+            "total_duration_sec": total_duration_sec,
+            "quarter_duration_sec": quarter_sec,
+            "next_stage_rank": 0,
+        }
+
+    fraction = max(0.0, min(0.9999, elapsed_sec / total_duration_sec))
+
+    if fraction < 0.25:
+        stage = 1
+        max_rank = 1
+        stage_name = "Prioritas Utama (Peringkat #1)"
+        sec_to_next = max(0.0, quarter_sec - elapsed_sec)
+        next_rank = 2
+    elif fraction < 0.50:
+        stage = 2
+        max_rank = 2
+        stage_name = "Eskalasi Kuarter 2 (Peringkat ≤ #2)"
+        sec_to_next = max(0.0, (2.0 * quarter_sec) - elapsed_sec)
+        next_rank = 3
+    elif fraction < 0.75:
+        stage = 3
+        max_rank = 3
+        stage_name = "Eskalasi Kuarter 3 (Peringkat ≤ #3)"
+        sec_to_next = max(0.0, (3.0 * quarter_sec) - elapsed_sec)
+        next_rank = 999
+    else:
+        stage = 4
+        max_rank = 999
+        stage_name = "Kuarter Terakhir (Terbuka Semua Peringkat)"
+        sec_to_next = max(0.0, remaining_sec)
+        next_rank = 0
+
+    return {
+        "is_expired": False,
+        "current_stage": stage,
+        "stage_name": stage_name,
+        "max_allowed_rank": max_rank,
+        "fraction_elapsed": round(fraction, 4),
+        "seconds_until_next_stage": round(sec_to_next, 1),
+        "seconds_remaining": round(remaining_sec, 1),
+        "total_duration_sec": round(total_duration_sec, 1),
+        "quarter_duration_sec": round(quarter_sec, 1),
+        "next_stage_rank": next_rank,
+    }
+
+
+async def sweep_auto_expire_donations(session: any) -> list[int]:
+    """Find all active donations past their valid_until and update their status to 'expired'."""
+    now_iso = datetime.now(timezone.utc).isoformat()
+    result = await session.execute(
+        select(Donation).where(
+            Donation.status == "active",
+            Donation.valid_until <= now_iso,
+        )
+    )
+    expired = result.scalars().all()
+    expired_ids = []
+    for d in expired:
+        d.status = "expired"
+        session.add(d)
+        expired_ids.append(d.id)
+    if expired_ids:
+        await session.commit()
+    return expired_ids
+
+
