@@ -166,11 +166,11 @@ export function RecognitionSection({
             {/* Progress Impact Bar */}
             <div className="p-3.5 bg-[#F8FAFC] rounded-xl border border-[#E2E8F0] space-y-1.5">
               <div className="flex justify-between text-[11px] text-[#475569]">
-                <span className="font-medium">You're helping build a zero food waste future!</span>
-                <span className="font-bold text-[#0F172A]">68%</span>
+                <span className="font-medium">Penyaluran surplus pangan berkeadilan aktif</span>
+                <span className="font-bold text-[#059669]">100% Terverifikasi</span>
               </div>
               <div className="w-full bg-[#E2E8F0] h-2 rounded-full overflow-hidden">
-                <div className="bg-[#10B981] h-full rounded-full w-[68%]" />
+                <div className="bg-[#10B981] h-full rounded-full w-full" />
               </div>
             </div>
 
@@ -178,7 +178,7 @@ export function RecognitionSection({
             <div className="grid grid-cols-3 gap-2.5 pt-1 text-xs">
               <div className="p-2.5 bg-[#F8FAFC] rounded-xl border border-[#E2E8F0]">
                 <span className="text-[10px] text-[#64748B] block">Active Partners</span>
-                <span className="text-xs font-bold text-[#0F172A]">12</span>
+                <span className="text-xs font-bold text-[#0F172A]">{stats?.partner_count ?? donors.length}</span>
               </div>
               <div className="p-2.5 bg-[#F8FAFC] rounded-xl border border-[#E2E8F0]">
                 <span className="text-[10px] text-[#64748B] block">Total Donation</span>

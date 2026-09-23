@@ -1,52 +1,38 @@
-import { useState, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Leaf, Users, Utensils } from "lucide-react";
 import { motion } from "motion/react";
 
-/* ─── Smooth Counter Component ─── */
 function Counter({ target, suffix = "" }: { target: number; suffix?: string }) {
   const [count, setCount] = useState(0);
-  const [done, setDone] = useState(false);
 
-  const ref = useCallback(
-    (node: HTMLDivElement | null) => {
-      if (!node || done) return;
-      const obs = new IntersectionObserver(
-        ([e]) => {
-          if (e.isIntersecting) {
-            setDone(true);
-            if (target <= 0) {
-              setCount(0);
-              return;
-            }
-            const dur = 1200;
-            const steps = 35;
-            const inc = target / steps;
-            let cur = 0;
-            const t = setInterval(() => {
-              cur += inc;
-              if (cur >= target) {
-                setCount(target);
-                clearInterval(t);
-              } else {
-                setCount(Math.floor(cur));
-              }
-            }, dur / steps);
-          }
-        },
-        { threshold: 0.2 },
-      );
-      obs.observe(node);
-      return () => obs.disconnect();
-    },
-    [target, done],
-  );
+  useEffect(() => {
+    if (!target || target <= 0) {
+      setCount(0);
+      return;
+    }
+
+    const duration = 1200;
+    const steps = 35;
+    const stepTime = duration / steps;
+    const increment = target / steps;
+    let current = 0;
+
+    const timer = setInterval(() => {
+      current += increment;
+      if (current >= target) {
+        setCount(target);
+        clearInterval(timer);
+      } else {
+        setCount(Math.floor(current));
+      }
+    }, stepTime);
+
+    return () => clearInterval(timer);
+  }, [target]);
 
   return (
-    <div
-      ref={ref}
-      className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#0F172A] font-heading"
-    >
+    <div className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#0F172A] font-heading">
       {count.toLocaleString("id-ID")}
       {suffix}
     </div>
