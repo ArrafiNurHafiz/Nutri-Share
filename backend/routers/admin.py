@@ -240,6 +240,14 @@ async def admin_approve_claim(
     await log_activity(session, current_user.id, "klaim_setujui", f"Klaim #{claim_id} disetujui")
     cache.invalidate("public:stats")
     cache.invalidate_pattern("analytics:")
+
+    # Dynamic TOPSIS Recalculation: Adjust rankings as recipient claim status updates
+    try:
+        from backend.services.topsis import run_topsis_all_active
+        await run_topsis_all_active()
+    except Exception:
+        pass
+
     return {"message": "Klaim disetujui"}
 
 

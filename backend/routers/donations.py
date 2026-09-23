@@ -530,6 +530,14 @@ async def claim_donation(
     )
 
     await log_activity(session, current_user.id, "klaim_buat", f"Mengklaim donasi #{donation_id}")
+
+    # Dynamic TOPSIS Recalculation
+    try:
+        from backend.services.topsis import run_topsis_all_active
+        await run_topsis_all_active()
+    except Exception:
+        pass
+
     return {"message": "Claim submitted successfully, waiting for admin approval."}
 
 
@@ -677,4 +685,12 @@ async def complete_donation(
     await log_activity(session, current_user.id, "donasi_selesai", f"Donasi #{donation_id} selesai")
     cache.invalidate("public:stats")
     cache.invalidate_pattern("analytics:")
+
+    # Dynamic TOPSIS Recalculation
+    try:
+        from backend.services.topsis import run_topsis_all_active
+        await run_topsis_all_active()
+    except Exception:
+        pass
+
     return {"message": "Handover confirmed successfully"}
