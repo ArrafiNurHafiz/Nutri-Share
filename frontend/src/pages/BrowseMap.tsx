@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import {
   Search,
@@ -94,8 +94,8 @@ export function BrowseMap() {
   }, [validDonors, validRecipients, validDonations, filterType, searchQuery]);
 
   // Sync Markers to MapLibre Canvas
-  const updateMapMarkers = async () => {
-    const map = mapInstanceRef.current;
+  const updateMapMarkers = useCallback(async (mapOverride?: any) => {
+    const map = mapOverride || mapInstanceRef.current;
     if (!map) return;
 
     const maplibregl = await getMapLibre();
@@ -156,11 +156,13 @@ export function BrowseMap() {
 
       markersRef.current.push(marker);
     });
-  };
+  }, [filteredItems]);
 
   useEffect(() => {
-    updateMapMarkers();
-  }, [filteredItems]);
+    if (mapInstanceRef.current && filteredItems.length > 0) {
+      updateMapMarkers();
+    }
+  }, [updateMapMarkers, filteredItems]);
 
   const handleFlyTo = (lat: number, lng: number) => {
     if (!mapInstanceRef.current) return;
@@ -349,7 +351,7 @@ export function BrowseMap() {
           <MapCNContainer
             onMapReady={(map) => {
               mapInstanceRef.current = map;
-              updateMapMarkers();
+              updateMapMarkers(map);
             }}
           />
         </div>

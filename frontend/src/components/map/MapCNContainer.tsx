@@ -66,6 +66,12 @@ export function MapCNContainer({
           mapRef.current = map;
           onMapReady?.(map);
         });
+
+        // Trigger onMapReady immediately if map is already loaded or in idle state
+        if (map.loaded()) {
+          mapRef.current = map;
+          onMapReady?.(map);
+        }
       })
       .catch((err) => {
         console.error("Gagal memuat MapLibre GL CDN:", err);
