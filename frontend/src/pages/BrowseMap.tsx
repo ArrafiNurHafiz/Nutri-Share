@@ -110,7 +110,7 @@ export function BrowseMap() {
     filteredItems.forEach((item: any) => {
       const lat = Number(item.latitude);
       const lng = Number(item.longitude);
-      if (!lat || !lng) return;
+      if (!lat || !lng || isNaN(lat) || isNaN(lng)) return;
 
       const isDonor = item.kind === "donor";
       const isRecip = item.kind === "recipient";
@@ -160,9 +160,10 @@ export function BrowseMap() {
     });
   }, [filteredItems, mapInstance]);
 
+  // Re-run whenever filtered items or map instance changes
   useEffect(() => {
     updateMapMarkers();
-  }, [updateMapMarkers]);
+  }, [updateMapMarkers, filteredItems, mapInstance]);
 
   const handleFlyTo = (lat: number, lng: number) => {
     if (!mapInstanceRef.current) return;
