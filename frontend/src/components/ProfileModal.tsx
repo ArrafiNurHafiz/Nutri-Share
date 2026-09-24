@@ -29,8 +29,8 @@ export function ProfileModal({ user, profile, onClose, onUpdate }: any) {
   });
 
   const [form, setForm] = useState(() => ({
-    name: user.name || "",
-    email: user.email || "",
+    name: user?.name || "",
+    email: user?.email || "",
     password: "",
     business_name: profile?.business_name || "",
     business_type: profile?.business_type || "hotel",

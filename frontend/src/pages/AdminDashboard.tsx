@@ -1004,8 +1004,13 @@ export function AdminDashboard() {
       {/* Profile Modal */}
       {showProfile && (
         <ProfileModal
+          user={currentUser}
+          profile={null}
           isOpen={showProfile}
           onClose={() => setShowProfile(false)}
+          onUpdate={() => {
+            setShowProfile(false);
+          }}
         />
       )}
     </div>
