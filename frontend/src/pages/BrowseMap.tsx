@@ -96,14 +96,14 @@ export function BrowseMap() {
   const [mapInstance, setMapInstance] = useState<any>(null);
 
   // Sync Markers to MapLibre Canvas
-  const updateMapMarkers = useCallback(async () => {
-    const map = mapInstance || mapInstanceRef.current;
+  const updateMapMarkers = useCallback(async (targetMap?: any) => {
+    const map = targetMap || mapInstance || mapInstanceRef.current;
     if (!map) return;
 
     const maplibregl = await getMapLibre();
 
     // Clear old markers
-    markersRef.current.forEach((m) => m.remove());
+    markersRef.current.forEach((m: any) => m.remove());
     markersRef.current = [];
 
     // Add new filtered markers
@@ -352,6 +352,7 @@ export function BrowseMap() {
             onMapReady={(map) => {
               mapInstanceRef.current = map;
               setMapInstance(map);
+              updateMapMarkers(map);
             }}
           />
         </div>
