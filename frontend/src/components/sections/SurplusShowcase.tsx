@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Clock, CheckCircle2, ArrowUpRight, ShieldCheck, Package } from "lucide-react";
+import { Clock, CheckCircle2, ArrowUpRight, ShieldCheck, Package, Utensils, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import { api } from "../../lib/api";
 
@@ -13,7 +13,6 @@ interface FoodItem {
   location: string;
   portions: number;
   expiryHours: number;
-  image: string;
   nutrients: {
     calories: string;
     protein: string;
@@ -40,7 +39,7 @@ export function SurplusShowcase() {
           const topRecipient = topsis?.rankings?.[0]?.institution_name || "Verified Social Shelter";
           const topCi = topsis?.rankings?.[0]?.ci_score ? Number(topsis.rankings[0].ci_score).toFixed(3) : "0.942";
 
-          const mapped: FoodItem[] = donations.map((d: any, idx: number) => {
+          const mapped: FoodItem[] = donations.map((d: any) => {
             const foodType = d.food_type || "makanan_berat";
             let category: "prepared" | "fresh" | "bakery" = "prepared";
             let categoryLabel = "Prepared Meals";
@@ -60,13 +59,6 @@ export function SurplusShowcase() {
               expiryHours = hrs > 72 ? 12 : hrs;
             }
 
-            const images = [
-              "/images/donor_kitchen.jpg",
-              "/images/food_pack.jpg",
-              "/images/fresh-food.webp",
-              "/images/vegetables_fresh.jpg",
-            ];
-
             return {
               id: d.id,
               batchCode: `BATCH-${d.id + 8400}`,
@@ -77,7 +69,6 @@ export function SurplusShowcase() {
               location: d.donor_city || "Yogyakarta",
               portions: d.portion_count || 30,
               expiryHours,
-              image: d.photo_url || images[idx % images.length],
               nutrients: {
                 calories: `${Math.round(d.calorie_per_portion || 400)} kcal`,
                 protein: `${Math.round(d.protein_per_portion || 20)}g protein`,
@@ -161,62 +152,59 @@ export function SurplusShowcase() {
                 key={item.id}
                 className="rounded-3xl bg-white border border-emerald-100/90 hover:border-emerald-300 overflow-hidden flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 shadow-xs hover:shadow-md group"
               >
-                <div>
-                  {/* Photo with Overlay Badge */}
-                  <div className="relative h-48 w-full bg-emerald-50 overflow-hidden">
-                    <img
-                      src={item.image}
-                      alt={item.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <div className="absolute top-3 left-3 px-2.5 py-1 rounded-lg bg-white/90 backdrop-blur-md text-emerald-900 text-[11px] font-bold border border-emerald-200/60 shadow-xs">
+                <div className="p-6 space-y-4">
+                  {/* Top Header Card */}
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 text-[11px] font-bold border border-emerald-200/80">
                       {item.categoryLabel}
-                    </div>
-                    <div className="absolute bottom-3 right-3 px-2.5 py-1 rounded-lg bg-emerald-950/85 backdrop-blur-md text-white text-[11px] font-semibold">
+                    </span>
+                    <span className="px-2.5 py-1 rounded-lg bg-emerald-950 text-white text-[11px] font-bold shadow-xs">
                       {item.portions} Portions
-                    </div>
+                    </span>
                   </div>
 
-                  {/* Details */}
-                  <div className="p-5 space-y-3">
-                    <div>
-                      <span className="text-[11px] font-semibold text-emerald-700 block truncate">
-                        {item.donorName} &bull; {item.location}
-                      </span>
-                      <h3 className="font-heading font-bold text-base text-slate-900 leading-snug mt-1 line-clamp-1">
-                        {item.title}
-                      </h3>
-                    </div>
+                  {/* Title & Donor */}
+                  <div>
+                    <span className="text-[11px] font-bold text-emerald-700 block truncate">
+                      {item.donorName} &bull; {item.location}
+                    </span>
+                    <h3 className="font-heading font-extrabold text-lg text-slate-900 leading-snug mt-1 line-clamp-2">
+                      {item.title}
+                    </h3>
+                  </div>
 
-                    {/* Nutrients Pills */}
-                    <div className="flex items-center gap-2 text-xs font-medium">
-                      <span className="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700">{item.nutrients.calories}</span>
-                      <span className="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 font-semibold">{item.nutrients.protein}</span>
-                    </div>
+                  {/* Nutrients Pills */}
+                  <div className="flex items-center gap-2 text-xs font-medium">
+                    <span className="px-2.5 py-1.5 rounded-xl bg-slate-100 text-slate-700 font-semibold font-mono">
+                      {item.nutrients.calories}
+                    </span>
+                    <span className="px-2.5 py-1.5 rounded-xl bg-emerald-100/80 text-emerald-900 font-bold font-mono">
+                      {item.nutrients.protein}
+                    </span>
+                  </div>
 
-                    {/* Expiry Hours */}
-                    <div className="flex items-center justify-between text-xs pt-2 border-t border-slate-100">
-                      <span className="flex items-center gap-1.5 text-amber-700 font-medium">
-                        <Clock size={13} />
-                        Approx. {item.expiryHours}h Remaining
-                      </span>
-                      <span className="text-emerald-600 font-semibold flex items-center gap-1">
-                        <CheckCircle2 size={13} />
-                        Safe
-                      </span>
-                    </div>
+                  {/* Expiry Hours */}
+                  <div className="flex items-center justify-between text-xs pt-3 border-t border-slate-100">
+                    <span className="flex items-center gap-1.5 text-amber-700 font-medium">
+                      <Clock size={13} />
+                      Approx. {item.expiryHours}h Remaining
+                    </span>
+                    <span className="text-emerald-600 font-bold flex items-center gap-1">
+                      <CheckCircle2 size={13} />
+                      Safe
+                    </span>
                   </div>
                 </div>
 
                 {/* Priority Recipient Allocation Footer */}
-                <div className="px-5 py-3.5 bg-emerald-50/50 border-t border-emerald-100 flex items-center justify-between text-xs">
+                <div className="px-6 py-4 bg-emerald-50/50 border-t border-emerald-100 flex items-center justify-between text-xs">
                   <div className="min-w-0 pr-2">
-                    <span className="text-[10px] text-slate-500 block uppercase tracking-wider">TOPSIS Allocation</span>
-                    <strong className="text-emerald-950 block truncate font-semibold">
+                    <span className="text-[10px] text-slate-500 block uppercase tracking-wider font-semibold">TOPSIS Allocation</span>
+                    <strong className="text-emerald-950 block truncate font-bold text-xs">
                       {item.priorityRecipient}
                     </strong>
                   </div>
-                  <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[11px] shrink-0 font-mono">
+                  <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-extrabold text-[11px] shrink-0 font-mono">
                     Ci {item.ciScore}
                   </span>
                 </div>
