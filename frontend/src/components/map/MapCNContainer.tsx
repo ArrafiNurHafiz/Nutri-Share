@@ -67,13 +67,6 @@ export function MapCNContainer({
           onMapReady?.(map);
         });
 
-        // Some styles or cached renders trigger 'styledata' or 'idle'
-        map.on("idle", () => {
-          mapRef.current = map;
-          onMapReady?.(map);
-        });
-
-        // Trigger onMapReady immediately if map is already loaded or in idle state
         if (map.loaded()) {
           mapRef.current = map;
           onMapReady?.(map);
@@ -97,6 +90,9 @@ export function MapCNContainer({
     setStylePickerOpen(false);
     if (mapRef.current) {
       mapRef.current.setStyle(MAPCN_STYLES[key].url);
+      mapRef.current.once("styledata", () => {
+        onMapReady?.(mapRef.current);
+      });
     }
   };
 
