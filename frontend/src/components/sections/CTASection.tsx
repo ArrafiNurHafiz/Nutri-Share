@@ -45,9 +45,9 @@ export function CTASection({ onLoginClick }: { onLoginClick?: () => void }) {
                   <span className="rounded-full bg-[#e1fcad] px-8 py-3.5 text-emerald-950 text-sm font-extrabold duration-300 ease-in-out group-hover:bg-white group-hover:text-emerald-950 shadow-xl">
                     Register as Donor
                   </span>
-                  <div className="relative flex h-fit cursor-pointer items-center overflow-hidden rounded-full bg-[#e1fcad] p-3.5 text-emerald-950 duration-300 ease-in-out group-hover:bg-white group-hover:text-emerald-950 shadow-xl">
-                    <ArrowUpRight className="h-5 w-5 -translate-x-1/2 transition-all duration-300 ease-in-out group-hover:translate-x-10" />
-                    <ArrowUpRight className="absolute h-5 w-5 -translate-x-10 transition-all duration-300 ease-in-out group-hover:-translate-x-1/2" />
+                  <div className="relative flex size-12 cursor-pointer items-center justify-center overflow-hidden rounded-full bg-[#e1fcad] text-emerald-950 duration-300 ease-in-out group-hover:bg-white group-hover:text-emerald-950 shadow-xl">
+                    <ArrowUpRight className="h-5 w-5 transition-all duration-300 ease-in-out group-hover:translate-x-6 group-hover:-translate-y-6" />
+                    <ArrowUpRight className="absolute h-5 w-5 -translate-x-6 translate-y-6 transition-all duration-300 ease-in-out group-hover:translate-x-0 group-hover:translate-y-0" />
                   </div>
                 </Button>
               </Link>
