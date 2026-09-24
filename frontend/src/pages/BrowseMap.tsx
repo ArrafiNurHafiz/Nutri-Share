@@ -93,9 +93,11 @@ export function BrowseMap() {
     return [...donationsList, ...donorsList, ...recipientsList];
   }, [validDonors, validRecipients, validDonations, filterType, searchQuery]);
 
+  const [mapInstance, setMapInstance] = useState<any>(null);
+
   // Sync Markers to MapLibre Canvas
-  const updateMapMarkers = useCallback(async (mapOverride?: any) => {
-    const map = mapOverride || mapInstanceRef.current;
+  const updateMapMarkers = useCallback(async () => {
+    const map = mapInstance || mapInstanceRef.current;
     if (!map) return;
 
     const maplibregl = await getMapLibre();
@@ -156,13 +158,11 @@ export function BrowseMap() {
 
       markersRef.current.push(marker);
     });
-  }, [filteredItems]);
+  }, [filteredItems, mapInstance]);
 
   useEffect(() => {
-    if (mapInstanceRef.current && filteredItems.length > 0) {
-      updateMapMarkers();
-    }
-  }, [updateMapMarkers, filteredItems]);
+    updateMapMarkers();
+  }, [updateMapMarkers]);
 
   const handleFlyTo = (lat: number, lng: number) => {
     if (!mapInstanceRef.current) return;
@@ -351,7 +351,7 @@ export function BrowseMap() {
           <MapCNContainer
             onMapReady={(map) => {
               mapInstanceRef.current = map;
-              updateMapMarkers(map);
+              setMapInstance(map);
             }}
           />
         </div>

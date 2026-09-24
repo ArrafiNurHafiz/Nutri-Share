@@ -67,6 +67,14 @@ export function MapCNContainer({
           onMapReady?.(map);
         });
 
+        // Some styles trigger 'styledata' or 'idle' after initial load
+        map.on("idle", () => {
+          if (!mapRef.current) {
+            mapRef.current = map;
+            onMapReady?.(map);
+          }
+        });
+
         // Trigger onMapReady immediately if map is already loaded or in idle state
         if (map.loaded()) {
           mapRef.current = map;
