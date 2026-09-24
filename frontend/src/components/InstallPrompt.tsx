@@ -64,22 +64,22 @@ export default function InstallPrompt() {
   };
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-80 bg-emerald-600 text-white p-4 rounded-lg shadow-lg z-40">
-      <p className="font-medium mb-2">Install NutriShare</p>
-      <p className="text-sm mb-3">
+    <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-80 bg-emerald-700 text-white p-4 rounded-xl shadow-2xl border border-emerald-500/30 z-50">
+      <p className="font-bold text-base mb-1">Install NutriShare</p>
+      <p className="text-xs text-emerald-100 mb-3">
         Install the app for faster access and donation notifications.
       </p>
-      <div className="flex gap-2">
+      <div className="flex items-center gap-2">
         <button
           onClick={handleInstall}
           disabled={isInstalling}
-          className="flex-1 bg-white text-primary-orange px-3 py-2 rounded font-medium hover:bg-primary-orange-bg disabled:opacity-50"
+          className="flex-1 bg-white text-emerald-900 px-4 py-2 rounded-lg font-bold text-sm hover:bg-emerald-50 transition-colors shadow-sm disabled:opacity-50"
         >
           {isInstalling ? "Installing..." : "Install"}
         </button>
         <button
           onClick={handleDismiss}
-          className="px-3 py-2 text-emerald-100 hover:text-white"
+          className="px-3 py-2 text-xs font-semibold text-emerald-100 hover:text-white transition-colors"
         >
           Later
         </button>
