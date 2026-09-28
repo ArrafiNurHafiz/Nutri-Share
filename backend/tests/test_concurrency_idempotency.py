@@ -129,7 +129,7 @@ class TestConcurrencyAndIdempotency:
             portion_count=15,
             protein_per_portion=6.0,
             calorie_per_portion=300.0,
-            valid_until=datetime.now(timezone.utc).isoformat(),
+            valid_until=(datetime.now(timezone.utc) + timedelta(hours=24)).isoformat(),
             pickup_latitude=-6.2,
             pickup_longitude=106.8,
             status="active",
@@ -139,28 +139,19 @@ class TestConcurrencyAndIdempotency:
         await db_session.commit()
         await db_session.refresh(donation)
 
-        # Recipient 1 claims
-        c1 = Claim(donation_id=donation.id, recipient_id=recip1.id, topsis_rank_at_claim=1, status="pending", created_at=datetime.now(timezone.utc).isoformat())
-        # Recipient 2 claims
-        c2 = Claim(donation_id=donation.id, recipient_id=recip2.id, topsis_rank_at_claim=2, status="pending", created_at=datetime.now(timezone.utc).isoformat())
-        db_session.add_all([c1, c2])
-        await db_session.commit()
-        await db_session.refresh(c1)
-        await db_session.refresh(c2)
+        # Recipient 1 claims donation directly via instant claim
+        r1_token = sign_token(recip1)
+        client.cookies.set("nutrishare_token", r1_token)
+        claim_resp = await client.post(f"/api/donations/{donation.id}/claim")
+        assert claim_resp.status_code == 200
 
-        admin_token = sign_token(admin)
-        client.cookies.set("nutrishare_token", admin_token)
+        # Verify donation is claimed and marked for recipient 1
+        await db_session.refresh(donation)
+        assert donation.status == "claimed"
+        assert donation.claimed_by == recip1.id
 
-        # Admin approves claim 1
-        approve_resp = await client.post(f"/api/admin/claims/{c1.id}/approve")
-        assert approve_resp.status_code == 200
-
-        # Verify claim 1 is approved and claim 2 is automatically rejected
-        await db_session.refresh(c1)
-        await db_session.refresh(c2)
-        assert c1.status == "approved"
-        assert c2.status == "rejected"
-
-        # Attempting to re-approve claim 1 should fail
-        dup_approve = await client.post(f"/api/admin/claims/{c1.id}/approve")
-        assert dup_approve.status_code == 400
+        # Recipient 2 attempting to claim the already-claimed donation should be rejected
+        r2_token = sign_token(recip2)
+        client.cookies.set("nutrishare_token", r2_token)
+        dup_claim = await client.post(f"/api/donations/{donation.id}/claim")
+        assert dup_claim.status_code == 400
