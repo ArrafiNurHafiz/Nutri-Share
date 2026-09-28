@@ -201,18 +201,6 @@ export function AdminDashboard() {
     }
   };
 
-  const handleApproveClaim = async (claimId: number) => {
-    try {
-      await api.fetchJSON(`/api/admin/claims/${claimId}/approve`, {
-        method: "POST",
-      });
-      toast.success("Donation claim approved successfully!");
-      loadData();
-    } catch (err: any) {
-      toast.error(err.message || "Failed to approve claim.");
-    }
-  };
-
   const handleDelete = async () => {
     if (!deleteTarget) return;
     try {
@@ -231,9 +219,7 @@ export function AdminDashboard() {
   const pendingRecipients = users.recipients.filter(
     (r: any) => r.status === "pending",
   );
-  const pendingClaims = claims.filter((c: any) => c.status === "pending");
-  const totalPending =
-    pendingDonors.length + pendingRecipients.length + pendingClaims.length;
+  const totalPending = pendingDonors.length + pendingRecipients.length;
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) setSortDir((d: SortDir) => (d === "asc" ? "desc" : "asc"));
@@ -265,7 +251,7 @@ export function AdminDashboard() {
 
   const tabs = [
     { id: "overview" as TabId, label: "Overview & Metrics", icon: Layers },
-    { id: "verification" as TabId, label: "Verification & Claims", icon: Shield, count: totalPending },
+    { id: "verification" as TabId, label: "Partner Verification", icon: Shield, count: totalPending },
     { id: "data" as TabId, label: "Partners & Shelters Data", icon: Database },
     { id: "activity" as TabId, label: "Activity Logs", icon: Activity },
   ];
@@ -698,7 +684,7 @@ export function AdminDashboard() {
           </AnimatePresence>
         )}
 
-        {/* ===== TAB 2: VERIFICATION & CLAIMS ===== */}
+        {/* ===== TAB 2: PARTNER VERIFICATION ===== */}
         {activeTab === "verification" && (
           <AnimatePresence mode="wait">
             <motion.div
@@ -708,57 +694,6 @@ export function AdminDashboard() {
               exit={{ opacity: 0, y: -10 }}
               className="space-y-6"
             >
-              {/* Pending Claims Review */}
-              <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 shadow-xs space-y-4">
-                <div className="flex items-center justify-between border-b border-[#F1F5F9] pb-3">
-                  <div>
-                    <h3 className="font-bold text-sm text-[#0F172A] flex items-center gap-2">
-                      <Package size={16} className="text-[#D97706]" />
-                      Donation Claim Approvals ({pendingClaims.length})
-                    </h3>
-                    <p className="text-xs text-[#64748B] mt-0.5">
-                      Claims from shelters/institutions awaiting admin verification before pickup.
-                    </p>
-                  </div>
-                </div>
-
-                {pendingClaims.length === 0 ? (
-                  <div className="py-8 text-center text-xs text-[#94A3B8]">
-                    No pending claim queue. All claims processed.
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                    {pendingClaims.map((c: any) => (
-                      <div
-                        key={c.id}
-                        className="p-4 bg-[#FFFBEB] rounded-xl border border-[#FDE68A] flex flex-col justify-between gap-3"
-                      >
-                        <div className="space-y-1">
-                          <div className="flex items-start justify-between">
-                            <h4 className="font-bold text-sm text-[#78350F]">
-                              {c.food_name || `Donation #${c.donation_id}`}
-                            </h4>
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-[#FEF3C7] text-[#92400E] border border-[#FCD34D]">
-                              Rank TOPSIS: #{c.topsis_rank_at_claim || 1}
-                            </span>
-                          </div>
-                          <p className="text-xs text-[#92400E]">
-                            Applicant: <strong>{c.institution_name || `Recipient #${c.recipient_id}`}</strong>
-                          </p>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => handleApproveClaim(c.id)}
-                          className="w-full py-2 bg-[#2D7A4F] hover:bg-[#235F3D] text-white rounded-lg text-xs font-bold transition-colors cursor-pointer"
-                        >
-                          Approve Food Pickup
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
               {/* Pending User Verifications */}
               <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 shadow-xs space-y-4">
                 <div className="border-b border-[#F1F5F9] pb-3">

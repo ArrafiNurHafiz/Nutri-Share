@@ -20,15 +20,15 @@ test.describe("Admin Flow", () => {
 
     test("dashboard has all four navigation tabs", async ({ page }) => {
       await expect(page.getByRole("button", { name: /Overview & Metrics/i })).toBeVisible();
-      await expect(page.getByRole("button", { name: /Verification & Claims/i })).toBeVisible();
+      await expect(page.getByRole("button", { name: /Partner Verification|Verification/i })).toBeVisible();
       await expect(page.getByRole("button", { name: /Partners & Shelters Data/i })).toBeVisible();
       await expect(page.getByRole("button", { name: /Activity Logs/i })).toBeVisible();
     });
   });
 
-  test.describe("Verification & Claims Tab", () => {
+  test.describe("Partner Verification Tab", () => {
     test("verification tab displays queue", async ({ page }) => {
-      await page.getByRole("button", { name: /Verification & Claims/i }).click();
+      await page.getByRole("button", { name: /Partner Verification|Verification/i }).click();
       await expect(page.locator("body")).toContainText("Verification");
     });
   });
