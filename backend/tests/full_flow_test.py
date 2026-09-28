@@ -114,15 +114,13 @@ if active_dons and len(active_dons) > 0:
     s2, _, _ = req("POST", f"/api/donations/{don_id}/claim", cookies=recip_cookie)
     check(f"Claim donation #{don_id}", s2 == 200)
 
-# === FLOW 7: ADMIN APPROVE CLAIM ===
-print("\n7️⃣  ADMIN APPROVE CLAIM")
+# === FLOW 7: ADMIN LIST CLAIMS ===
+print("\n7️⃣  ADMIN LIST CLAIMS (Instant Claim Verified)")
 s, claims, _ = req("GET", "/api/admin/claims", cookies=admin_cookie)
 check("List claims", s == 200 and isinstance(claims, list))
 if claims:
-    for c in claims:
-        if c.get("status") == "pending":
-            s2, _, _ = req("POST", f"/api/admin/claims/{c['id']}/approve", cookies=admin_cookie)
-            check(f"Approve claim #{c['id']}", s2 == 200)
+    confirmed = any(c.get("status") in ("approved", "claimed") for c in claims)
+    check("Claim instant confirmation", confirmed)
 
 # === FLOW 8: DONOR CONFIRM ARRIVED + COMPLETE ===
 print("\n8️⃣  DONOR COMPLETE DONATION")

@@ -106,8 +106,8 @@ class TestConcurrencyAndIdempotency:
         assert resp.status_code == 400
         assert "no longer available" in resp.json()["message"].lower()
 
-    async def test_competing_claim_auto_rejection_on_admin_approval(self, client: AsyncClient, db_session):
-        """When Admin approves one claim, competing claims for the same donation are automatically rejected."""
+    async def test_instant_claim_rejection_for_subsequent_claims(self, client: AsyncClient, db_session):
+        """When a recipient claims a donation, it is immediately assigned and subsequent claims for the same donation are rejected."""
         admin = User(name="Admin C", email="admin_c@test.com", password=hash_password("pw"), role="admin", status="verified")
         donor = User(name="Donor C3", email="donor_c3@test.com", password=hash_password("pw"), role="donor", status="verified")
         recip1 = User(name="Recip 1", email="recip1_c@test.com", password=hash_password("pw"), role="recipient", status="verified")
