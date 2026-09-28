@@ -4,7 +4,7 @@ const BASE = "https://nutrishare.web.id";
 
 // Test accounts (auto-login cookies from API)
 const ACCOUNTS = {
-  admin: { email: "arrafinur3@gmail.com", password: "11223344", role: "admin" },
+  admin: { email: "arrafinur3@gmail.com", password: "password123", role: "admin" },
   donor: { email: "arrafinur1@gmail.com", password: "11223344", role: "donor" },
   recipient: {
     email: "arrafinur2@gmail.com",

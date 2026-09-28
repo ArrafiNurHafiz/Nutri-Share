@@ -5,7 +5,7 @@ test.describe("Admin Flow", () => {
     // Login as admin before each test
     await page.goto("/login");
     await page.fill('input[type="email"]', "arrafinur3@gmail.com");
-    await page.fill('input[type="password"]', "11223344");
+    await page.fill('input[type="password"]', "password123");
     await page.click('button[type="submit"]');
     await page.waitForURL("**/admin", { timeout: 10000 });
   });
