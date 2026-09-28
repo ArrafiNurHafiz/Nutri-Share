@@ -46,8 +46,7 @@ export function TOPSISPanel({
       <div className="flex flex-col items-center justify-center text-center text-[var(--text-tertiary)] py-8">
         <BarChart3 size={40} className="mb-3 opacity-50" />
         <p className="text-sm font-semibold">
-          Pilih &ldquo;TOPSIS&rdquo; pada donasi untuk melihat analisis
-          kecocokan AI.
+          Select &ldquo;TOPSIS&rdquo; on a donation to view AI match analysis.
         </p>
       </div>
     );
@@ -59,14 +58,14 @@ export function TOPSISPanel({
   const radarData = {
     labels: [
       "Protein (C1)",
-      "Urgensi (C2)",
-      "Masa Simpan (C3)",
-      "Jarak (C4)",
-      "Pemerataan (C5)",
+      "Urgency (C2)",
+      "Shelf Life (C3)",
+      "Distance (C4)",
+      "Fairness (C5)",
     ],
     datasets: [
       {
-        label: "Skor Kecocokan",
+        label: "Match Score",
         data: [
           Math.min(10, (myScore?.raw_c1 ?? 0) / 10),
           Math.min(
@@ -94,14 +93,14 @@ export function TOPSISPanel({
         <div>
           <div className="flex items-center gap-2">
             <h3 className="font-bold text-brand-dark text-sm">
-              Analisis Hybrid TOPSIS
+              Hybrid TOPSIS Analysis
             </h3>
             <span className="text-[10px] bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded-full border border-emerald-200">
               Entropy-Weighted
             </span>
           </div>
           <p className="text-[11px] text-[var(--text-tertiary)]">
-            Alokasi Donasi #{selectedDonation}
+            Donation Allocation #{selectedDonation}
           </p>
         </div>
         {myScore && (
@@ -122,7 +121,7 @@ export function TOPSISPanel({
         <div className="p-3 bg-gradient-to-r from-orange-50/70 to-amber-50/70 rounded-xl border border-orange-200/60 space-y-1.5">
           <div className="flex items-center gap-1.5 text-xs font-bold text-primary-orange-dark">
             <Sparkles size={14} className="text-primary-orange" />
-            <span>Alasan Kecocokan Alokasi:</span>
+            <span>Allocation Match Highlights:</span>
           </div>
           <ul className="text-[11px] space-y-1 text-slate-700 font-medium">
             {myScore.match_reasons.map((r: string, idx: number) => (
@@ -166,7 +165,7 @@ export function TOPSISPanel({
           onClick={() => onClaim(selectedDonation)}
           className="w-full bg-primary-orange hover:bg-primary-orange-dark text-white py-2 rounded-xl text-xs font-bold shadow-sm transition-all flex items-center justify-center gap-1.5 active:scale-95"
         >
-          <ShieldCheck size={14} /> Klaim Prioritas Utama (1-Click)
+          <ShieldCheck size={14} /> Claim Top Priority (1-Click)
         </button>
       )}
 
@@ -176,8 +175,8 @@ export function TOPSISPanel({
             <thead className="bg-[var(--bg-tertiary)] text-[var(--text-secondary)]">
               <tr>
                 <th className="p-1.5 border-b text-center">Rank</th>
-                <th className="p-1.5 border-b text-left">Penerima</th>
-                <th className="p-1.5 border-b text-right">Skor (Ci)</th>
+                <th className="p-1.5 border-b text-left">Recipient</th>
+                <th className="p-1.5 border-b text-right">Score (Ci)</th>
               </tr>
             </thead>
             <tbody>
@@ -206,7 +205,7 @@ export function TOPSISPanel({
         </div>
       ) : (
         <p className="text-xs text-[var(--text-tertiary)] text-center py-2">
-          Belum ada data peringkat.
+          No ranking data available yet.
         </p>
       )}
     </motion.div>

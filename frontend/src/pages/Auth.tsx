@@ -142,13 +142,14 @@ export function Login() {
           {/* Form */}
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-emerald-950 block" htmlFor="email">
+              <label className="text-xs font-bold text-emerald-950 block" htmlFor="login-email">
                 Email Address
               </label>
               <div className="relative">
                 <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-700/60" />
                 <input
-                  id="email"
+                  id="login-email"
+                  name="email"
                   type="email"
                   value={email}
                   onChange={(e) => {
@@ -165,7 +166,7 @@ export function Login() {
 
             <div className="space-y-1.5">
               <div className="flex justify-between items-center">
-                <label className="text-xs font-bold text-emerald-950" htmlFor="password">
+                <label className="text-xs font-bold text-emerald-950" htmlFor="login-password">
                   Password
                 </label>
                 <Link
@@ -178,7 +179,8 @@ export function Login() {
               <div className="relative">
                 <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-700/60" />
                 <input
-                  id="password"
+                  id="login-password"
+                  name="password"
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => {

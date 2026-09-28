@@ -83,9 +83,9 @@ export function ClaimLifecycle({ transitDonations, onArrived, onTrack }: Props) 
               </svg>
             </div>
             <div>
-              <h4 className="font-bold text-sm text-brand-dark">Proses Penjemputan Mandiri</h4>
+              <h4 className="font-bold text-sm text-brand-dark">Self-Pickup in Progress</h4>
               <p className="text-xs text-[var(--text-secondary)] mb-2">
-                Metode: Diambil langsung oleh perwakilan lembaga penerima
+                Method: Direct pickup by recipient organization representative
               </p>
               <div className="p-2 bg-brand-medium/5 rounded-lg border border-brand-medium/20 flex items-center gap-2">
                 <svg
@@ -108,7 +108,7 @@ export function ClaimLifecycle({ transitDonations, onArrived, onTrack }: Props) 
                   />
                 </svg>
                 <span className="text-[10px] font-bold text-brand-medium uppercase">
-                  Peta Titik Penjemputan Aktif
+                  Active Pickup Point Map
                 </span>
               </div>
             </div>
@@ -149,14 +149,14 @@ export function ClaimLifecycle({ transitDonations, onArrived, onTrack }: Props) 
                 onClick={() => onTrack(pending[0])}
                 className="flex-1 border border-brand-medium text-brand-medium py-3 rounded-xl font-bold text-sm hover:bg-brand-medium/5 transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
-                Lihat Peta Rute
+                View Route Map
               </button>
             )}
             <button
               onClick={() => onArrived(pending[0].id)}
               className="flex-1 bg-accent hover:bg-amber-600 text-white py-3 rounded-xl font-bold text-sm shadow-sm transition-all cursor-pointer"
             >
-              Konfirmasi Tiba di Lokasi
+              Confirm Arrival at Pickup
             </button>
           </div>
         )}

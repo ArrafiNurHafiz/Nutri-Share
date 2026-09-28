@@ -1,4 +1,4 @@
-// AI Nutrition Estimator Engine based on Indonesian Food Composition Database (TKPI Kemenkes RI)
+// AI Nutrition Estimator Engine based on Food Composition Database
 // Automatically estimates Calories, Protein, Iron, Vitamin C, and Shelf-Life (Hours Valid) from food title & description
 
 export type FoodType = "makanan_berat" | "sayur" | "lauk_protein" | "snack" | "minuman" | "lainnya";
@@ -25,120 +25,120 @@ const NUTRITION_KNOWLEDGE_BASE: Array<{
   hours: number;
   tags: string[];
 }> = [
-  // Makanan Berat & Olahan Nasi
+  // Heavy Meals & Rice Dishes
   {
-    keywords: ["nasi goreng", "fried rice", "nasgor"],
+    keywords: ["nasi goreng", "fried rice", "nasgor", "rice bowl"],
     type: "makanan_berat",
     protein: 12,
     calorie: 420,
     iron: 2.1,
     vitc: 4,
     hours: 6,
-    tags: ["Karbohidrat Tinggi", "Siap Makan"],
+    tags: ["High Carbohydrate", "Ready to Eat"],
   },
   {
-    keywords: ["nasi padang", "rendang", "gulai", "nasi uduk", "nasi kuning", "nasi campur", "nasi kotak", "bento"],
+    keywords: ["nasi padang", "rendang", "gulai", "nasi uduk", "nasi kuning", "nasi campur", "nasi kotak", "bento", "curry"],
     type: "makanan_berat",
     protein: 26,
     calorie: 580,
     iron: 3.8,
     vitc: 8,
     hours: 5,
-    tags: ["Tinggi Protein", "Menu Lengkap"],
+    tags: ["High Protein", "Complete Meal"],
   },
   {
-    keywords: ["mie goreng", "bihun", "kwetiau", "pasta", "spaghetti"],
+    keywords: ["mie goreng", "bihun", "kwetiau", "pasta", "spaghetti", "noodles", "fried noodles"],
     type: "makanan_berat",
     protein: 14,
     calorie: 390,
     iron: 1.8,
     vitc: 3,
     hours: 6,
-    tags: ["Energi Cepat", "Karbohidrat"],
+    tags: ["Quick Energy", "Carbohydrate Boost"],
   },
-  // Lauk Protein & Olahan Daging / Ikan / Telur / Tahu Tempe
+  // Protein & Meat / Fish / Egg / Tofu Tempeh
   {
-    keywords: ["ayam", "chicken", "ayam goreng", "ayam bakar", "ayam kecap", "nugget"],
+    keywords: ["ayam", "chicken", "ayam goreng", "ayam bakar", "ayam kecap", "nugget", "beef", "sapi", "daging", "steak", "meat"],
     type: "lauk_protein",
     protein: 28,
     calorie: 320,
     iron: 2.5,
     vitc: 0,
     hours: 6,
-    tags: ["Protein Hewani Utama", "Asam Amino Lengkap"],
+    tags: ["Primary Animal Protein", "Complete Amino Acids"],
   },
   {
-    keywords: ["ikan", "fish", "gurame", "lele", "nila", "salmon", "seafood", "udang", "tuna"],
+    keywords: ["ikan", "fish", "gurame", "lele", "nila", "salmon", "seafood", "udang", "tuna", "prawn", "shrimp"],
     type: "lauk_protein",
     protein: 24,
     calorie: 240,
     iron: 1.9,
     vitc: 2,
     hours: 4,
-    tags: ["Omega-3", "Protein Bersih"],
+    tags: ["Omega-3", "Lean Protein"],
   },
   {
-    keywords: ["telur", "egg", "dadar", "ceplok", "balado"],
+    keywords: ["telur", "egg", "dadar", "ceplok", "balado", "boiled egg", "omelette"],
     type: "lauk_protein",
     protein: 14,
     calorie: 180,
     iron: 1.8,
     vitc: 0,
     hours: 8,
-    tags: ["Protein Terjangkau", "Kolin"],
+    tags: ["Affordable Protein", "Choline"],
   },
   {
-    keywords: ["tahu", "tempe", "tofu", "bacem", "tempe orek"],
+    keywords: ["tahu", "tempe", "tofu", "bacem", "tempe orek", "tempeh", "soy"],
     type: "lauk_protein",
     protein: 18,
     calorie: 190,
     iron: 4.2,
     vitc: 0,
     hours: 10,
-    tags: ["Protein Nabati", "Tinggi Zat Besi"],
+    tags: ["Plant Protein", "Rich in Iron"],
   },
-  // Snack, Roti, Pastry & Kue
+  // Snacks, Bread, Pastry & Cakes
   {
-    keywords: ["roti", "bread", "pastry", "croissant", "donut", "donat", "cake", "bolu", "muffin", "snack"],
+    keywords: ["roti", "bread", "pastry", "croissant", "donut", "donat", "cake", "bolu", "muffin", "snack", "cookie", "cookies"],
     type: "snack",
     protein: 7,
     calorie: 260,
     iron: 1.2,
     vitc: 0,
     hours: 24,
-    tags: ["Masa Simpan Panjang", "Snack Padat Energi"],
+    tags: ["Extended Shelf Life", "Energy Dense Snack"],
   },
-  // Buah & Sayur
+  // Fruits & Vegetables
   {
-    keywords: ["buah", "fruit", "pisang", "apel", "semangka", "jeruk", "pepaya", "salad buah"],
+    keywords: ["buah", "fruit", "pisang", "apel", "semangka", "jeruk", "pepaya", "salad buah", "banana", "apple", "orange"],
     type: "sayur",
     protein: 2,
     calorie: 90,
     iron: 0.6,
     vitc: 45,
     hours: 12,
-    tags: ["Kaya Vitamin C", "Serat Alami"],
+    tags: ["Rich in Vitamin C", "Natural Fiber"],
   },
   {
-    keywords: ["sayur", "soup", "sop", "capcay", "tumis", "kangkung", "bayam", "salad sayur"],
+    keywords: ["sayur", "soup", "sop", "capcay", "tumis", "kangkung", "bayam", "salad sayur", "vegetable", "veggie", "spinach"],
     type: "sayur",
     protein: 5,
     calorie: 110,
     iron: 3.2,
     vitc: 28,
     hours: 5,
-    tags: ["Tinggi Mikronutrien", "Antioksidan"],
+    tags: ["High Micronutrients", "Antioxidants"],
   },
-  // Minuman
+  // Beverages
   {
-    keywords: ["susu", "milk", "jus", "juice", "minuman", "teh", "smoothie"],
+    keywords: ["susu", "milk", "jus", "juice", "minuman", "teh", "smoothie", "tea", "drink", "beverage"],
     type: "minuman",
     protein: 6,
     calorie: 140,
     iron: 0.5,
     vitc: 15,
     hours: 8,
-    tags: ["Hidrasi Bergizi", "Kalsium"],
+    tags: ["Nutritious Hydration", "Calcium Rich"],
   },
 ];
 
@@ -163,9 +163,9 @@ export function estimateNutritionAI(foodName: string, notes: string = ""): Nutri
 
   // If no specific match, calculate dynamic baseline based on length & word hints
   if (highestScore === 0) {
-    const isSweet = query.includes("manis") || query.includes("kue") || query.includes("coklat") || query.includes("snack");
-    const isMeat = query.includes("daging") || query.includes("sapi") || query.includes("kambing") || query.includes("ayam") || query.includes("ikan");
-    const isDrink = query.includes("minum") || query.includes("jus") || query.includes("susu");
+    const isSweet = query.includes("manis") || query.includes("kue") || query.includes("coklat") || query.includes("snack") || query.includes("sweet") || query.includes("cake") || query.includes("dessert");
+    const isMeat = query.includes("daging") || query.includes("sapi") || query.includes("kambing") || query.includes("ayam") || query.includes("ikan") || query.includes("meat") || query.includes("beef") || query.includes("chicken");
+    const isDrink = query.includes("minum") || query.includes("jus") || query.includes("susu") || query.includes("drink") || query.includes("milk") || query.includes("juice");
 
     return {
       food_type: isMeat ? "lauk_protein" : isDrink ? "minuman" : isSweet ? "snack" : "makanan_berat",
@@ -175,8 +175,8 @@ export function estimateNutritionAI(foodName: string, notes: string = ""): Nutri
       vitamin_c_mg: 5,
       hours_valid: 6,
       confidence_score: 75,
-      key_nutrients: ["Makronutrien Seimbang", "Energi Harian"],
-      dietary_tags: ["Standar NutriShare"],
+      key_nutrients: ["Balanced Macronutrients", "Daily Sustenance"],
+      dietary_tags: ["NutriShare Standard"],
     };
   }
 
@@ -191,6 +191,6 @@ export function estimateNutritionAI(foodName: string, notes: string = ""): Nutri
     hours_valid: bestMatch.hours,
     confidence_score: confidence,
     key_nutrients: bestMatch.tags,
-    dietary_tags: ["Tervalidasi Database TKPI Kemenkes"],
+    dietary_tags: ["Validated Database"],
   };
 }

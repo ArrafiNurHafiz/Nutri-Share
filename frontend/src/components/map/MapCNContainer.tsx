@@ -73,7 +73,7 @@ export function MapCNContainer({
         }
       })
       .catch((err) => {
-        console.error("Gagal memuat MapLibre GL CDN:", err);
+        console.error("Failed to load MapLibre GL CDN:", err);
       });
 
     return () => {
@@ -130,7 +130,7 @@ export function MapCNContainer({
               type="button"
               onClick={() => setStylePickerOpen(!stylePickerOpen)}
               className="p-2.5 bg-white/90 hover:bg-white text-gray-700 hover:text-emerald-700 rounded-xl shadow-md backdrop-blur-md border border-white/60 transition-all flex items-center gap-1.5 text-xs font-bold cursor-pointer"
-              title="Ganti Gaya Peta"
+              title="Change Map Style"
             >
               <Layers size={16} />
               <span className="hidden sm:inline">{MAPCN_STYLES[currentStyle].name}</span>
@@ -139,7 +139,7 @@ export function MapCNContainer({
             {stylePickerOpen && (
               <div className="absolute top-full left-0 mt-2 w-48 bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-gray-100 p-2 space-y-1 z-20 animate-in fade-in slide-in-from-top-2">
                 <div className="text-[10px] font-bold text-gray-400 px-2 py-1 uppercase tracking-wider">
-                  Pilih Tema Peta
+                  Select Map Theme
                 </div>
                 {(Object.keys(MAPCN_STYLES) as MapStyleKey[]).map((key) => (
                   <button
@@ -176,7 +176,7 @@ export function MapCNContainer({
             title="Toggle 3D View"
           >
             <Box size={16} />
-            <span className="hidden sm:inline">{is3D ? "3D Aktif" : "3D View"}</span>
+            <span className="hidden sm:inline">{is3D ? "3D Active" : "3D View"}</span>
           </button>
         )}
 
@@ -185,10 +185,10 @@ export function MapCNContainer({
           type="button"
           onClick={resetNorth}
           className="p-2.5 bg-white/90 hover:bg-white text-gray-700 hover:text-emerald-700 rounded-xl shadow-md backdrop-blur-md border border-white/60 transition-all flex items-center gap-1.5 text-xs font-bold cursor-pointer"
-          title="Reset Orientasi Peta"
+          title="Reset Map Orientation"
         >
           <RotateCcw size={16} />
-          <span className="hidden sm:inline">Reset Arah</span>
+          <span className="hidden sm:inline">Reset North</span>
         </button>
       </div>
 

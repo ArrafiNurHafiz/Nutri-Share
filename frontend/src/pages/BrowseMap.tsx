@@ -126,10 +126,10 @@ export function BrowseMap() {
         : item.food_name;
 
       const badge = isDonor
-        ? `<span style="font-size:10px; font-weight:bold; color:#065f46; background:#ecfdf5; padding:2px 8px; border-radius:9999px; text-transform:uppercase;">${item.business_type || "Donatur"}</span>`
+        ? `<span style="font-size:10px; font-weight:bold; color:#065f46; background:#ecfdf5; padding:2px 8px; border-radius:9999px; text-transform:uppercase;">${item.business_type || "Donor"}</span>`
         : isRecip
-        ? `<span style="font-size:10px; font-weight:bold; color:#1e40af; background:#eff6ff; padding:2px 8px; border-radius:9999px; text-transform:uppercase;">${(item.institution_type || "Penerima").replace(/_/g, " ")}</span>`
-        : `<span style="font-size:10px; font-weight:bold; color:#991b1b; background:#fef2f2; padding:2px 8px; border-radius:9999px; text-transform:uppercase;">Donasi Aktif</span>`;
+        ? `<span style="font-size:10px; font-weight:bold; color:#1e40af; background:#eff6ff; padding:2px 8px; border-radius:9999px; text-transform:uppercase;">${(item.institution_type || "Recipient").replace(/_/g, " ")}</span>`
+        : `<span style="font-size:10px; font-weight:bold; color:#991b1b; background:#fef2f2; padding:2px 8px; border-radius:9999px; text-transform:uppercase;">Active Donation</span>`;
 
       const popupHtml = `
         <div style="padding:4px; font-family:inherit; min-width:180px;">
@@ -138,12 +138,12 @@ export function BrowseMap() {
           <p style="font-size:11px; color:#6b7280; margin:0; line-height:1.4;">${item.address || "D.I. Yogyakarta"}</p>
           ${
             item.portion_count
-              ? `<div style="margin-top:6px; padding-top:6px; border-top:1px solid #f3f4f6; font-size:11px; font-weight:600; color:#059669;">Tersedia: ${item.portion_count} Porsi</div>`
+              ? `<div style="margin-top:6px; padding-top:6px; border-top:1px solid #f3f4f6; font-size:11px; font-weight:600; color:#059669;">Available: ${item.portion_count} Portions</div>`
               : ""
           }
           ${
             item.phone
-              ? `<p style="font-size:10px; color:#9ca3af; margin-top:4px;">Telp: ${item.phone}</p>`
+              ? `<p style="font-size:10px; color:#9ca3af; margin-top:4px;">Phone: ${item.phone}</p>`
               : ""
           }
         </div>
@@ -179,8 +179,8 @@ export function BrowseMap() {
   return (
     <div className="flex flex-col h-screen bg-[#f4fbf7] overflow-hidden font-sans text-emerald-950">
       <SEO
-        title="Peta Sebaran Mitra & Donasi | NutriShare"
-        description="Jelajahi peta interaktif sebaran hotel, restoran, panti asuhan, dan donasi surplus pangan di Yogyakarta."
+        title="Interactive Partner & Distribution Map | NutriShare"
+        description="Explore the interactive map of hotels, restaurants, shelters, and active surplus food batches across Yogyakarta."
       />
 
       {/* Top Header */}
@@ -190,7 +190,7 @@ export function BrowseMap() {
             onClick={() => navigate(-1)}
             className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-colors flex items-center gap-1.5 text-xs font-bold cursor-pointer"
           >
-            <ArrowLeft size={16} /> <span>Kembali</span>
+            <ArrowLeft size={16} /> <span>Back</span>
           </button>
           <Link to="/" className="hidden sm:flex items-center gap-2">
             <img
@@ -201,21 +201,21 @@ export function BrowseMap() {
           </Link>
           <div className="h-4 w-px bg-emerald-700 hidden sm:block" />
           <h1 className="text-sm md:text-base font-extrabold text-white flex items-center gap-2 tracking-tight">
-            <Compass size={18} className="text-[#e1fcad]" /> Peta Sebaran Distribusi (GIS)
+            <Compass size={18} className="text-[#e1fcad]" /> Distribution GIS Map
           </h1>
         </div>
 
         {/* Quick Stats Badges */}
         <div className="flex items-center gap-2 text-xs">
           <span className="hidden md:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-[#e1fcad] font-bold border border-emerald-400/30">
-            <Building2 size={13} /> {validDonors.length} Donatur
+            <Building2 size={13} /> {validDonors.length} Donors
           </span>
           <span className="hidden md:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-500/20 text-teal-200 font-bold border border-teal-400/30">
-            <Heart size={13} /> {validRecipients.length} Penerima
+            <Heart size={13} /> {validRecipients.length} Recipients
           </span>
           {validDonations.length > 0 && (
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 text-amber-200 font-bold border border-amber-400/30 animate-pulse">
-              <Package size={13} /> {validDonations.length} Donasi Aktif
+              <Package size={13} /> {validDonations.length} Active Donations
             </span>
           )}
         </div>
@@ -236,7 +236,7 @@ export function BrowseMap() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Cari hotel, resto, panti asuhan..."
+                placeholder="Search hotels, restaurants, shelters..."
                 className="w-full pl-9 pr-4 py-2.5 bg-white border border-emerald-200 rounded-xl text-xs text-emerald-950 font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-600/30 shadow-xs"
               />
             </div>
@@ -252,7 +252,7 @@ export function BrowseMap() {
                     : "bg-white border border-emerald-200 text-emerald-900 hover:bg-emerald-50"
                 }`}
               >
-                Semua ({validDonors.length + validRecipients.length + validDonations.length})
+                All ({validDonors.length + validRecipients.length + validDonations.length})
               </button>
               <button
                 type="button"
@@ -263,7 +263,7 @@ export function BrowseMap() {
                     : "bg-white border border-emerald-200 text-emerald-900 hover:bg-emerald-50"
                 }`}
               >
-                Donatur ({validDonors.length})
+                Donors ({validDonors.length})
               </button>
               <button
                 type="button"
@@ -274,7 +274,7 @@ export function BrowseMap() {
                     : "bg-white border border-emerald-200 text-emerald-900 hover:bg-emerald-50"
                 }`}
               >
-                Penerima ({validRecipients.length})
+                Recipients ({validRecipients.length})
               </button>
               {validDonations.length > 0 && (
                 <button
@@ -286,7 +286,7 @@ export function BrowseMap() {
                       : "bg-white border border-amber-200 text-amber-900 hover:bg-amber-50"
                   }`}
                 >
-                  Donasi ({validDonations.length})
+                  Donations ({validDonations.length})
                 </button>
               )}
             </div>
@@ -296,7 +296,7 @@ export function BrowseMap() {
           <div className="flex-1 overflow-y-auto divide-y divide-emerald-50 p-2 space-y-1">
             {filteredItems.length === 0 ? (
               <div className="text-center py-12 text-slate-400 text-xs">
-                Tidak ada titik lokasi ditemukan.
+                No locations match your search query.
               </div>
             ) : (
               filteredItems.map((item: any, idx: number) => {
@@ -319,7 +319,7 @@ export function BrowseMap() {
                             : "bg-amber-100 text-amber-800"
                         }`}
                       >
-                        {isDonor ? item.business_type || "Donatur" : isRecip ? "Penerima" : "Donasi Aktif"}
+                        {isDonor ? item.business_type || "Donor" : isRecip ? "Recipient" : "Active Donation"}
                       </span>
                       <span className="text-[10px] text-slate-400 font-mono">
                         {Number(item.latitude).toFixed(4)}, {Number(item.longitude).toFixed(4)}
@@ -337,7 +337,7 @@ export function BrowseMap() {
 
                     {item.portion_count && (
                       <div className="mt-2 inline-block text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-200">
-                        {item.portion_count} Porsi Tersedia
+                        {item.portion_count} Portions Available
                       </div>
                     )}
                   </div>

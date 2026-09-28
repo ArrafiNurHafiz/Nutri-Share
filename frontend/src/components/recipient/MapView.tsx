@@ -56,11 +56,11 @@ function MapInner({ mapData, profile, activeDonations }: Props) {
         mapRef.current = map;
 
         // Recipient Marker (Self)
-        const recipEl = createCustomMarkerElement("recipient", profile?.institution_name || "Anda");
+        const recipEl = createCustomMarkerElement("recipient", profile?.institution_name || "You");
         const recipPopup = new maplibregl.Popup({ offset: 25, closeButton: false }).setHTML(`
           <div style="padding:4px; font-family:inherit;">
-            <span style="font-size:10px; font-weight:bold; color:#1e40af; background:#eff6ff; padding:2px 8px; border-radius:9999px;">Penerima</span>
-            <h4 style="font-weight:700; font-size:13px; color:#1f2937; margin:4px 0 0;">${profile?.institution_name || "Lokasi Anda"}</h4>
+            <span style="font-size:10px; font-weight:bold; color:#1e40af; background:#eff6ff; padding:2px 8px; border-radius:9999px;">Recipient</span>
+            <h4 style="font-weight:700; font-size:13px; color:#1f2937; margin:4px 0 0;">${profile?.institution_name || "Your Location"}</h4>
           </div>
         `);
         new maplibregl.Marker({ element: recipEl })
@@ -76,9 +76,9 @@ function MapInner({ mapData, profile, activeDonations }: Props) {
             const donorEl = createCustomMarkerElement("donor", donor.business_name);
             const donorPopup = new maplibregl.Popup({ offset: 25, closeButton: false }).setHTML(`
               <div style="padding:4px; font-family:inherit;">
-                <span style="font-size:10px; font-weight:bold; color:#065f46; background:#ecfdf5; padding:2px 8px; border-radius:9999px;">Donatur</span>
+                <span style="font-size:10px; font-weight:bold; color:#065f46; background:#ecfdf5; padding:2px 8px; border-radius:9999px;">Donor</span>
                 <h4 style="font-weight:700; font-size:13px; color:#1f2937; margin:4px 0 0;">${donor.business_name}</h4>
-                <p style="font-size:11px; color:#6b7280; margin:2px 0 0;">${donor.address || "Yogyakarta"}</p>
+                <p style="font-size:11px; color:#6b7280; margin:2px 0 0;">${donor.address || "Location"}</p>
               </div>
             `);
             new maplibregl.Marker({ element: donorEl })
@@ -217,19 +217,19 @@ function MapInner({ mapData, profile, activeDonations }: Props) {
 
       <div className="absolute bottom-4 left-4 z-10 bg-white/90 backdrop-blur-md p-3.5 rounded-2xl border border-white/60 max-w-xs shadow-lg">
         <h4 className="font-bold text-gray-800 text-xs mb-0.5 flex items-center gap-1.5">
-          <Layers size={14} className="text-emerald-700" /> Rute Jalan Realistis (OSRM)
+          <Layers size={14} className="text-emerald-700" /> Realistic Road Routing (OSRM)
         </h4>
         <p className="text-[11px] text-gray-500 mb-2">
-          Jalur jalan nyata ke donatur terdekat di Yogyakarta.
+          Real road path to closest donors in the area.
         </p>
         <div className="flex items-center gap-3 text-[11px] font-semibold text-gray-700">
           <div className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded-full bg-[#1565C0]" />
-            <span>Penerima</span>
+            <span>Recipient</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded-full bg-[#2D7A4F]" />
-            <span>Donatur</span>
+            <span>Donor</span>
           </div>
         </div>
       </div>
@@ -276,7 +276,7 @@ export function MapView(props: Props) {
             />
           </svg>
           <p className="text-sm">
-            Atur lokasi di Profil Anda untuk melihat peta sebaran donatur.
+            Set your location in Profile to view the donor distribution map.
           </p>
         </div>
       </motion.div>

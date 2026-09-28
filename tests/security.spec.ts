@@ -11,8 +11,8 @@ test.describe("Security Tests", () => {
     test("session expires after logout", async ({ page }) => {
       // Login
       await page.goto("/login");
-      await page.fill("#login-email", "donor@test.com");
-      await page.fill("#login-password", "test123");
+      await page.fill("#login-email", "arrafinur1@gmail.com");
+      await page.fill("#login-password", "11223344");
       await page.click('button[type="submit"]');
       await page.waitForURL("**/donor", { timeout: 10000 });
 

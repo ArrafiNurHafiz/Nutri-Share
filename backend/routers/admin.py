@@ -116,10 +116,10 @@ async def admin_verify_user(
     if user.role == "recipient":
         await run_topsis_all_active()
 
-    await log_activity(session, current_user.id, "user_verifikasi", f"User {user_id} diverifikasi")
+    await log_activity(session, current_user.id, "user_verified", f"User {user_id} verified")
     cache.invalidate("public:stats")
     cache.invalidate_pattern("analytics:")
-    return {"message": "User diverifikasi"}
+    return {"message": "User verified successfully"}
 
 
 @router.get("/admin/claims")
@@ -237,7 +237,7 @@ async def admin_approve_claim(
         target_user_ids=notify_ids,
     )
 
-    await log_activity(session, current_user.id, "klaim_setujui", f"Klaim #{claim_id} disetujui")
+    await log_activity(session, current_user.id, "claim_approved", f"Claim #{claim_id} approved")
     cache.invalidate("public:stats")
     cache.invalidate_pattern("analytics:")
 
@@ -248,7 +248,7 @@ async def admin_approve_claim(
     except Exception:
         pass
 
-    return {"message": "Klaim disetujui"}
+    return {"message": "Claim approved successfully"}
 
 
 @router.post("/admin/users/{user_id}/emergency", dependencies=[Depends(rate_limit_dependency(20, 60))])
@@ -305,7 +305,7 @@ async def admin_delete_user(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     if user.role == "admin":
-        raise HTTPException(status_code=400, detail="Tidak bisa menghapus admin")
+        raise HTTPException(status_code=400, detail="Cannot delete admin user")
 
     try:
         if user.role == "donor":
@@ -347,9 +347,9 @@ async def admin_delete_user(
         )
     except Exception as e:
         await session.rollback()
-        raise HTTPException(status_code=500, detail=f"Gagal menghapus user: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to delete user: {e}")
 
-    return {"message": f"User {user.role} berhasil dihapus"}
+    return {"message": f"User {user.role} deleted successfully"}
 
 
 @router.get("/admin/search")

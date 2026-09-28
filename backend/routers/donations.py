@@ -45,7 +45,7 @@ async def create_donation(
     if current_user.role != "donor":
         raise HTTPException(status_code=403, detail="Access denied")
     if current_user.status != "verified":
-        raise HTTPException(status_code=403, detail="Akun donatur belum diverifikasi oleh admin.")
+        raise HTTPException(status_code=403, detail="Donor account is not verified by admin yet.")
 
     now = datetime.now(UTC)
 
@@ -129,7 +129,7 @@ async def create_donation(
         target_roles=["recipient", "admin", "donor"],
     )
 
-    await log_activity(session, current_user.id, "donasi_buat", f"Published {body.food_name} ({body.portion_count} portions)")
+    await log_activity(session, current_user.id, "donation_created", f"Published {body.food_name} ({body.portion_count} portions)")
     cache.invalidate("public:stats")
     cache.invalidate_pattern("analytics:")
     return {"message": "Donation published successfully!"}
@@ -478,7 +478,7 @@ async def claim_donation(
     if current_user.role != "recipient":
         raise HTTPException(status_code=403, detail="Access denied")
     if current_user.status != "verified":
-        raise HTTPException(status_code=403, detail="Akun lembaga penerima belum diverifikasi oleh admin.")
+        raise HTTPException(status_code=403, detail="Recipient organization account is not verified by admin yet.")
 
     # Validate donation exists and check expiration
     d_check = await session.execute(select(Donation).where(Donation.id == donation_id))
@@ -492,10 +492,10 @@ async def claim_donation(
             d.status = "expired"
             session.add(d)
             await session.commit()
-        raise HTTPException(status_code=400, detail="Masa simpan aman makanan telah habis (Donasi Kadaluarsa).")
+        raise HTTPException(status_code=400, detail="Food safe shelf-life has expired (Donation Expired).")
 
     if d.status != "active":
-        raise HTTPException(status_code=400, detail="Donasi sudah tidak tersedia untuk diklaim (Donation is no longer available for claim)")
+        raise HTTPException(status_code=400, detail="Donation is no longer available for claim")
 
     # Prevent duplicate claim submissions by the same recipient
     existing_claim = await session.execute(
@@ -506,7 +506,7 @@ async def claim_donation(
         )
     )
     if existing_claim.scalar_one_or_none():
-        raise HTTPException(status_code=400, detail="Anda sudah mengajukan klaim untuk donasi ini")
+        raise HTTPException(status_code=400, detail="You have already claimed this donation")
 
     t = await session.execute(
         select(TopsisResult)
@@ -539,61 +539,116 @@ async def claim_donation(
         wait_mins = max(1, int(escalation["seconds_until_next_stage"] // 60))
         raise HTTPException(
             status_code=403,
-            detail=f"Donasi saat ini dalam tahap {escalation['stage_name']}. Hak klaim Peringkat #{rank} akan dibuka dalam {wait_mins} menit lagi jika belum diambil prioritas sebelumnya."
+            detail=f"Donation is currently in {escalation['stage_name']}. Claim priority for Rank #{rank} will open in {wait_mins} minutes if not claimed by higher priority recipients."
         )
 
+    now = datetime.now(UTC).isoformat()
     claim = Claim(
         donation_id=donation_id,
         recipient_id=current_user.id,
         topsis_rank_at_claim=rank,
-        status="pending",
-        created_at=datetime.now(UTC).isoformat(),
+        status="approved",
+        reviewed_at=now,
+        reviewed_by=current_user.id,
+        created_at=now,
     )
     session.add(claim)
-    await session.commit()
 
-    # Notify admins
-    admins = await session.execute(select(User.id).where(User.role == "admin"))
+    d.status = "claimed"
+    d.claimed_by = current_user.id
+    d.claimed_at = now
+    session.add(d)
 
-    for aid in admins.scalars().all():
-        notif = Notification(
-            user_id=aid,
-            title="New Claim!",
-            message=f"Donation {d.food_name if d else '#' + str(donation_id)} claimed by a recipient. Review now.",
-            type="system",
-            is_read=0,
-            related_donation_id=donation_id,
-            created_at=datetime.now(UTC).isoformat(),
+    # Reject any competing pending claims on this donation
+    competing = await session.execute(
+        select(Claim).where(
+            Claim.donation_id == donation_id,
+            Claim.recipient_id != current_user.id,
+            Claim.status == "pending",
         )
-        session.add(notif)
-        await session.flush()
-        await notify_user(aid, {
-            "id": notif.id,
-            "user_id": aid,
-            "title": notif.title,
-            "message": notif.message,
-            "type": notif.type,
-            "is_read": notif.is_read,
-            "related_donation_id": notif.related_donation_id,
-            "created_at": notif.created_at,
-        })
+    )
+    for cc in competing.scalars().all():
+        cc.status = "rejected"
+        cc.reviewed_at = now
+        session.add(cc)
+
+    await session.flush()
+
+    # Get recipient name
+    rp_res = await session.execute(
+        select(RecipientProfile).where(RecipientProfile.user_id == current_user.id)
+    )
+    rp = rp_res.scalar_one_or_none()
+    recipient_name = rp.institution_name if rp else current_user.name
+
+    # Notify donor directly
+    notif_donor = Notification(
+        user_id=d.donor_id,
+        title="Donation Claimed!",
+        message=f"Your donation '{d.food_name}' has been claimed by {recipient_name}. Please coordinate pickup/handover.",
+        type="donation_claimed",
+        is_read=0,
+        related_donation_id=donation_id,
+        created_at=now,
+    )
+    session.add(notif_donor)
+    await session.flush()
+    await notify_user(d.donor_id, {
+        "id": notif_donor.id,
+        "user_id": d.donor_id,
+        "title": notif_donor.title,
+        "message": notif_donor.message,
+        "type": notif_donor.type,
+        "is_read": notif_donor.is_read,
+        "related_donation_id": notif_donor.related_donation_id,
+        "created_at": notif_donor.created_at,
+    })
+
+    # Notify recipient
+    notif_recip = Notification(
+        user_id=current_user.id,
+        title="Claim Confirmed!",
+        message=f"You successfully claimed '{d.food_name}'. Check pickup details and coordinate handover.",
+        type="claim_approved",
+        is_read=0,
+        related_donation_id=donation_id,
+        created_at=now,
+    )
+    session.add(notif_recip)
+    await session.flush()
+    await notify_user(current_user.id, {
+        "id": notif_recip.id,
+        "user_id": current_user.id,
+        "title": notif_recip.title,
+        "message": notif_recip.message,
+        "type": notif_recip.type,
+        "is_read": notif_recip.is_read,
+        "related_donation_id": notif_recip.related_donation_id,
+        "created_at": notif_recip.created_at,
+    })
+
     await session.commit()
 
-    # Publish real-time events for claim creation
+    # Invalidate cache
+    cache.invalidate("public:stats")
+    cache.invalidate_pattern("analytics:")
+
+    # Publish real-time events for claim approved
     await broker.publish(
-        event_type="CLAIM_CREATED",
+        event_type="CLAIM_APPROVED",
         resource_id=claim.id,
         data={
             "claim_id": claim.id,
             "donation_id": donation_id,
             "recipient_id": current_user.id,
-            "status": "pending",
+            "donor_id": d.donor_id,
+            "status": "approved",
         },
-        target_roles=["admin"],
-        target_user_ids=[current_user.id],
+        target_roles=["admin", "recipient", "donor"],
+        target_user_ids=[current_user.id, d.donor_id],
     )
 
-    await log_activity(session, current_user.id, "klaim_buat", f"Mengklaim donasi #{donation_id}")
+    await log_activity(session, current_user.id, "claim_created", f"Claimed donation #{donation_id}")
 
     # Dynamic TOPSIS Recalculation
     try:
@@ -602,7 +657,11 @@ async def claim_donation(
     except Exception:
         pass
 
-    return {"message": "Claim submitted successfully, waiting for admin approval."}
+    return {
+        "message": "Donation claimed successfully!",
+        "claim_id": claim.id,
+        "status": "approved",
+    }
 
 
 @router.post("/donations/{donation_id}/arrived", dependencies=[Depends(rate_limit_dependency(10, 60))])
@@ -661,7 +720,7 @@ async def confirm_arrived(
         target_roles=["admin"],
     )
 
-    return {"message": "Kedatangan dikonfirmasi"}
+    return {"message": "Arrival confirmed successfully"}
 
 
 @router.post("/donations/{donation_id}/complete", dependencies=[Depends(rate_limit_dependency(10, 60))])
@@ -746,7 +805,7 @@ async def complete_donation(
         target_roles=["admin"],
     )
 
-    await log_activity(session, current_user.id, "donasi_selesai", f"Donasi #{donation_id} selesai")
+    await log_activity(session, current_user.id, "donation_completed", f"Donation #{donation_id} completed")
     cache.invalidate("public:stats")
     cache.invalidate_pattern("analytics:")
 

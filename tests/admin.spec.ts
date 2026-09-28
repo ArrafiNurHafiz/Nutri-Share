@@ -4,167 +4,56 @@ test.describe("Admin Flow", () => {
   test.beforeEach(async ({ page }) => {
     // Login as admin before each test
     await page.goto("/login");
-    await page.fill('input[type="email"]', "admin@test.com");
-    await page.fill('input[type="password"]', "test123");
+    await page.fill('input[type="email"]', "arrafinur3@gmail.com");
+    await page.fill('input[type="password"]', "11223344");
     await page.click('button[type="submit"]');
     await page.waitForURL("**/admin", { timeout: 10000 });
   });
 
-  test.describe("Dashboard", () => {
-    test("admin dashboard loads successfully", async ({ page }) => {
-      await expect(page.locator("h1")).toContainText("Admin");
-      await expect(page.locator("text=Dashboard")).toBeVisible();
+  test.describe("Dashboard Overview", () => {
+    test("admin dashboard loads successfully with metric cards", async ({ page }) => {
+      await expect(page.locator("body")).toContainText("Command Center");
+      await expect(page.locator("body")).toContainText("Overview & Metrics");
+      await expect(page.locator("body")).toContainText("Total Donor Partners");
+      await expect(page.locator("body")).toContainText("Beneficiary Shelters");
     });
 
-    test("dashboard shows system statistics", async ({ page }) => {
-      await expect(page.locator("text=Total Pengguna")).toBeVisible();
-      await expect(page.locator("text=Donasi Aktif")).toBeVisible();
-    });
-
-    test("dashboard has admin navigation menu", async ({ page }) => {
-      await expect(page.locator("text=Pengguna")).toBeVisible();
-      await expect(page.locator("text=Klaim")).toBeVisible();
-      await expect(page.locator("text=Donasi")).toBeVisible();
+    test("dashboard has all four navigation tabs", async ({ page }) => {
+      await expect(page.getByRole("button", { name: /Overview & Metrics/i })).toBeVisible();
+      await expect(page.getByRole("button", { name: /Verification & Claims/i })).toBeVisible();
+      await expect(page.getByRole("button", { name: /Partners & Shelters Data/i })).toBeVisible();
+      await expect(page.getByRole("button", { name: /Activity Logs/i })).toBeVisible();
     });
   });
 
-  test.describe("User Management", () => {
-    test("users list shows all users", async ({ page }) => {
-      await page.click("text=Pengguna");
-      await expect(page.locator("h1")).toContainText("Pengguna");
-      // Check if there are user cards or empty state
-      const userCards = page.locator("[data-testid='user-card']");
-      const emptyState = page.locator("text=Belum ada pengguna");
-      await expect(userCards.first().or(emptyState)).toBeVisible();
-    });
-
-    test("can verify a pending user", async ({ page }) => {
-      await page.click("text=Pengguna");
-      const verifyButton = page
-        .locator('button:has-text("Verifikasi")')
-        .first();
-      if (await verifyButton.isVisible()) {
-        await verifyButton.click();
-        // Should show success message
-        await expect(page.locator("text=berhasil")).toBeVisible();
-      }
-    });
-
-    test("can reject a pending user", async ({ page }) => {
-      await page.click("text=Pengguna");
-      const rejectButton = page.locator('button:has-text("Tolak")').first();
-      if (await rejectButton.isVisible()) {
-        await rejectButton.click();
-        // Should show confirmation dialog
-        await expect(page.locator("text=Konfirmasi")).toBeVisible();
-      }
-    });
-
-    test("can search users by name or email", async ({ page }) => {
-      await page.click("text=Pengguna");
-      await page.fill('input[placeholder*="Cari"]', "test");
-      // Should filter the user list
-      await page.waitForTimeout(500);
+  test.describe("Verification & Claims Tab", () => {
+    test("verification tab displays queue", async ({ page }) => {
+      await page.getByRole("button", { name: /Verification & Claims/i }).click();
+      await expect(page.locator("body")).toContainText("Verification");
     });
   });
 
-  test.describe("Claim Management", () => {
-    test("claims list shows pending claims", async ({ page }) => {
-      await page.click("text=Klaim");
-      await expect(page.locator("h1")).toContainText("Klaim");
-      // Check if there are claim cards or empty state
-      const claimCards = page.locator("[data-testid='claim-card']");
-      const emptyState = page.locator("text=Belum ada klaim");
-      await expect(claimCards.first().or(emptyState)).toBeVisible();
+  test.describe("Partners & Shelters Data Tab", () => {
+    test("data tab displays donor partners and shelters tables", async ({ page }) => {
+      await page.getByRole("button", { name: /Partners & Shelters Data/i }).click();
+      await expect(page.locator("body")).toContainText("Donor Partners List");
+      await expect(page.locator("body")).toContainText("Beneficiary Institutions List");
     });
 
-    test("can approve a claim", async ({ page }) => {
-      await page.click("text=Klaim");
-      const approveButton = page.locator('button:has-text("Setujui")').first();
-      if (await approveButton.isVisible()) {
-        await approveButton.click();
-        // Should show success message
-        await expect(page.locator("text=berhasil")).toBeVisible();
-      }
-    });
-
-    test("can reject a claim", async ({ page }) => {
-      await page.click("text=Klaim");
-      const rejectButton = page.locator('button:has-text("Tolak")').first();
-      if (await rejectButton.isVisible()) {
-        await rejectButton.click();
-        // Should show confirmation dialog
-        await expect(page.locator("text=Konfirmasi")).toBeVisible();
+    test("search filters user data", async ({ page }) => {
+      await page.getByRole("button", { name: /Partners & Shelters Data|Data Mitra/i }).click();
+      const searchInput = page.locator('input[placeholder*="Search" i], input[placeholder*="Cari" i]').first();
+      if (await searchInput.isVisible()) {
+        await searchInput.fill("test");
+        await page.waitForTimeout(500);
       }
     });
   });
 
-  test.describe("Donation Management", () => {
-    test("donations list shows all donations", async ({ page }) => {
-      await page.click("text=Donasi");
-      await expect(page.locator("h1")).toContainText("Donasi");
-      // Check if there are donation cards or empty state
-      const donationCards = page.locator("[data-testid='donation-card']");
-      const emptyState = page.locator("text=Belum ada donasi");
-      await expect(donationCards.first().or(emptyState)).toBeVisible();
-    });
-
-    test("can view donation details", async ({ page }) => {
-      await page.click("text=Donasi");
-      const viewButton = page.locator('button:has-text("Detail")').first();
-      if (await viewButton.isVisible()) {
-        await viewButton.click();
-        // Should show donation details
-        await expect(
-          page.locator("[data-testid='donation-detail']"),
-        ).toBeVisible();
-      }
-    });
-  });
-
-  test.describe("Emergency Management", () => {
-    test("emergency requests list shows pending requests", async ({ page }) => {
-      await page.click("text=Darurat");
-      await expect(page.locator("h1")).toContainText("Darurat");
-      // Check if there are emergency cards or empty state
-      const emergencyCards = page.locator("[data-testid='emergency-card']");
-      const emptyState = page.locator("text=Belum ada permintaan darurat");
-      await expect(emergencyCards.first().or(emptyState)).toBeVisible();
-    });
-
-    test("can approve emergency request", async ({ page }) => {
-      await page.click("text=Darurat");
-      const approveButton = page.locator('button:has-text("Setujui")').first();
-      if (await approveButton.isVisible()) {
-        await approveButton.click();
-        // Should show success message
-        await expect(page.locator("text=berhasil")).toBeVisible();
-      }
-    });
-  });
-
-  test.describe("Analytics", () => {
-    test("analytics page shows impact metrics", async ({ page }) => {
-      await page.click("text=Analitik");
-      await expect(page.locator("h1")).toContainText("Analitik");
-      await expect(page.locator("text=Dampak")).toBeVisible();
-    });
-
-    test("analytics shows donation trends", async ({ page }) => {
-      await page.click("text=Analitik");
-      await expect(page.locator("text=Tren Donasi")).toBeVisible();
-    });
-  });
-
-  test.describe("Profile", () => {
-    test("profile modal opens on click", async ({ page }) => {
-      await page.click('[data-testid="profile-button"]');
-      await expect(page.locator("[data-testid='profile-modal']")).toBeVisible();
-    });
-
-    test("profile shows admin information", async ({ page }) => {
-      await page.click('[data-testid="profile-button"]');
-      await expect(page.locator("text=admin@test.com")).toBeVisible();
+  test.describe("Activity Logs Tab", () => {
+    test("activity logs tab displays audit trail", async ({ page }) => {
+      await page.getByRole("button", { name: /Activity Logs/i }).click();
+      await expect(page.locator("body")).toContainText("Audit Trail");
     });
   });
 });

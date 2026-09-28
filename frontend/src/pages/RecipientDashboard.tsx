@@ -97,11 +97,11 @@ export function RecipientDashboard() {
     (event: RealtimeEvent) => {
       loadData();
       if (event.event_type === "CLAIM_APPROVED") {
-        toast.success("Klaim donasi makanan Anda berhasil disetujui!");
+        toast.success("Your food donation claim was confirmed!");
       } else if (event.event_type === "DONATION_CREATED") {
-        toast("Ada donasi surplus baru tersedia!");
+        toast("New surplus food donation is available!");
       } else if (event.event_type === "HANDOVER_COMPLETED") {
-        toast.success("Serah terima donasi selesai!");
+        toast.success("Donation handover completed!");
       }
     },
     loadData,
@@ -118,11 +118,11 @@ export function RecipientDashboard() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ recipient_id: user.id }),
       });
-      toast.success("Donasi berhasil diklaim! Silakan koordinasi penjemputan.");
+      toast.success("Donation claimed successfully! Please coordinate pickup.");
       loadData();
       setActiveTab("active");
     } catch (err: any) {
-      toast.error(err.message || "Gagal mengklaim donasi.");
+      toast.error(err.message || "Failed to claim donation.");
     } finally {
       setClaimingId(null);
     }
@@ -148,12 +148,12 @@ export function RecipientDashboard() {
       setEmergency(res.emergency);
       refresh();
       toast.success(
-        res.emergency === "pending"
-          ? "Status Darurat Diaktifkan. Panti Anda diprioritaskan di algoritma TOPSIS."
-          : "Status darurat dinonaktifkan.",
+        res.emergency === "pending" || res.emergency === "approved"
+          ? "Emergency Status Activated. Your institution is prioritized in the TOPSIS algorithm."
+          : "Emergency status deactivated.",
       );
     } catch (err: any) {
-      toast.error(err.message || "Gagal memperbarui status.");
+      toast.error(err.message || "Failed to update emergency status.");
     }
   };
 
@@ -188,7 +188,7 @@ export function RecipientDashboard() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#FDFBF7] flex items-center justify-center">
-        <LoadingSpinner size={32} label="Memuat portal penerima..." />
+        <LoadingSpinner size={32} label="Loading recipient portal..." />
       </div>
     );
   }
@@ -196,8 +196,8 @@ export function RecipientDashboard() {
   return (
     <div className="min-h-screen bg-[#f4fbf7] bg-emerald-grid text-emerald-950 font-sans flex flex-col antialiased">
       <SEO
-        title="Portal Penerima Manfaat | NutriShare"
-        description="Portal distribusi pangan bernutrisi untuk panti asuhan dan lembaga sosial di Yogyakarta."
+        title="Beneficiary Portal | NutriShare"
+        description="Nutritious food surplus distribution portal for shelters and social institutions in Yogyakarta."
       />
 
       {/* Top Navbar */}
@@ -229,10 +229,10 @@ export function RecipientDashboard() {
                   ? "bg-red-600 text-white"
                   : "bg-red-50 hover:bg-red-100 text-red-700 border border-red-200"
               }`}
-              title="Aktifkan status darurat jika stok pangan panti menipis"
+              title="Activate emergency status if shelter food stock is low"
             >
               <AlertTriangle size={13} />
-              <span>{emergency === "approved" || emergency === "pending" ? "Darurat Aktif" : "Status Darurat"}</span>
+              <span>{emergency === "approved" || emergency === "pending" ? "Emergency Active" : "Emergency Mode"}</span>
             </button>
 
             <Link
@@ -240,14 +240,14 @@ export function RecipientDashboard() {
               className="px-3 py-1.5 rounded-xl border border-emerald-200 hover:bg-emerald-50 text-xs font-bold text-emerald-900 transition-colors flex items-center gap-1.5"
             >
               <Compass size={14} className="text-emerald-700" />
-              <span className="hidden sm:inline">Peta Sebaran</span>
+              <span className="hidden sm:inline">Distribution Map</span>
             </Link>
 
             <button
               type="button"
               onClick={() => setShowProfile(true)}
               className="p-2 rounded-xl border border-emerald-200 hover:bg-emerald-50 text-emerald-800 transition-colors cursor-pointer"
-              title="Profil & Pengaturan AKG"
+              title="Profile & RDA Settings"
             >
               <User size={15} />
             </button>
@@ -259,7 +259,7 @@ export function RecipientDashboard() {
                 nav("/");
               }}
               className="p-2 rounded-xl border border-red-200 hover:bg-red-50 text-red-600 transition-colors cursor-pointer"
-              title="Keluar"
+              title="Logout"
             >
               <LogOut size={15} />
             </button>
@@ -284,11 +284,11 @@ export function RecipientDashboard() {
             <div className="space-y-2 max-w-xl">
               <div className="flex items-center gap-2">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-[#e1fcad] bg-emerald-500/20 px-3 py-1 rounded-full border border-emerald-400/30 backdrop-blur-md">
-                  Portal Lembaga Penerima
+                  Beneficiary Portal
                 </span>
                 {emergency !== "none" && (
                   <span className="text-[11px] font-bold uppercase tracking-wider text-white bg-red-600 px-2.5 py-1 rounded-full animate-pulse shadow-sm">
-                    Status Darurat Aktif
+                    Emergency Mode Active
                   </span>
                 )}
               </div>
@@ -296,7 +296,7 @@ export function RecipientDashboard() {
                 {profile?.institution_name || user.name}
               </h1>
               <p className="text-xs sm:text-sm text-emerald-100/80 leading-relaxed">
-                Prioritas alokasi pangan surplus bernutrisi berbasis algoritma Hybrid Entropy-TOPSIS. Pantau asupan gizi harian dan ajukan klaim donasi secara transparan.
+                Surplus food allocation prioritized by Hybrid Entropy-TOPSIS. Monitor daily nutrition fulfillment and claim available donations in real-time.
               </p>
             </div>
 
@@ -305,8 +305,8 @@ export function RecipientDashboard() {
                 <Heart size={20} />
               </div>
               <div>
-                <span className="text-[10px] text-emerald-300 uppercase font-bold tracking-wider block">Kebutuhan Binaan</span>
-                <span className="text-sm font-extrabold text-white">{profile?.resident_count ?? 0} Orang</span>
+                <span className="text-[10px] text-emerald-300 uppercase font-bold tracking-wider block">Resident Beneficiaries</span>
+                <span className="text-sm font-extrabold text-white">{profile?.resident_count ?? 0} People</span>
               </div>
             </div>
           </div>
@@ -554,8 +554,8 @@ export function RecipientDashboard() {
               {filteredExplore.length === 0 ? (
                 <div className="bg-white rounded-xl border border-[#E2E8F0] p-10 text-center text-xs text-[#64748B] space-y-2">
                   <Package size={24} className="mx-auto text-[#94A3B8]" />
-                  <p className="font-semibold text-[#334155]">Belum ada donasi makanan surplus yang tersedia saat ini.</p>
-                  <p className="text-[11px] text-[#64748B]">Restoran dan hotel mitra akan mempublikasikan donasi secara berkala.</p>
+                  <p className="font-semibold text-[#334155]">No surplus food donations available at the moment.</p>
+                  <p className="text-[11px] text-[#64748B]">Partner restaurants and hotels publish donations regularly.</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -576,11 +576,11 @@ export function RecipientDashboard() {
                           <div className="flex items-center justify-between gap-2">
                             {isRank1 ? (
                               <span className="bg-[#2D7A4F] text-white text-[10px] font-bold px-2.5 py-1 rounded shadow-xs border border-emerald-400/30 flex items-center gap-1.5">
-                                <Sparkles size={12} className="text-emerald-200" /> Rekomendasi TOPSIS #1
+                                <Sparkles size={12} className="text-emerald-200" /> TOPSIS Recommendation #1
                               </span>
                             ) : (
                               <span className="text-[11px] text-[#64748B] font-mono bg-[#F1F5F9] px-2 py-0.5 rounded border border-[#E2E8F0]">
-                                #{item.id} {item.rank ? `(Peringkat #${item.rank})` : ""}
+                                #{item.id} {item.rank ? `(Rank #${item.rank})` : ""}
                               </span>
                             )}
 
@@ -606,15 +606,15 @@ export function RecipientDashboard() {
 
                             <p className="text-xs text-[#64748B] flex items-center gap-1">
                               <MapPin size={11} className="text-[#94A3B8] shrink-0" />
-                              <span className="truncate font-medium">{item.donor_name || "Mitra Donatur"}</span>
+                              <span className="truncate font-medium">{item.donor_name || "Food Donor"}</span>
                             </p>
 
                             <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-[#334155] pt-1">
                               <span className="px-2 py-0.5 bg-[#F1F5F9] text-[#334155] rounded border border-[#E2E8F0]">
-                                {item.portion_count} Porsi
+                                {item.portion_count} Portions
                               </span>
                               <span className="flex items-center gap-1 px-2 py-0.5 bg-[#ECFDF5] text-[#065F46] rounded border border-[#A7F3D0]">
-                                <Clock size={11} /> Sisa {item.hours_valid || 6} Jam
+                                <Clock size={11} /> {item.hours_valid || 6}h Remaining
                               </span>
                               {item.escalation_stage_name && (
                                 <span className={`px-2 py-0.5 rounded border text-[10px] ${
@@ -634,12 +634,12 @@ export function RecipientDashboard() {
                             <div className="flex flex-wrap gap-1.5 pt-1 text-[11px] font-medium">
                               {item.protein_per_portion ? (
                                 <span className="px-2 py-0.5 bg-[#EFF6FF] text-[#1E40AF] rounded border border-[#BFDBFE]">
-                                  {Math.round(item.protein_per_portion * item.portion_count)}g Protein Total
+                                  {Math.round(item.protein_per_portion * item.portion_count)}g Total Protein
                                 </span>
                               ) : null}
                               {item.calorie_per_portion ? (
                                 <span className="px-2 py-0.5 bg-[#FEF3C7] text-[#92400E] rounded border border-[#FDE68A]">
-                                  {Math.round(item.calorie_per_portion * item.portion_count)} kkal
+                                  {Math.round(item.calorie_per_portion * item.portion_count)} kcal
                                 </span>
                               ) : null}
                             </div>
@@ -652,10 +652,10 @@ export function RecipientDashboard() {
                             type="button"
                             onClick={() => openTopsisAudit(item)}
                             className="px-2.5 py-2 rounded-lg border border-[#E2E8F0] hover:bg-[#F8FAFC] text-xs font-semibold text-[#0F172A] flex items-center gap-1 transition-colors cursor-pointer"
-                            title="Audit Perankingan TOPSIS & Simulasi AKG"
+                            title="Audit TOPSIS Ranking & RDA Simulation"
                           >
                             <BarChart3 size={13} className="text-[#2D7A4F]" />
-                            <span>Audit TOPSIS</span>
+                            <span>TOPSIS Audit</span>
                           </button>
 
                           <button
@@ -669,18 +669,18 @@ export function RecipientDashboard() {
                             } disabled:opacity-75`}
                             title={
                               !isClaimEligible
-                                ? `Menunggu giliran kuarter prioritas (Peringkat Anda: #${item.rank || 'N/A'})`
-                                : "Klaim donasi ini"
+                                ? `Waiting for priority escalation quarter (Your rank: #${item.rank || 'N/A'})`
+                                : "Claim this donation"
                             }
                           >
                             {isClaimingThis ? (
-                              <span>Mengonfirmasi...</span>
+                              <span>Confirming...</span>
                             ) : !isClaimEligible ? (
-                              <span>Menunggu Giliran (#{item.rank || 'N/A'})</span>
+                              <span>Awaiting Turn (#{item.rank || 'N/A'})</span>
                             ) : (
                               <>
                                 <Heart size={13} className="fill-white" />
-                                <span>Ambil Donasi</span>
+                                <span>Claim Donation</span>
                               </>
                             )}
                           </button>
@@ -700,8 +700,8 @@ export function RecipientDashboard() {
               {transitDonations.length === 0 ? (
                 <div className="bg-white rounded-xl border border-[#E2E8F0] p-10 text-center text-xs text-[#64748B] space-y-1">
                   <CheckCircle2 size={24} className="mx-auto text-[#2D7A4F]" />
-                  <p className="font-semibold text-[#334155]">Tidak ada penjemputan yang sedang berlangsung.</p>
-                  <p className="text-[11px]">Klaim donasi makanan di tab "Jelajah Surplus" untuk memulai proses penjemputan.</p>
+                  <p className="font-semibold text-[#334155]">No ongoing pickups.</p>
+                  <p className="text-[11px]">Claim food donations in the "Explore Surplus" tab to start pickup process.</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
@@ -712,13 +712,13 @@ export function RecipientDashboard() {
                     >
                       <div className="flex justify-between items-start">
                         <span className="px-2 py-0.5 rounded bg-[#EFF6FF] text-[#1E40AF] text-[10px] font-bold border border-[#BFDBFE]">
-                          Siap Diambil
+                          Ready for Pickup
                         </span>
                         <span className="text-xs text-[#94A3B8] font-mono">#{item.id}</span>
                       </div>
                       <div>
                         <h4 className="font-bold text-sm text-[#0F172A]">{item.food_name}</h4>
-                        <p className="text-xs text-[#64748B] mt-0.5">{item.portion_count} Porsi • Donatur: <strong>{item.donor_name}</strong></p>
+                        <p className="text-xs text-[#64748B] mt-0.5">{item.portion_count} Portions • Donor: <strong>{item.donor_name}</strong></p>
                         <p className="text-[11px] text-[#64748B] mt-1">{item.donor_address || "Yogyakarta"}</p>
                       </div>
                       <div className="pt-2 border-t border-[#F1F5F9]">
@@ -727,7 +727,7 @@ export function RecipientDashboard() {
                           onClick={() => setTrackingData(item)}
                           className="w-full py-2 rounded-lg bg-[#2D7A4F] hover:bg-[#235F3D] text-white font-semibold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                         >
-                          <Compass size={13} /> Buka Pelacakan Rute Jalan 3D
+                          <Compass size={13} /> Open 3D Road Navigation
                         </button>
                       </div>
                     </div>
@@ -742,7 +742,7 @@ export function RecipientDashboard() {
             <div className="space-y-3">
               {completedList.length === 0 ? (
                 <div className="bg-white rounded-xl border border-[#E2E8F0] p-10 text-center text-xs text-[#64748B]">
-                  Belum ada riwayat donasi yang selesai diserahterimakan.
+                  No completed donation history yet.
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
@@ -754,15 +754,15 @@ export function RecipientDashboard() {
                       <div className="space-y-1">
                         <div className="flex justify-between items-center text-xs">
                           <span className="font-bold text-[#065F46] flex items-center gap-1">
-                            <ShieldCheck size={13} /> Selesai Diterima
+                            <ShieldCheck size={13} /> Received & Verified
                           </span>
                           <span className="text-[#94A3B8] text-[10px]">
-                            {item.completed_at ? new Date(item.completed_at).toLocaleDateString("id-ID") : "Tervalidasi"}
+                            {item.completed_at ? new Date(item.completed_at).toLocaleDateString("en-US") : "Verified"}
                           </span>
                         </div>
                         <h4 className="font-bold text-sm text-[#0F172A]">{item.food_name}</h4>
                         <p className="text-xs text-[#64748B]">
-                          {item.portion_count} Porsi dari <strong>{item.donor_name}</strong>
+                          {item.portion_count} Portions from <strong>{item.donor_name}</strong>
                         </p>
                       </div>
 
@@ -773,7 +773,7 @@ export function RecipientDashboard() {
                           className="px-3 py-1.5 rounded-md border border-[#E2E8F0] hover:bg-[#F8FAFC] text-[#D97706] font-semibold text-xs flex items-center gap-1 transition-colors cursor-pointer"
                         >
                           <Star size={13} className="fill-[#D97706]" />
-                          <span>Beri Ulasan Donatur</span>
+                          <span>Review Donor</span>
                         </button>
                       </div>
                     </div>

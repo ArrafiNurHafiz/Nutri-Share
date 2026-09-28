@@ -32,17 +32,17 @@ export function TransitSection({ transitDonations, onArrived, onTrack }: Props) 
           </div>
           <div>
             <h3 className="text-sm font-bold text-brand-dark flex items-center gap-2">
-              Penjemputan Mandiri (Self-Pickup)
+              Self-Pickup Schedule
             </h3>
             <p className="text-[11px] text-[var(--text-tertiary)]">
-              {transitDonations.length} donasi siap diambil di lokasi donatur
+              {transitDonations.length} donation(s) ready for pickup at donor location
             </p>
           </div>
         </div>
         <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 border border-emerald-200 rounded-full">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
           <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">
-            Siap Diambil
+            Ready for Pickup
           </span>
         </div>
       </div>
@@ -67,18 +67,18 @@ export function TransitSection({ transitDonations, onArrived, onTrack }: Props) 
                     {d.food_name}
                   </h4>
                   <p className="text-[11px] text-[var(--text-secondary)] truncate">
-                    Titik Ambil: <span className="font-semibold">{d.donor_name}</span>
+                    Pickup Location: <span className="font-semibold">{d.donor_name}</span>
                   </p>
                 </div>
               </div>
               <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shrink-0">
-                <CheckCircle size={11} /> Tiba di Lokasi
+                <CheckCircle size={11} /> Arrived at Location
               </span>
             </div>
 
             <div className="flex items-center justify-between pt-2 border-t border-emerald-100 text-[11px] text-[var(--text-tertiary)]">
               <span className="flex items-center gap-1 text-emerald-800 font-medium">
-                <Clock size={12} /> Menunggu Donatur Menyerahkan Makanan
+                <Clock size={12} /> Awaiting Donor Handover
               </span>
               <div className="flex items-center gap-2">
                 {onTrack && (
@@ -87,7 +87,7 @@ export function TransitSection({ transitDonations, onArrived, onTrack }: Props) 
                     onClick={() => onTrack(d)}
                     className="text-[11px] text-emerald-700 hover:text-emerald-900 font-bold flex items-center gap-1 cursor-pointer"
                   >
-                    <Navigation size={11} /> Peta Rute
+                    <Navigation size={11} /> Route Map
                   </button>
                 )}
                 <span className="font-bold text-brand-dark">
@@ -118,12 +118,12 @@ export function TransitSection({ transitDonations, onArrived, onTrack }: Props) 
                       {d.food_name}
                     </h4>
                     <p className="text-[11px] text-[var(--text-secondary)] truncate flex items-center gap-1">
-                      <Building2 size={11} /> Donatur: <span className="font-semibold">{d.donor_name}</span>
+                      <Building2 size={11} /> Donor: <span className="font-semibold">{d.donor_name}</span>
                     </p>
                   </div>
                 </div>
                 <span className="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0">
-                  Perjalanan Jemput
+                  On the Way
                 </span>
               </div>
 
@@ -139,13 +139,13 @@ export function TransitSection({ transitDonations, onArrived, onTrack }: Props) 
                   {donorPhone && (
                     <a
                       href={`https://wa.me/${donorPhone}?text=${encodeURIComponent(
-                        `Halo ${d.donor_name}, kami dari penerima donasi NutriShare ingin mengonfirmasi jadwal penjemputan donasi #${d.id} "${d.food_name}".`
+                        `Hello ${d.donor_name}, we are contacting you from NutriShare to coordinate the pickup of donation #${d.id} "${d.food_name}".`
                       )}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-[11px] text-emerald-700 font-bold hover:underline flex items-center gap-1"
                     >
-                      <MessageCircle size={12} /> Chat Donatur
+                      <MessageCircle size={12} /> Contact Donor
                     </a>
                   )}
                   {onTrack && (
@@ -154,7 +154,7 @@ export function TransitSection({ transitDonations, onArrived, onTrack }: Props) 
                       onClick={() => onTrack(d)}
                       className="text-[11px] text-brand-medium hover:text-brand-dark font-bold flex items-center gap-1 cursor-pointer"
                     >
-                      <Navigation size={12} /> Lihat Peta Rute
+                      <Navigation size={12} /> View Route Map
                     </button>
                   )}
                 </div>
@@ -163,7 +163,7 @@ export function TransitSection({ transitDonations, onArrived, onTrack }: Props) 
                   onClick={() => onArrived(d.id)}
                   className="bg-accent hover:bg-amber-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-2xs active:scale-95 flex items-center gap-1 cursor-pointer"
                 >
-                  <CheckCircle size={12} /> Saya Sudah Tiba di Lokasi
+                  <CheckCircle size={12} /> I Have Arrived at Location
                 </button>
               </div>
             </motion.div>

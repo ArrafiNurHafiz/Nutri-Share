@@ -52,7 +52,7 @@ export function ProfileModal({ user, profile, onClose, onUpdate }: any) {
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"general" | "nutrition" | "location">("general");
 
-  // Auto-calculate AKG for recipients based on demographics (Standar Kemenkes RI)
+  // Auto-calculate RDA for recipients based on demographics
   useEffect(() => {
     if (user.role === "recipient") {
       const { infants = 0, children = 0, adults = 0, elderly = 0 } = demographics;
@@ -77,7 +77,7 @@ export function ProfileModal({ user, profile, onClose, onUpdate }: any) {
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     if (!form.phone.trim()) {
-      toast.error("Nomor WhatsApp wajib diisi untuk koordinasi");
+      toast.error("WhatsApp number is required for coordination");
       return;
     }
 
@@ -92,11 +92,11 @@ export function ProfileModal({ user, profile, onClose, onUpdate }: any) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      toast.success(res.message || "Profil berhasil diperbarui!");
+      toast.success(res.message || "Profile updated successfully!");
       onUpdate();
       onClose();
     } catch (err: any) {
-      toast.error(err.message || "Gagal memperbarui profil.");
+      toast.error(err.message || "Failed to update profile.");
     } finally {
       setLoading(false);
     }
@@ -127,10 +127,10 @@ export function ProfileModal({ user, profile, onClose, onUpdate }: any) {
               </div>
               <div>
                 <h3 className="font-bold text-base sm:text-lg font-heading">
-                  {isDonor ? "Profil Usaha & Donatur" : "Profil Lembaga Penerima"}
+                  {isDonor ? "Business & Donor Profile" : "Recipient Organization Profile"}
                 </h3>
                 <p className="text-xs text-emerald-100">
-                  {isDonor ? "Kelola data kontak WhatsApp dan titik lokasi pickup" : "Kelola target kebutuhan gizi AKG & titik panti"}
+                  {isDonor ? "Manage WhatsApp contact and pickup location coordinates" : "Manage RDA nutritional targets & shelter location"}
                 </p>
               </div>
             </div>
@@ -154,7 +154,7 @@ export function ProfileModal({ user, profile, onClose, onUpdate }: any) {
                   : "border-transparent text-stone-500 hover:text-stone-800"
               }`}
             >
-              Informasi Umum & Kontak
+              General & Contact Info
             </button>
 
             {isRecipient && (
@@ -168,7 +168,7 @@ export function ProfileModal({ user, profile, onClose, onUpdate }: any) {
                 }`}
               >
                 <Calculator size={13} />
-                <span>Kalkulator AKG Warga</span>
+                <span>Nutrition RDA Calculator</span>
               </button>
             )}
 
@@ -182,7 +182,7 @@ export function ProfileModal({ user, profile, onClose, onUpdate }: any) {
               }`}
             >
               <MapPin size={13} />
-              <span>Titik Lokasi Peta</span>
+              <span>Map Coordinates</span>
             </button>
           </div>
 
@@ -193,7 +193,7 @@ export function ProfileModal({ user, profile, onClose, onUpdate }: any) {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {isDonor && (
                     <div className="sm:col-span-2">
-                      <label className="font-bold text-stone-700 mb-1.5 block">Nama Usaha / Hotel / Resto</label>
+                      <label className="font-bold text-stone-700 mb-1.5 block">Business / Establishment Name</label>
                       <input
                         value={form.business_name}
                         onChange={(e) => setForm({ ...form, business_name: e.target.value })}
@@ -228,7 +228,7 @@ export function ProfileModal({ user, profile, onClose, onUpdate }: any) {
                         type="tel"
                         value={form.phone}
                         onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                        placeholder="0812xxxxxxxx"
+                        placeholder="+628123456789"
                         className="w-full border border-stone-200 pl-9 pr-3 py-2.5 rounded-xl bg-stone-50 text-xs font-semibold focus:bg-white focus:ring-2 focus:ring-[#2D7A4F]/30 outline-none"
                         required
                       />
@@ -269,16 +269,16 @@ export function ProfileModal({ user, profile, onClose, onUpdate }: any) {
                 <div className="p-3.5 bg-emerald-50 rounded-2xl border border-emerald-200 space-y-1">
                   <div className="flex items-center gap-1.5 font-bold text-emerald-900 text-xs">
                     <Sparkles size={14} className="text-emerald-700" />
-                    <span>Perhitungan Kebutuhan AKG Otomatis Berdasarkan Demografi</span>
+                    <span>Automatic RDA Calculation Based on Demographics</span>
                   </div>
                   <p className="text-[11px] text-emerald-800 leading-relaxed">
-                    Masukkan komposisi warga binaan di panti asuhan. Sistem menghitung target kalori, protein, dan mikronutrien harian sesuai standar Kemenkes RI untuk perankingan TOPSIS.
+                    Enter the age composition of residents in your shelter. The system computes target daily calories, protein, and micronutrients for TOPSIS matching.
                   </p>
                 </div>
 
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   <div>
-                    <label className="font-bold text-stone-700 block mb-1">Balita (0-4 thn)</label>
+                    <label className="font-bold text-stone-700 block mb-1">Infants (0-4 yrs)</label>
                     <input
                       type="number"
                       min="0"
@@ -288,7 +288,7 @@ export function ProfileModal({ user, profile, onClose, onUpdate }: any) {
                     />
                   </div>
                   <div>
-                    <label className="font-bold text-stone-700 block mb-1">Anak (5-12 thn)</label>
+                    <label className="font-bold text-stone-700 block mb-1">Children (5-12 yrs)</label>
                     <input
                       type="number"
                       min="0"
@@ -298,7 +298,7 @@ export function ProfileModal({ user, profile, onClose, onUpdate }: any) {
                     />
                   </div>
                   <div>
-                    <label className="font-bold text-stone-700 block mb-1">Remaja/Dewasa</label>
+                    <label className="font-bold text-stone-700 block mb-1">Teens/Adults</label>
                     <input
                       type="number"
                       min="0"
@@ -308,7 +308,7 @@ export function ProfileModal({ user, profile, onClose, onUpdate }: any) {
                     />
                   </div>
                   <div>
-                    <label className="font-bold text-stone-700 block mb-1">Lansia (60+ thn)</label>
+                    <label className="font-bold text-stone-700 block mb-1">Elderly (60+ yrs)</label>
                     <input
                       type="number"
                       min="0"
@@ -321,16 +321,16 @@ export function ProfileModal({ user, profile, onClose, onUpdate }: any) {
 
                 <div className="p-3 bg-stone-50 rounded-2xl border border-stone-200 grid grid-cols-3 gap-2 text-center">
                   <div>
-                    <span className="text-[10px] text-stone-400 font-bold block uppercase">Total Warga</span>
-                    <span className="text-base font-black text-stone-900">{form.resident_count} Orang</span>
+                    <span className="text-[10px] text-stone-400 font-bold block uppercase">Total Residents</span>
+                    <span className="text-base font-black text-stone-900">{form.resident_count} People</span>
                   </div>
                   <div>
-                    <span className="text-[10px] text-stone-400 font-bold block uppercase">Target Kalori</span>
-                    <span className="text-base font-black text-amber-700">{form.daily_calorie_need} kkal</span>
+                    <span className="text-[10px] text-stone-400 font-bold block uppercase">Target Calories</span>
+                    <span className="text-base font-black text-amber-700">{form.daily_calorie_need} kcal</span>
                   </div>
                   <div>
                     <span className="text-[10px] text-stone-400 font-bold block uppercase">Target Protein</span>
-                    <span className="text-base font-black text-blue-700">{form.daily_protein_need} gram</span>
+                    <span className="text-base font-black text-blue-700">{form.daily_protein_need} grams</span>
                   </div>
                 </div>
               </div>
@@ -340,7 +340,7 @@ export function ProfileModal({ user, profile, onClose, onUpdate }: any) {
             {activeTab === "location" && (
               <div className="space-y-3">
                 <p className="text-stone-500 text-[11px]">
-                  Pindahkan pin pada peta untuk menyesuaikan titik koordinat penjemputan donasi secara presisi.
+                  Move the pin on the map to pinpoint precise pickup / shelter coordinates.
                 </p>
                 <div className="h-56 rounded-2xl overflow-hidden border border-stone-200">
                   <LocationPicker
@@ -372,7 +372,7 @@ export function ProfileModal({ user, profile, onClose, onUpdate }: any) {
                 onClick={onClose}
                 className="px-4 py-2.5 rounded-xl border border-stone-200 text-stone-600 font-bold text-xs hover:bg-stone-50 transition-colors cursor-pointer"
               >
-                Batal
+                Cancel
               </button>
               <button
                 type="submit"
@@ -380,7 +380,7 @@ export function ProfileModal({ user, profile, onClose, onUpdate }: any) {
                 className="px-5 py-2.5 rounded-xl bg-[#2D7A4F] hover:bg-emerald-800 text-white font-bold text-xs shadow-sm transition-all cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
               >
                 <ShieldCheck size={15} />
-                <span>{loading ? "Menyimpan..." : "Simpan Perubahan"}</span>
+                <span>{loading ? "Saving..." : "Save Changes"}</span>
               </button>
             </div>
           </form>

@@ -31,10 +31,10 @@ import { DonationForm, DonorTOPSISModal } from "../components/donor";
 import toast from "react-hot-toast";
 
 const PRESETS = [
-  { id: "makanan_berat", label: "Nasi & Lauk", p: 26, c: 540, name: "Paket Nasi & Lauk Komplit" },
-  { id: "snack", label: "Roti & Pastry", p: 8, c: 260, name: "Roti & Aneka Pastry" },
-  { id: "sayur", label: "Buah & Sayur", p: 4, c: 110, name: "Sayur & Buah Segar" },
-  { id: "lauk_protein", label: "Lauk Protein", p: 28, c: 340, name: "Olahan Ayam / Daging / Ikan" },
+  { id: "makanan_berat", label: "Rice & Sides", p: 26, c: 540, name: "Complete Rice & Meal Package" },
+  { id: "snack", label: "Bread & Pastry", p: 8, c: 260, name: "Bread & Assorted Pastries" },
+  { id: "sayur", label: "Produce & Veggies", p: 4, c: 110, name: "Fresh Vegetables & Fruits" },
+  { id: "lauk_protein", label: "Protein Entrees", p: 28, c: 340, name: "Chicken, Beef & Fish Dishes" },
 ];
 
 function cleanPhone(p?: string): string {
@@ -118,9 +118,9 @@ export function DonorDashboard() {
     user?.role,
     (event: RealtimeEvent) => {
       loadDonations();
-      if (event.event_type === "CLAIM_CREATED") toast("Lembaga mengklaim donasi Anda!");
-      else if (event.event_type === "DELIVERY_ARRIVED") toast.success("Penjemput telah tiba di lokasi!");
-      else if (event.event_type === "HANDOVER_COMPLETED") toast.success("Serah terima donasi selesai!");
+      if (event.event_type === "CLAIM_CREATED") toast("An organization claimed your donation!");
+      else if (event.event_type === "DELIVERY_ARRIVED") toast.success("Collector has arrived at the location!");
+      else if (event.event_type === "HANDOVER_COMPLETED") toast.success("Donation handover completed!");
     },
     loadDonations,
     5000,
@@ -136,12 +136,12 @@ export function DonorDashboard() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...form, donor_id: user.id }),
       });
-      toast.success("Donasi makanan siap disalurkan!");
+      toast.success("Food donation published successfully!");
       loadDonations();
       setShowModal(false);
       setFormStep(1);
     } catch (err: any) {
-      toast.error(err.message || "Gagal membuat donasi.");
+      toast.error(err.message || "Failed to create donation.");
     }
   };
 
@@ -177,14 +177,14 @@ export function DonorDashboard() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#FDFBF7] flex items-center justify-center">
-        <LoadingSpinner size={32} label="Memuat dashboard..." />
+        <LoadingSpinner size={32} label="Loading dashboard..." />
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-[#f4fbf7] bg-emerald-grid text-emerald-950 font-sans flex flex-col antialiased">
-      <SEO title="Portal Donatur | NutriShare" description="Kelola surplus makanan hotel dan restoran secara terorganisir." />
+      <SEO title="Donor Portal | NutriShare" description="Manage commercial surplus food donations with verified algorithmic matching." />
 
       {/* Top Navbar */}
       <header className="sticky top-0 z-30 bg-white/90 border-b border-emerald-100 backdrop-blur-xl shadow-xs">
@@ -323,7 +323,7 @@ export function DonorDashboard() {
           </div>
         </section>
 
-        {/* AKG & Hybrid Entropy-TOPSIS Platform Impact Card */}
+        {/* RDA & Hybrid Entropy-TOPSIS Platform Impact Card */}
         <section className="bg-white rounded-3xl border border-emerald-100 p-6 shadow-xs space-y-5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="space-y-1">
@@ -407,9 +407,9 @@ export function DonorDashboard() {
             <div className="flex items-center justify-between border-b border-[#FEF3C7] pb-2">
               <span className="text-xs font-bold text-[#92400E] flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-[#D97706] animate-pulse" />
-                {inTransitList.length} Makanan Sedang Dalam Proses Penjemputan Mandiri
+                {inTransitList.length} Donations Currently in Self-Pickup Transit
               </span>
-              <span className="text-[11px] text-[#B45309] font-medium">Mitra sedang bergerak ke lokasi</span>
+              <span className="text-[11px] text-[#B45309] font-medium">Recipient is en route to pickup location</span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -421,11 +421,11 @@ export function DonorDashboard() {
                       <div className="flex items-start justify-between">
                         <h4 className="font-bold text-xs text-[#78350F]">{item.food_name}</h4>
                         <span className="text-[10px] font-semibold text-[#92400E] bg-white px-2 py-0.5 rounded border border-[#FCD34D]">
-                          {item.arrived_at ? "Tiba di Lokasi" : "Dalam Perjalanan"}
+                          {item.arrived_at ? "Arrived at Location" : "In Transit"}
                         </span>
                       </div>
                       <p className="text-[11px] text-[#92400E] mt-0.5">
-                        {item.portion_count} Porsi • Dijemput: <strong>{item.recipient_name || "Lembaga Penerima"}</strong>
+                        {item.portion_count} Portions • Collector: <strong>{item.recipient_name || "Recipient Organization"}</strong>
                       </p>
                     </div>
 
@@ -435,19 +435,19 @@ export function DonorDashboard() {
                         onClick={() => setTrackingData(item)}
                         className="flex-1 py-1.5 rounded-md bg-[#2D7A4F] hover:bg-[#235F3D] text-white font-medium text-[11px] flex items-center justify-center gap-1 transition-colors cursor-pointer"
                       >
-                        <Compass size={12} /> Buka Pelacakan Rute
+                        <Compass size={12} /> Open Route Tracking
                       </button>
                       <button
                         type="button"
                         onClick={() => openDonorTopsis(item)}
                         className="p-1.5 rounded-md border border-[#FCD34D] bg-white text-[#92400E] hover:bg-[#FEF3C7] text-[11px] font-semibold flex items-center gap-1 cursor-pointer"
-                        title="Audit TOPSIS & AKG"
+                        title="TOPSIS & RDA Audit"
                       >
                         <BarChart3 size={13} className="text-[#D97706]" />
                       </button>
                       {phoneClean && (
                         <a
-                          href={`https://wa.me/${phoneClean}?text=${encodeURIComponent(`Halo pengurus ${item.recipient_name || ""}, kami dari ${profile?.business_name || "donatur"} menginfokan makanan "${item.food_name}" sudah siap diambil.`)}`}
+                          href={`https://wa.me/${phoneClean}?text=${encodeURIComponent(`Hello team at ${item.recipient_name || ""}, this is ${profile?.business_name || "donor"}. Your donation package "${item.food_name}" is ready for pickup.`)}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="px-2.5 py-1.5 rounded-md bg-white border border-[#CBD5E1] text-[#334155] hover:bg-[#F8FAFC] font-medium text-[11px] flex items-center gap-1 transition-colors"
@@ -473,7 +473,7 @@ export function DonorDashboard() {
                 activeTab === "active" ? "bg-[#2D7A4F] text-white" : "text-[#64748B] hover:text-[#0F172A]"
               }`}
             >
-              Donasi Berjalan ({activeList.length})
+              Active Donations ({activeList.length})
             </button>
 
             <button
@@ -483,7 +483,7 @@ export function DonorDashboard() {
                 activeTab === "history" ? "bg-[#2D7A4F] text-white" : "text-[#64748B] hover:text-[#0F172A]"
               }`}
             >
-              Riwayat Selesai ({historyList.length})
+              Completed History ({historyList.length})
             </button>
 
             <button
@@ -493,7 +493,7 @@ export function DonorDashboard() {
                 activeTab === "reviews" ? "bg-[#2D7A4F] text-white" : "text-[#64748B] hover:text-[#0F172A]"
               }`}
             >
-              Ulasan Lembaga ({reviews.length})
+              Recipient Reviews ({reviews.length})
             </button>
           </div>
 
@@ -504,7 +504,7 @@ export function DonorDashboard() {
                 <div className="bg-white rounded-xl border border-[#E2E8F0] p-10 text-center text-xs text-[#64748B] space-y-2">
                   <Package size={24} className="mx-auto text-[#94A3B8]" />
                   <p className="font-semibold text-[#334155]">
-                    {activeTab === "active" ? "Tidak ada donasi yang sedang berlangsung." : "Belum ada riwayat donasi yang selesai."}
+                    {activeTab === "active" ? "No active donations in progress." : "No completed donation history yet."}
                   </p>
                   {activeTab === "active" && (
                     <button
@@ -515,7 +515,7 @@ export function DonorDashboard() {
                       }}
                       className="text-xs font-bold text-[#2D7A4F] hover:underline cursor-pointer"
                     >
-                      + Buat Donasi Makanan Sekarang
+                      + Create Food Donation Now
                     </button>
                   )}
                 </div>
@@ -546,12 +546,12 @@ export function DonorDashboard() {
                               }`}
                             >
                               {isDone
-                                ? "Selesai Diserahkan"
+                                ? "Handover Completed"
                                 : isExpired
-                                ? "Kadaluarsa (Tidak Terambil)"
+                                ? "Expired (Unclaimed)"
                                 : isClaimed
-                                ? "Sedang Dijemput"
-                                : "Tersedia & Menunggu Klaim"}
+                                ? "In Transit / Pickup"
+                                : "Available & Matching"}
                             </span>
                             <span className="text-[11px] text-[#64748B] font-mono bg-[#F1F5F9] px-2 py-0.5 rounded border border-[#E2E8F0]">
                               #{item.id}
@@ -563,81 +563,81 @@ export function DonorDashboard() {
                             <h3 className="font-bold text-base text-[#0F172A]">{item.food_name}</h3>
                             <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-[#334155] mt-2">
                               <span className="px-2 py-0.5 bg-[#F1F5F9] text-[#334155] rounded border border-[#E2E8F0]">
-                                {item.portion_count} Porsi
+                                {item.portion_count} Portions
                               </span>
                               <span className="px-2 py-0.5 bg-[#ECFDF5] text-[#065F46] rounded border border-[#A7F3D0]">
-                                Sisa {item.hours_valid || 6} Jam
+                                {item.hours_valid || 6} Hours Left
                               </span>
                             </div>
 
                             <div className="flex items-center gap-2 text-[11px] text-[#475569] font-medium mt-2">
                               <span className="px-2 py-0.5 bg-[#F8FAFC] rounded border border-[#E2E8F0]/70">Protein: {item.protein_per_portion || 0}g</span>
-                              <span className="px-2 py-0.5 bg-[#F8FAFC] rounded border border-[#E2E8F0]/70">Kalori: {item.calorie_per_portion || 0} kkal</span>
+                              <span className="px-2 py-0.5 bg-[#F8FAFC] rounded border border-[#E2E8F0]/70">Calories: {item.calorie_per_portion || 0} kcal</span>
                             </div>
 
                             {item.recipient_name && (
                               <p className="text-xs text-[#334155] pt-2 flex items-center gap-1">
-                                <span className="text-[#64748B]">Pengambil:</span>
+                                <span className="text-[#64748B]">Collector:</span>
                                 <strong>{item.recipient_name}</strong>
                               </p>
                             )}
                           </div>
                         </div>
 
-                          <div className="pt-2.5 border-t border-[#F1F5F9] flex flex-wrap items-center justify-between gap-2">
-                            <div className="flex items-center gap-1.5 flex-1 min-w-[140px]">
-                              <button
-                                type="button"
-                                onClick={() => openDonorTopsis(item)}
-                                className="px-2.5 py-1.5 rounded-lg border border-[#E2E8F0] hover:bg-[#F8FAFC] text-xs font-semibold text-[#0F172A] flex items-center gap-1.5 transition-colors cursor-pointer"
-                                title="Lihat Audit Perhitungan AKG & Peringkat TOPSIS"
-                              >
-                                <BarChart3 size={13} className="text-[#2D7A4F]" />
-                                <span>Audit TOPSIS & AKG</span>
-                              </button>
-                            </div>
+                        <div className="pt-2.5 border-t border-[#F1F5F9] flex flex-wrap items-center justify-between gap-2">
+                          <div className="flex items-center gap-1.5 flex-1 min-w-[140px]">
+                            <button
+                              type="button"
+                              onClick={() => openDonorTopsis(item)}
+                              className="px-2.5 py-1.5 rounded-lg border border-[#E2E8F0] hover:bg-[#F8FAFC] text-xs font-semibold text-[#0F172A] flex items-center gap-1.5 transition-colors cursor-pointer"
+                              title="View RDA Audit & TOPSIS Ranking"
+                            >
+                              <BarChart3 size={13} className="text-[#2D7A4F]" />
+                              <span>TOPSIS & RDA Audit</span>
+                            </button>
+                          </div>
 
-                            <div className="flex items-center gap-2">
-                              {isClaimed && (
-                                <>
-                                  <button
-                                    type="button"
-                                    onClick={() => setTrackingData(item)}
-                                    className="py-1.5 px-3 rounded-lg bg-[#2D7A4F] hover:bg-[#235F3D] text-white font-semibold text-xs flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                          <div className="flex items-center gap-2">
+                            {isClaimed && (
+                              <>
+                                <button
+                                  type="button"
+                                  onClick={() => setTrackingData(item)}
+                                  className="py-1.5 px-3 rounded-lg bg-[#2D7A4F] hover:bg-[#235F3D] text-white font-semibold text-xs flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                                >
+                                  <Compass size={13} /> Track
+                                </button>
+                                {item.recipient_phone && (
+                                  <a
+                                    href={`https://wa.me/${cleanPhone(item.recipient_phone)}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="p-1.5 rounded-lg border border-[#E2E8F0] hover:bg-[#F8FAFC] text-[#475569]"
+                                    title="WhatsApp"
                                   >
-                                    <Compass size={13} /> Pantau
-                                  </button>
-                                  {item.recipient_phone && (
-                                    <a
-                                      href={`https://wa.me/${cleanPhone(item.recipient_phone)}`}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="p-1.5 rounded-lg border border-[#E2E8F0] hover:bg-[#F8FAFC] text-[#475569]"
-                                      title="WhatsApp"
-                                    >
-                                      <MessageCircle size={15} className="text-[#2D7A4F]" />
-                                    </a>
-                                  )}
-                                </>
-                              )}
+                                    <MessageCircle size={15} className="text-[#2D7A4F]" />
+                                  </a>
+                                )}
+                              </>
+                            )}
 
-                              {!isClaimed && !isDone && (
-                                <span className="text-xs text-[#64748B] flex items-center gap-1">
-                                  <CheckCircle2 size={13} className="text-[#2D7A4F]" />
-                                  <span className="hidden sm:inline">Terdaftar TOPSIS</span>
-                                </span>
-                              )}
+                            {!isClaimed && !isDone && (
+                              <span className="text-xs text-[#64748B] flex items-center gap-1">
+                                <CheckCircle2 size={13} className="text-[#2D7A4F]" />
+                                <span className="hidden sm:inline">TOPSIS Listed</span>
+                              </span>
+                            )}
 
-                              {isDone && (
-                                <span className="text-xs text-[#065F46] font-medium flex items-center gap-1">
-                                  <ShieldCheck size={14} />
-                                  <span className="hidden sm:inline">Tervalidasi</span>
-                                </span>
-                              )}
-                            </div>
+                            {isDone && (
+                              <span className="text-xs text-[#065F46] font-medium flex items-center gap-1">
+                                <ShieldCheck size={14} />
+                                <span className="hidden sm:inline">Verified</span>
+                              </span>
+                            )}
                           </div>
                         </div>
-                      );
+                      </div>
+                    );
                   })}
                 </div>
               )}
@@ -649,7 +649,7 @@ export function DonorDashboard() {
             <div className="space-y-3">
               {reviews.length === 0 ? (
                 <div className="bg-white rounded-xl border border-[#E2E8F0] p-8 text-center text-xs text-[#64748B]">
-                  Belum ada ulasan yang diterima dari lembaga penerima.
+                  No reviews received from recipient organizations yet.
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -665,10 +665,10 @@ export function DonorDashboard() {
                             />
                           ))}
                         </div>
-                        <span className="text-[10px] text-[#94A3B8]">{new Date(r.created_at || Date.now()).toLocaleDateString("id-ID")}</span>
+                        <span className="text-[10px] text-[#94A3B8]">{new Date(r.created_at || Date.now()).toLocaleDateString("en-US")}</span>
                       </div>
-                      <p className="text-xs text-[#334155] italic">"{r.comment || "Donasi sangat bermanfaat bagi anak-anak panti."}"</p>
-                      <p className="text-[11px] font-semibold text-[#64748B]">— {r.recipient_name || "Lembaga Penerima"}</p>
+                      <p className="text-xs text-[#334155] italic">"{r.comment || "The food donation was immensely helpful for the children."}"</p>
+                      <p className="text-[11px] font-semibold text-[#64748B]">— {r.recipient_name || "Beneficiary Organization"}</p>
                     </div>
                   ))}
                 </div>
@@ -683,12 +683,12 @@ export function DonorDashboard() {
         <div className="fixed inset-0 z-[1000] bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
           <div className="bg-white rounded-2xl w-full max-w-lg shadow-xl border border-[#E2E8F0] overflow-hidden my-auto">
             <div className="p-4 border-b border-[#E2E8F0] flex items-center justify-between">
-              <h3 className="font-bold text-sm text-[#0F172A]">Bagikan Surplus Makanan</h3>
+              <h3 className="font-bold text-sm text-[#0F172A]">Share Surplus Food</h3>
               <button
                 type="button"
                 onClick={() => setShowModal(false)}
                 className="p-1 rounded-md text-[#64748B] hover:bg-[#F1F5F9] cursor-pointer"
-                aria-label="Tutup modal"
+                aria-label="Close modal"
               >
                 <X size={16} />
               </button>
@@ -732,7 +732,7 @@ export function DonorDashboard() {
         />
       )}
 
-      {/* Donor TOPSIS & AKG Audit Modal */}
+      {/* Donor TOPSIS & RDA Audit Modal */}
       {topsisAuditDonation && (
         <DonorTOPSISModal
           donation={topsisAuditDonation}

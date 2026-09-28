@@ -127,7 +127,7 @@ export function LiveTrackingModal({
         if (d.status === "completed") {
           setDone(true);
           clearInterval(poll);
-          toast.success("Serah terima donasi berhasil diselesaikan!");
+          toast.success("Donation handover completed successfully!");
           setTimeout(() => {
             onComplete?.();
             onClose();
@@ -212,20 +212,20 @@ export function LiveTrackingModal({
           });
 
           // Donor Marker
-          const donorEl = createCustomMarkerElement("donor", "Donatur (Pickup)");
+          const donorEl = createCustomMarkerElement("donor", "Donor (Pickup Point)");
           new maplibregl.Marker({ element: donorEl })
             .setLngLat([donorLon, donorLat])
             .addTo(map);
 
           // Recipient Marker
-          const recipEl = createCustomMarkerElement("recipient", "Penerima");
+          const recipEl = createCustomMarkerElement("recipient", "Recipient (Destination)");
           new maplibregl.Marker({ element: recipEl })
             .setLngLat([recipientLon, recipientLat])
             .addTo(map);
 
           // Courier Marker
           const startCoord = route.coordinates[0] || [recipientLon, recipientLat];
-          const courierEl = createCustomMarkerElement("courier", "Penjemput");
+          const courierEl = createCustomMarkerElement("courier", "Courier / Collector");
           const cMarker = new maplibregl.Marker({ element: courierEl })
             .setLngLat(startCoord)
             .addTo(map);
@@ -270,9 +270,9 @@ export function LiveTrackingModal({
       });
       setArrivalConfirmed(true);
       setProgress(1);
-      toast.success("Kedatangan di lokasi donatur berhasil dikonfirmasi!");
+      toast.success("Arrival at donor pickup location confirmed!");
     } catch (err: any) {
-      toast.error(err.message || "Gagal konfirmasi kedatangan");
+      toast.error(err.message || "Failed to confirm arrival");
     } finally {
       setConfirming(false);
     }
@@ -285,13 +285,13 @@ export function LiveTrackingModal({
         method: "POST",
       });
       setDone(true);
-      toast.success("Serah terima makanan selesai dikonfirmasi!");
+      toast.success("Food handover completed and verified!");
       setTimeout(() => {
         onComplete?.();
         onClose();
       }, 1500);
     } catch (err: any) {
-      toast.error(err.message || "Gagal menyelesaikan serah terima");
+      toast.error(err.message || "Failed to complete handover");
     } finally {
       setConfirming(false);
     }
@@ -317,20 +317,20 @@ export function LiveTrackingModal({
               </span>
               <h3 className="font-bold text-base sm:text-lg leading-tight">
                 {done
-                  ? "Donasi Selesai Diserahkan"
+                  ? "Donation Handover Completed"
                   : arrived
-                  ? "Penjemput Telah Tiba di Lokasi Donatur"
-                  : "Pelacakan Rute Jalan Nyata (OSRM Road Network)"}
+                  ? "Collector Has Arrived at Donor Location"
+                  : "Live Road Route Tracking (OSRM Road Network)"}
               </h3>
             </div>
             <p className="text-xs sm:text-sm text-white/80">
-              {data.food_name} • {data.portion_count || 0} Porsi • Metode: Penjemputan Langsung
+              {data.food_name} • {data.portion_count || 0} Portions • Method: Direct Pickup
             </p>
           </div>
           <button
             onClick={onClose}
             className="p-2 hover:bg-white/20 rounded-full transition-colors cursor-pointer text-white"
-            aria-label="Tutup"
+            aria-label="Close"
           >
             <X size={20} />
           </button>
@@ -342,7 +342,7 @@ export function LiveTrackingModal({
           <div className="p-3.5 bg-white rounded-2xl border border-stone-200 shadow-2xs space-y-2">
             <div className="flex items-center justify-between">
               <span className="font-bold text-stone-500 uppercase tracking-wider text-[10px] flex items-center gap-1">
-                <Building2 size={13} className="text-emerald-600" /> Titik Penjemputan (Donatur)
+                <Building2 size={13} className="text-emerald-600" /> Pickup Location (Donor)
               </span>
               <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-bold text-[10px]">
                 Pickup Location
@@ -350,26 +350,26 @@ export function LiveTrackingModal({
             </div>
             <div>
               <h4 className="font-bold text-stone-900 text-sm">
-                {data.donor_name || "Donatur Mitra"}
+                {data.donor_name || "Partner Donor"}
               </h4>
               <p className="text-stone-600 text-xs mt-0.5 leading-relaxed">
-                {data.donor_address || "Alamat penjemputan tertera pada pin peta donatur."}
+                {data.donor_address || "Pickup address as shown on map pin."}
               </p>
             </div>
             {donorPhoneClean ? (
               <a
                 href={`https://wa.me/${donorPhoneClean}?text=${encodeURIComponent(
-                  `Halo ${data.donor_name || "Bapak/Ibu"}, kami dari pihak penerima ${data.recipient_name || ""} ingin berkoordinasi terkait jadwal penjemputan donasi "${data.food_name}" di NutriShare.`
+                  `Hello ${data.donor_name || "Partner"}, we from ${data.recipient_name || "recipient"} are coordinating the pickup for donation "${data.food_name}" on NutriShare.`
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] transition-colors"
               >
-                <MessageCircle size={13} /> Chat Donatur via WhatsApp <ExternalLink size={11} />
+                <MessageCircle size={13} /> Chat Donor via WhatsApp <ExternalLink size={11} />
               </a>
             ) : (
               <span className="text-[11px] text-stone-400 flex items-center gap-1">
-                <Phone size={12} /> Kontak via hotline operasional NutriShare
+                <Phone size={12} /> Contact via NutriShare support hotline
               </span>
             )}
           </div>
@@ -378,7 +378,7 @@ export function LiveTrackingModal({
           <div className="p-3.5 bg-white rounded-2xl border border-stone-200 shadow-2xs space-y-2">
             <div className="flex items-center justify-between">
               <span className="font-bold text-stone-500 uppercase tracking-wider text-[10px] flex items-center gap-1">
-                <Heart size={13} className="text-blue-600" /> Pihak Penjemput (Penerima)
+                <Heart size={13} className="text-blue-600" /> Collecting Party (Recipient)
               </span>
               <span className="px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 font-bold text-[10px]">
                 Self-Pickup Party
@@ -386,32 +386,32 @@ export function LiveTrackingModal({
             </div>
             <div>
               <h4 className="font-bold text-stone-900 text-sm">
-                {data.recipient_name || "Lembaga Penerima Manfaat"}
+                {data.recipient_name || "Recipient Beneficiary"}
               </h4>
               <p className="text-stone-600 text-xs mt-0.5 leading-relaxed">
-                {data.recipient_address || "Alamat panti asuhan/yayasan terdaftar."}
+                {data.recipient_address || "Registered shelter / institution address."}
               </p>
             </div>
             {recipientPhoneClean ? (
               <a
                 href={`https://wa.me/${recipientPhoneClean}?text=${encodeURIComponent(
-                  `Halo pengurus ${data.recipient_name || ""}, kami dari pihak donatur ${data.donor_name || ""} menginfokan bahwa paket donasi "${data.food_name}" sudah siap untuk diambil.`
+                  `Hello team at ${data.recipient_name || ""}, this is ${data.donor_name || "donor"}. Your donation package "${data.food_name}" is ready for pickup.`
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-[11px] transition-colors"
               >
-                <MessageCircle size={13} /> Chat Penjemput via WhatsApp <ExternalLink size={11} />
+                <MessageCircle size={13} /> Chat Collector via WhatsApp <ExternalLink size={11} />
               </a>
             ) : (
               <span className="text-[11px] text-stone-400 flex items-center gap-1">
-                <ShieldCheck size={12} /> Terverifikasi Resmi oleh NutriShare
+                <ShieldCheck size={12} /> Verified by NutriShare
               </span>
             )}
           </div>
         </div>
 
-        {/* Realistis Map Container (MapCN + OSRM Road Geometry) */}
+        {/* Realistic Map Container (MapCN + OSRM Road Geometry) */}
         <div className="h-[45vh] sm:h-[50vh] w-full bg-stone-100 relative">
           <div ref={mapContainerRef} className="w-full h-full" />
 
@@ -419,13 +419,13 @@ export function LiveTrackingModal({
           {routeInfo && (
             <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-md px-3.5 py-1.5 rounded-xl border border-stone-200 shadow-md flex items-center gap-2 text-xs font-bold text-gray-800">
               <Milestone size={15} className="text-[#2D7A4F]" />
-              <span>Jarak Jalan: {routeInfo.distanceKm} km (~{routeInfo.durationMin} mnt)</span>
+              <span>Road Distance: {routeInfo.distanceKm} km (~{routeInfo.durationMin} mins)</span>
             </div>
           )}
 
           {/* Map style badge */}
           <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-lg border border-white/60 shadow-xs flex items-center gap-1.5 text-[11px] font-bold text-gray-700">
-            <Layers size={13} className="text-emerald-700" /> MapCN 3D Vector Jalan
+            <Layers size={13} className="text-emerald-700" /> 3D Road Vector Map
           </div>
 
           {/* Floating Progress Pill */}
@@ -438,7 +438,7 @@ export function LiveTrackingModal({
                 />
               </div>
               <span className="font-bold text-[#2D7A4F] text-xs whitespace-nowrap">
-                {arrived ? "Tiba di Lokasi" : `${(progress * 100).toFixed(0)}% Perjalanan`}
+                {arrived ? "Arrived at Location" : `${(progress * 100).toFixed(0)}% In Transit`}
               </span>
             </div>
           )}
@@ -450,12 +450,12 @@ export function LiveTrackingModal({
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-amber-50 p-4 rounded-2xl border border-amber-200">
               <div className="text-xs text-amber-900 space-y-0.5">
                 <p className="font-bold text-sm">
-                  {isDonor ? "Menunggu Penjemput Tiba di Lokasi" : "Sedang Menuju ke Lokasi Donatur"}
+                  {isDonor ? "Awaiting Collector to Arrive at Pickup Point" : "Heading to Donor Pickup Location"}
                 </p>
                 <p className="text-amber-800">
                   {isDonor
-                    ? "Pihak penerima sedang bergerak mengikuti rute jalan menuju resto/hotel Anda."
-                    : "Jika Anda sudah sampai di resto/hotel donatur, klik tombol konfirmasi di samping."}
+                    ? "The recipient is currently on the way along the road route to your venue."
+                    : "Once you have arrived at the donor venue, click the button to confirm your arrival."}
                 </p>
               </div>
 
@@ -467,11 +467,11 @@ export function LiveTrackingModal({
               >
                 {confirming ? (
                   <>
-                    <Clock size={15} className="animate-spin" /> Memproses...
+                    <Clock size={15} className="animate-spin" /> Processing...
                   </>
                 ) : (
                   <>
-                    <CheckCircle size={15} /> Konfirmasi Tiba di Lokasi
+                    <CheckCircle size={15} /> Confirm Arrival at Location
                   </>
                 )}
               </button>
@@ -483,12 +483,12 @@ export function LiveTrackingModal({
               <div className="text-xs text-emerald-950 space-y-0.5">
                 <p className="font-bold text-sm flex items-center gap-1.5 text-emerald-900">
                   <CheckCircle size={16} className="text-emerald-600" />
-                  Penjemput Telah Sampai di Titik Pickup!
+                  Collector Has Arrived at the Pickup Point!
                 </p>
                 <p className="text-emerald-800">
                   {isDonor
-                    ? "Silakan serahkan makanan kepada penjemput dan klik tombol di samping untuk menyelesaikan donasi."
-                    : "Pihak donatur akan menyerahkan makanan dan mengonfirmasi serah terima di aplikasi."}
+                    ? "Please hand over the food to the collector and click the button to complete the handover."
+                    : "The donor will hand over the food and confirm completion in the app."}
                 </p>
               </div>
 
@@ -501,17 +501,17 @@ export function LiveTrackingModal({
                 >
                   {confirming ? (
                     <>
-                      <Clock size={15} className="animate-spin" /> Menyimpan...
+                      <Clock size={15} className="animate-spin" /> Saving...
                     </>
                   ) : (
                     <>
-                      <CheckCircle size={15} /> Konfirmasi Serah Terima Selesai
+                      <CheckCircle size={15} /> Confirm Handover Complete
                     </>
                   )}
                 </button>
               ) : (
                 <div className="text-[11px] font-bold text-emerald-700 px-3 py-1.5 rounded-xl bg-white border border-emerald-200">
-                  Menunggu Donatur Mengonfirmasi Serah Terima...
+                  Awaiting Donor to Confirm Handover...
                 </div>
               )}
             </div>
@@ -521,10 +521,10 @@ export function LiveTrackingModal({
             <div className="text-center py-2 space-y-2">
               <CheckCircle size={32} className="mx-auto text-[#2D7A4F]" />
               <h4 className="font-bold text-stone-900 text-sm">
-                Serah Terima Selesai!
+                Handover Completed!
               </h4>
               <p className="text-xs text-stone-500">
-                Makanan telah berhasil diserahkan kepada pihak {data.recipient_name || "penerima"}.
+                Food has been successfully transferred to {data.recipient_name || "the recipient"}.
               </p>
               {!isDonor && onRate && (
                 <div className="pt-2">
@@ -536,7 +536,7 @@ export function LiveTrackingModal({
                     }}
                     className="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs inline-flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
                   >
-                    <Star size={14} className="fill-white" /> Beri Penilaian & Ulasan untuk Donatur
+                    <Star size={14} className="fill-white" /> Rate & Review Donor
                   </button>
                 </div>
               )}

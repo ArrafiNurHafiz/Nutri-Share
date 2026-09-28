@@ -157,7 +157,8 @@ async def test_claim_enforces_priority_escalation(client, db_session):
     resp = await client.post(f"/api/donations/{donation.id}/claim")
     assert resp.status_code == 403
     data = resp.json()
-    assert "tahap" in data.get("message", "") or "Peringkat" in data.get("message", "")
+    msg = data.get("message", "").lower()
+    assert "stage" in msg or "priority" in msg or "rank" in msg or "tahap" in msg or "peringkat" in msg
 
     # Advance simulated time into Quarter 2 (created 2 hours ago, valid for 2 more hours => 50% elapsed)
     donation.created_at = (now - timedelta(hours=2)).isoformat()

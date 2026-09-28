@@ -174,7 +174,7 @@ async def forgot_password(body: ForgotPasswordRequest, session: SessionDep):
     session.add(user)
     await session.commit()
 
-    response = {"message": "Link reset password telah dikirim"}
+    response = {"message": "Password reset link has been sent"}
     if not settings.is_production:
         response["resetToken"] = reset_token
     return response

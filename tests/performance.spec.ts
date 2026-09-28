@@ -25,8 +25,8 @@ test.describe("Performance Tests", () => {
     test("dashboard loads within 3 seconds after login", async ({ page }) => {
       // Login first
       await page.goto("/login");
-      await page.fill('input[type="email"]', "donor@test.com");
-      await page.fill('input[type="password"]', "test123");
+      await page.fill('input[type="email"]', "arrafinur1@gmail.com");
+      await page.fill('input[type="password"]', "11223344");
 
       const startTime = Date.now();
       await page.click('button[type="submit"]');

@@ -34,9 +34,9 @@ export default function ForgotPassword() {
       });
       setSent(true);
       if (res.resetToken) setToken(res.resetToken);
-      toast.success("Petunjuk pemulihan kata sandi telah dikirim!");
+      toast.success("Password recovery instructions have been sent!");
     } catch (err: any) {
-      toast.error(err.message || "Gagal mengirim tautan reset.");
+      toast.error(err.message || "Failed to send reset link.");
     } finally {
       setLoading(false);
     }
@@ -46,8 +46,8 @@ export default function ForgotPassword() {
     <div className="min-h-[100dvh] bg-[#f4fbf7] bg-emerald-grid text-emerald-950 font-sans flex flex-col justify-between">
       <Navbar />
       <SEO
-        title="Lupa Kata Sandi | NutriShare"
-        description="Pulihkan kata sandi akun NutriShare Anda"
+        title="Forgot Password | NutriShare"
+        description="Recover access to your NutriShare account"
       />
 
       <div className="max-w-md mx-auto w-full px-6 pt-36 pb-20">
@@ -60,7 +60,7 @@ export default function ForgotPassword() {
             to="/login"
             className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 hover:text-emerald-950 mb-6 transition-colors"
           >
-            <ArrowLeft size={14} /> <span>Kembali ke Masuk</span>
+            <ArrowLeft size={14} /> <span>Back to Sign In</span>
           </Link>
 
           <div className="w-12 h-12 bg-emerald-100 text-emerald-800 rounded-2xl flex items-center justify-center mb-4 font-bold shadow-xs">
@@ -68,10 +68,10 @@ export default function ForgotPassword() {
           </div>
 
           <h1 className="text-2xl font-extrabold text-emerald-950 tracking-tight mb-1 font-heading">
-            Lupa Kata Sandi?
+            Forgot Password?
           </h1>
           <p className="text-xs text-slate-500 mb-6 leading-relaxed">
-            Masukkan alamat email akun Anda. Kami akan mengirimkan instruksi untuk mengatur ulang kata sandi.
+            Enter your registered account email address. We will send you instructions to reset your password.
           </p>
 
           {sent ? (
@@ -80,14 +80,14 @@ export default function ForgotPassword() {
                 <CheckCircle2 size={32} />
               </div>
               <div>
-                <p className="font-extrabold text-lg text-emerald-950">Periksa Email Anda</p>
+                <p className="font-extrabold text-lg text-emerald-950">Check Your Email</p>
                 <p className="text-xs text-slate-600 mt-1">
-                  Tautan pemulihan kata sandi telah dikirim ke <b className="text-emerald-900">{email}</b>
+                  A password reset link has been sent to <b className="text-emerald-900">{email}</b>
                 </p>
               </div>
               {token && (
                 <div className="bg-emerald-50 border border-emerald-200 p-3.5 rounded-2xl text-xs text-left break-all font-mono">
-                  <p className="font-bold text-emerald-900 mb-1">Token Demo:</p>
+                  <p className="font-bold text-emerald-900 mb-1">Demo Token:</p>
                   <code className="text-emerald-700">{token}</code>
                 </div>
               )}
@@ -95,13 +95,13 @@ export default function ForgotPassword() {
                 to="/login"
                 className="inline-block px-6 py-2.5 rounded-xl bg-emerald-600 text-white font-bold text-xs hover:bg-emerald-700 transition-colors shadow-xs"
               >
-                Kembali ke Halaman Masuk
+                Return to Sign In
               </Link>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               <div>
-                <label className="text-xs font-bold text-emerald-950 mb-1.5 block">Email Terdaftar</label>
+                <label className="text-xs font-bold text-emerald-950 mb-1.5 block">Registered Email</label>
                 <div className="relative">
                   <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-700/60" />
                   <input
@@ -112,7 +112,7 @@ export default function ForgotPassword() {
                       setError(undefined);
                     }}
                     className={`w-full rounded-xl pl-10 pr-4 py-3 bg-emerald-50/40 border border-emerald-200 text-xs font-medium text-slate-900 focus:bg-white focus:ring-2 focus:ring-emerald-600/30 focus:border-emerald-600 outline-none transition-all ${getErrorClass(error)}`}
-                    placeholder="nama@organisasi.org"
+                    placeholder="name@organization.org"
                     required
                   />
                 </div>
@@ -126,10 +126,10 @@ export default function ForgotPassword() {
               >
                 {loading ? (
                   <>
-                    <LoadingSpinner size={16} inline /> Mengirim...
+                    <LoadingSpinner size={16} inline /> Sending...
                   </>
                 ) : (
-                  "Kirim Tautan Reset"
+                  "Send Reset Link"
                 )}
               </button>
             </form>

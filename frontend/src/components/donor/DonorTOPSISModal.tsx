@@ -54,7 +54,7 @@ export function DonorTOPSISModal({ donation, topsisData = [], onClose }: Props) 
   const totalIronMg = (ironPerPortion * portions).toFixed(1);
   const totalVitCMg = (vitCPerPortion * portions).toFixed(1);
 
-  // Estimasi standar AKG Kemenkes (Rata-rata anak usia 7-12 tahun butuh ~40g protein & 1900 kkal / hari)
+  // Standard RDA estimation (Average child 7-12 years requires ~40g protein & 1900 kcal / day)
   const childPortionsProteinCovered = (totalProteinGrams / 40).toFixed(1);
   const childPortionsCalorieCovered = (totalCalories / 1900).toFixed(1);
 
@@ -64,14 +64,14 @@ export function DonorTOPSISModal({ donation, topsisData = [], onClose }: Props) 
   const radarData = {
     labels: [
       "Protein (C1)",
-      "Urgensi (C2)",
-      "Masa Simpan (C3)",
-      "Kedekatan Jarak (C4)",
-      "Pemerataan (C5)",
+      "Urgency (C2)",
+      "Shelf Life (C3)",
+      "Proximity (C4)",
+      "Equity (C5)",
     ],
     datasets: [
       {
-        label: "Indeks Solusi Ideal (TOPSIS)",
+        label: "Ideal Solution Index (TOPSIS)",
         data: [
           Math.min(10, ((top1?.raw_c1 ?? 8) / 10) * 10),
           Math.min(10, ((top1?.raw_c2 ?? 9) / 10) * 10),
@@ -100,20 +100,20 @@ export function DonorTOPSISModal({ donation, topsisData = [], onClose }: Props) 
           <div className="space-y-1">
             <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/15 text-[10px] font-bold uppercase tracking-wider text-[#A7F3D0] backdrop-blur-xs">
               <Brain size={13} className="text-[#6EE7B7]" />
-              <span>Transparansi Algoritma & Dampak AKG</span>
+              <span>Algorithm Transparency & RDA Impact</span>
             </div>
             <h3 className="text-lg sm:text-xl font-bold font-heading">
-              Audit Penyaluran Makanan #{donation.id}
+              Food Distribution Audit #{donation.id}
             </h3>
             <p className="text-xs text-emerald-100/90">
-              Menu: <strong>{donation.food_name}</strong> • {portions} Porsi Siap Santap
+              Menu: <strong>{donation.food_name}</strong> • {portions} Ready-to-Eat Portions
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
             className="p-2 rounded-full hover:bg-white/20 text-white transition-colors cursor-pointer flex items-center justify-center"
-            aria-label="Tutup modal"
+            aria-label="Close modal"
           >
             <X size={18} />
           </button>
@@ -121,7 +121,7 @@ export function DonorTOPSISModal({ donation, topsisData = [], onClose }: Props) 
 
         {/* Scrollable Content */}
         <div className="p-5 sm:p-6 overflow-y-auto space-y-6 text-xs text-[#334155]">
-          {/* SECTION 1: AKG NUTRITIONAL IMPACT COMPUTATION */}
+          {/* SECTION 1: RDA NUTRITIONAL IMPACT COMPUTATION */}
           <div className="bg-[#F8FAF8] rounded-2xl border border-[#E2E8F0] p-4.5 space-y-3.5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -130,15 +130,15 @@ export function DonorTOPSISModal({ donation, topsisData = [], onClose }: Props) 
                 </div>
                 <div>
                   <h4 className="font-bold text-sm text-[#0F172A]">
-                    Kalkulasi Kontribusi Angka Kecukupan Gizi (AKG)
+                    Recommended Dietary Allowance (RDA) Contribution
                   </h4>
                   <p className="text-[11px] text-[#64748B]">
-                    Berdasarkan standar Angka Kecukupan Gizi Kemenkes RI
+                    Calculated against standard nutritional daily requirements
                   </p>
                 </div>
               </div>
               <span className="text-[10px] font-bold bg-[#ECFDF5] text-[#047857] border border-[#A7F3D0] px-2.5 py-1 rounded-full flex items-center gap-1">
-                <ShieldCheck size={12} /> Tervalidasi Gizi
+                <ShieldCheck size={12} /> Nutrition Verified
               </span>
             </div>
 
@@ -150,26 +150,26 @@ export function DonorTOPSISModal({ donation, topsisData = [], onClose }: Props) 
                   {totalProteinGrams} g
                 </span>
                 <span className="text-[9px] text-[#059669] block">
-                  {proteinPerPortion}g / porsi
+                  {proteinPerPortion}g / portion
                 </span>
               </div>
 
               <div className="p-3 bg-white rounded-xl border border-[#E2E8F0] text-center space-y-0.5">
-                <span className="text-[10px] text-[#64748B] block font-medium">Total Energi</span>
+                <span className="text-[10px] text-[#64748B] block font-medium">Total Energy</span>
                 <span className="text-base font-black text-[#D97706] block font-heading">
-                  {totalCalories.toLocaleString("id-ID")} kkal
+                  {totalCalories.toLocaleString("en-US")} kcal
                 </span>
                 <span className="text-[9px] text-[#B45309] block">
-                  {caloriePerPortion} kkal / porsi
+                  {caloriePerPortion} kcal / portion
                 </span>
               </div>
 
               <div className="p-3 bg-white rounded-xl border border-[#E2E8F0] text-center space-y-0.5">
-                <span className="text-[10px] text-[#64748B] block font-medium">Zat Besi (Fe)</span>
+                <span className="text-[10px] text-[#64748B] block font-medium">Iron (Fe)</span>
                 <span className="text-base font-black text-[#0284C7] block font-heading">
                   {totalIronMg} mg
                 </span>
-                <span className="text-[9px] text-[#0369A1] block">Cegah Anemia</span>
+                <span className="text-[9px] text-[#0369A1] block">Anti-Anemia</span>
               </div>
 
               <div className="p-3 bg-white rounded-xl border border-[#E2E8F0] text-center space-y-0.5">
@@ -177,17 +177,17 @@ export function DonorTOPSISModal({ donation, topsisData = [], onClose }: Props) 
                 <span className="text-base font-black text-[#7C3AED] block font-heading">
                   {totalVitCMg} mg
                 </span>
-                <span className="text-[9px] text-[#6D28D9] block">Imunitas Binaan</span>
+                <span className="text-[9px] text-[#6D28D9] block">Immunity Support</span>
               </div>
             </div>
 
-            {/* AKG Impact Summary Bar */}
+            {/* RDA Impact Summary Bar */}
             <div className="p-3 bg-[#ECFDF5] rounded-xl border border-[#A7F3D0] flex items-center gap-3">
               <div className="w-8 h-8 rounded-full bg-[#10B981] text-white flex items-center justify-center shrink-0">
                 <Heart size={16} className="fill-white" />
               </div>
               <div className="text-[11px] leading-relaxed text-[#065F46]">
-                Donasi makanan Anda setara dengan <strong>{childPortionsProteinCovered} porsi kebutuhan protein harian penuh</strong> anak panti asuhan, membantu mencegah defisit nutrisi & stunting secara terukur.
+                Your donation provides the equivalent of <strong>{childPortionsProteinCovered} full daily child protein portions</strong> for beneficiary shelters, directly preventing malnutrition.
               </div>
             </div>
           </div>
@@ -201,15 +201,15 @@ export function DonorTOPSISModal({ donation, topsisData = [], onClose }: Props) 
                 </div>
                 <div>
                   <h4 className="font-bold text-sm text-[#0F172A]">
-                    Peringkat Prioritas Algoritma Hybrid TOPSIS
+                    Hybrid TOPSIS Algorithmic Priority Ranking
                   </h4>
                   <p className="text-[11px] text-[#64748B]">
-                    Urutan panti & yayasan penerima terhitung otomatis berdasarkan entropi objektif
+                    Beneficiary shelters ranked objectively via Shannon Entropy weighting
                   </p>
                 </div>
               </div>
               <span className="text-[10px] font-bold text-[#2563EB] bg-[#EFF6FF] border border-[#BFDBFE] px-2.5 py-0.5 rounded-full self-start sm:self-auto">
-                Koefisien Kedekatan (Vᵢ)
+                Closeness Coefficient (Vᵢ)
               </span>
             </div>
 
@@ -218,7 +218,7 @@ export function DonorTOPSISModal({ donation, topsisData = [], onClose }: Props) 
               {/* Radar 5 Dimensions */}
               <div className="md:col-span-5 bg-[#F8FAFC] p-3 rounded-2xl border border-[#E2E8F0] flex flex-col justify-between h-56">
                 <span className="text-[10px] font-bold text-[#64748B] uppercase tracking-wider text-center">
-                  Dimensi Pencocokan Solusi Ideal
+                  Ideal Solution Matching Dimensions
                 </span>
                 <div className="h-44 w-full">
                   <Radar
@@ -250,31 +250,31 @@ export function DonorTOPSISModal({ donation, topsisData = [], onClose }: Props) 
                 <div className="p-3 bg-[#ECFDF5] rounded-2xl border border-[#A7F3D0]/60 space-y-2">
                   <div className="flex items-center justify-between text-[11px] font-bold text-[#065F46]">
                     <span className="flex items-center gap-1">
-                      <Scale size={13} /> 5 Kriteria Hybrid Shannon Entropy:
+                      <Scale size={13} /> 5 Hybrid Shannon Criteria:
                     </span>
                     <span className="text-[9px] bg-white px-2 py-0.5 rounded-full border border-[#A7F3D0] text-[#047857]">
-                      Objektif & Bebas Bias
+                      Objective & Bias-Free
                     </span>
                   </div>
                   <div className="grid grid-cols-5 gap-1 text-center">
                     <div className="p-1.5 bg-white rounded-lg border border-[#A7F3D0]/50">
-                      <div className="text-[8px] text-[#64748B]">C1: Gizi</div>
+                      <div className="text-[8px] text-[#64748B]">C1: Nutrition</div>
                       <div className="font-bold text-[10px] text-[#047857]">25%</div>
                     </div>
                     <div className="p-1.5 bg-white rounded-lg border border-[#A7F3D0]/50">
-                      <div className="text-[8px] text-[#64748B]">C2: Urgensi</div>
+                      <div className="text-[8px] text-[#64748B]">C2: Urgency</div>
                       <div className="font-bold text-[10px] text-[#047857]">25%</div>
                     </div>
                     <div className="p-1.5 bg-white rounded-lg border border-[#A7F3D0]/50">
-                      <div className="text-[8px] text-[#64748B]">C3: Waktu</div>
+                      <div className="text-[8px] text-[#64748B]">C3: Time</div>
                       <div className="font-bold text-[10px] text-[#047857]">15%</div>
                     </div>
                     <div className="p-1.5 bg-white rounded-lg border border-[#A7F3D0]/50">
-                      <div className="text-[8px] text-[#64748B]">C4: Jarak</div>
+                      <div className="text-[8px] text-[#64748B]">C4: Distance</div>
                       <div className="font-bold text-[10px] text-[#047857]">20%</div>
                     </div>
                     <div className="p-1.5 bg-white rounded-lg border border-[#A7F3D0]/50">
-                      <div className="text-[8px] text-[#64748B]">C5: Keadilan</div>
+                      <div className="text-[8px] text-[#64748B]">C5: Equity</div>
                       <div className="font-bold text-[10px] text-[#047857]">15%</div>
                     </div>
                   </div>
@@ -283,7 +283,7 @@ export function DonorTOPSISModal({ donation, topsisData = [], onClose }: Props) 
                 {/* Ranked List Preview */}
                 <div className="space-y-1.5">
                   <div className="text-[10px] font-bold text-[#64748B] uppercase tracking-wider">
-                    Penerima Prioritas Teratas Hasil Rekomendasi:
+                    Top Priority Recommendation:
                   </div>
                   {topsisData.slice(0, 2).map((item, idx) => (
                     <div
@@ -299,7 +299,7 @@ export function DonorTOPSISModal({ donation, topsisData = [], onClose }: Props) 
                             {item.recipient_name}
                           </div>
                           <div className="text-[10px] text-[#64748B]">
-                            Jarak: {Number(item.distance_km || 0).toFixed(1)} km
+                            Distance: {Number(item.distance_km || 0).toFixed(1)} km
                           </div>
                         </div>
                       </div>
@@ -318,16 +318,16 @@ export function DonorTOPSISModal({ donation, topsisData = [], onClose }: Props) 
           {/* Mathematical Audit Guarantee */}
           <div className="p-3.5 bg-[#F8FAFC] rounded-2xl border border-[#E2E8F0] text-[11px] text-[#475569] space-y-1.5">
             <span className="font-bold text-[#0F172A] flex items-center gap-1">
-              <Info size={14} className="text-[#2563EB]" /> Rumus Matematis yang Diterapkan:
+              <Info size={14} className="text-[#2563EB]" /> Mathematical Formulations Applied:
             </span>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 text-[10px] font-mono text-[#334155]">
-              <div>1. Normalisasi: rᵢⱼ = xᵢⱼ / √(∑ xᵢⱼ²)</div>
-              <div>2. Entropi Shannon: Eⱼ = -k ∑ pᵢⱼ ln(pᵢⱼ)</div>
-              <div>3. Solusi Ideal: A⁺ = max(vᵢⱼ), A⁻ = min(vᵢⱼ)</div>
-              <div>4. Skor Preferensi: Vᵢ = Dᵢ⁻ / (Dᵢ⁺ + Dᵢ⁻)</div>
+              <div>1. Normalization: rᵢⱼ = xᵢⱼ / √(∑ xᵢⱼ²)</div>
+              <div>2. Shannon Entropy: Eⱼ = -k ∑ pᵢⱼ ln(pᵢⱼ)</div>
+              <div>3. Ideal Solution: A⁺ = max(vᵢⱼ), A⁻ = min(vᵢⱼ)</div>
+              <div>4. Preference Score: Vᵢ = Dᵢ⁻ / (Dᵢ⁺ + Dᵢ⁻)</div>
             </div>
             <p className="text-[10px] text-[#64748B] pt-1">
-              Platform NutriShare menjamin 100% transparansi bebas intervensi manual. Donasi makanan Anda langsung dialokasikan ke panti yang memiliki skor Vᵢ tertinggi.
+              NutriShare guarantees 100% transparent, tamper-free allocation. Your donation is matched to the recipients with the highest Vᵢ score.
             </p>
           </div>
         </div>
@@ -335,14 +335,14 @@ export function DonorTOPSISModal({ donation, topsisData = [], onClose }: Props) 
         {/* Footer */}
         <div className="p-4 bg-[#F8FAF8] border-t border-[#E2E8F0] flex items-center justify-between gap-3 shrink-0">
           <div className="text-[11px] text-[#64748B]">
-            Data diverifikasi secara real-time oleh modul kecerdasan buatan NutriShare.
+            Data verified in real-time by NutriShare decision engine.
           </div>
           <button
             type="button"
             onClick={onClose}
             className="px-5 py-2 rounded-xl bg-[#2D7A4F] hover:bg-[#235F3D] text-white font-bold text-xs shadow-xs transition-colors cursor-pointer"
           >
-            Tutup Audit
+            Close Audit
           </button>
         </div>
       </motion.div>

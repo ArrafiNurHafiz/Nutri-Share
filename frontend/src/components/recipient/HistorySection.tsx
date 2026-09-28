@@ -64,14 +64,14 @@ export function HistorySection({ completedHistory, onRate }: Props) {
             {d.has_reviewed ? (
               <span className="bg-amber-50 text-amber-700 text-xs font-bold px-2.5 py-1 rounded-lg flex items-center gap-1 border border-amber-200">
                 <Star size={12} className="fill-amber-500 text-amber-500" />{" "}
-                Sudah Dinilai
+                Reviewed
               </span>
             ) : (
               <button
                 onClick={() => onRate(d)}
                 className="bg-amber-50 border border-amber-500 text-amber-800 hover:bg-amber-100 px-3 py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95 shadow-2xs cursor-pointer flex items-center gap-1"
               >
-                <Star size={12} className="fill-amber-500 text-amber-500" /> Beri Penilaian
+                <Star size={12} className="fill-amber-500 text-amber-500" /> Leave Review
               </button>
             )}
           </div>

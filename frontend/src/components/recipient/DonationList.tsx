@@ -121,9 +121,9 @@ export function DonationList({
                 >
                   <BarChart3 size={14} /> TOPSIS
                 </button>
-                {d.my_claim_status === "pending" ? (
-                  <div className="flex-1 bg-accent/10 text-accent text-xs font-bold py-2 rounded-lg text-center border border-accent/20">
-                    Waiting for Admin
+                {d.my_claim_status === "approved" || d.claimed_by === user?.id ? (
+                  <div className="flex-1 bg-emerald-50 text-emerald-700 text-xs font-bold py-2 rounded-lg text-center border border-emerald-200">
+                    Claimed (Active)
                   </div>
                 ) : (
                   <button

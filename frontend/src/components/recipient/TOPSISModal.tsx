@@ -71,24 +71,24 @@ export function TOPSISModal({
 
   // Criteria Weighting derived from Shannon Entropy
   const criteriaList = [
-    { code: "C1", name: "Kesesuaian Protein & AKG", weight: "25.0%", type: "Benefit", desc: "Prioritas panti asuhan dengan kebutuhan nutrisi protein harian tertinggi." },
-    { code: "C2", name: "Tingkat Urgensi & Darurat", weight: "25.0%", type: "Benefit", desc: "Status stok logistik pangan panti & darurat bencana." },
-    { code: "C3", name: "Masa Simpan Makanan", weight: "15.0%", type: "Benefit", desc: "Ketahanan makanan siap konsumsi sebelum kualitas menurun." },
-    { code: "C4", name: "Kedekatan Jarak Tempuh", weight: "20.0%", type: "Cost", desc: "Jarak rute terpendek untuk efisiensi waktu penjemputan mandiri." },
-    { code: "C5", name: "Pemerataan Distribusi", weight: "15.0%", type: "Benefit", desc: "Frekuensi penerimaan donasi agar bantuan merata bagi semua lembaga." },
+    { code: "C1", name: "Protein & RDA Compatibility", weight: "25.0%", type: "Benefit", desc: "Priority for shelters with higher daily protein deficit." },
+    { code: "C2", name: "Urgency & Stock Depletion", weight: "25.0%", type: "Benefit", desc: "Shelter current food inventory level and urgency status." },
+    { code: "C3", name: "Food Shelf Life", weight: "15.0%", type: "Benefit", desc: "Safety window before food freshness degrades." },
+    { code: "C4", name: "Distance & Travel Time", weight: "20.0%", type: "Cost", desc: "Shortest route distance for timely self-pickup." },
+    { code: "C5", name: "Distribution Equity", weight: "15.0%", type: "Benefit", desc: "Donation history balance ensuring fair access for all shelters." },
   ];
 
   const radarData = {
     labels: [
       "Protein (C1)",
-      "Urgensi (C2)",
-      "Masa Simpan (C3)",
-      "Kedekatan Jarak (C4)",
-      "Pemerataan (C5)",
+      "Urgency (C2)",
+      "Shelf Life (C3)",
+      "Proximity (C4)",
+      "Equity (C5)",
     ],
     datasets: [
       {
-        label: "Indeks Kecocokan Gizi & Logistik",
+        label: "Nutrition & Logistics Compatibility Index",
         data: [
           Math.min(10, ((myScore?.raw_c1 ?? 8) / 10) * 10),
           Math.min(10, ((myScore?.raw_c2 ?? 9) / 10) * 10),
@@ -118,20 +118,20 @@ export function TOPSISModal({
         <div className="p-5 bg-gradient-to-r from-[#162A21] via-[#246340] to-[#2D7A4F] text-white flex items-center justify-between shrink-0">
           <div className="space-y-1">
             <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/20 text-[10px] font-bold uppercase tracking-wider text-amber-300">
-              <Brain size={13} /> Algoritma Hybrid Shannon Entropy-TOPSIS & AKG
+              <Brain size={13} /> Hybrid Shannon Entropy-TOPSIS & RDA Matching Engine
             </div>
             <h3 className="text-lg sm:text-xl font-bold font-heading">
-              Audit & Transparansi Perankingan Alokasi
+              Allocation Ranking Audit & Transparency
             </h3>
             <p className="text-xs text-emerald-100">
-              Donasi: <strong>{donation.food_name}</strong> • {portions} Porsi Siap Santap
+              Donation: <strong>{donation.food_name}</strong> • {portions} Ready-to-Eat Portions
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
             className="p-2 rounded-full hover:bg-white/20 text-white transition-colors cursor-pointer flex items-center justify-center"
-            aria-label="Tutup modal"
+            aria-label="Close modal"
           >
             <X size={18} />
           </button>
@@ -144,20 +144,20 @@ export function TOPSISModal({
             <div className="flex items-center justify-between">
               <span className="font-bold text-emerald-900 text-sm flex items-center gap-1.5">
                 <Sparkles size={16} className="text-amber-500" />
-                <span>Skor Kedekatan Relatif Solusi Ideal (Vᵢ): <strong>{myScore?.ci_score ? Number(myScore.ci_score).toFixed(4) : "0.9412"}</strong></span>
+                <span>Relative Closeness to Ideal Solution (Vᵢ): <strong>{myScore?.ci_score ? Number(myScore.ci_score).toFixed(4) : "0.9412"}</strong></span>
               </span>
               <span className={`px-3 py-1 rounded-full text-white font-bold text-xs shadow-xs ${
                 isTopRank ? "bg-emerald-600" : "bg-slate-700"
               }`}>
-                Peringkat #{myScore?.rank_position || 1} Prioritas
+                Rank #{myScore?.rank_position || 1} Priority
               </span>
             </div>
             <p className="text-stone-600 text-[11px] leading-relaxed">
-              Sistem menghitung matriks keputusan ternormalisasi terbobot berdasarkan bobot objektif Entropy untuk meminimalkan subjektivitas dan memastikan makanan surplus diterima panti yang paling membutuhkan gizi tersebut.
+              The algorithm evaluates normalized weighted decision matrices using objective Shannon Entropy weights to eliminate bias and ensure surplus meals directly reach the shelters with highest nutritional urgency.
             </p>
           </div>
 
-          {/* AKG NUTRITIONAL IMPACT COMPUTATION FOR RECIPIENT */}
+          {/* RDA NUTRITIONAL IMPACT COMPUTATION FOR RECIPIENT */}
           <div className="bg-[#F8FAF8] rounded-2xl border border-[#E2E8F0] p-4 space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -166,56 +166,56 @@ export function TOPSISModal({
                 </div>
                 <div>
                   <h4 className="font-bold text-xs sm:text-sm text-[#0F172A]">
-                    Simulasi Dampak Angka Kecukupan Gizi (AKG) Binaan Panti
+                    Recommended Dietary Allowance (RDA) Impact Simulation
                   </h4>
                   <p className="text-[11px] text-[#64748B]">
-                    Kalkulasi untuk {residentCount} orang warga binaan terdaftar
+                    Calculated for {residentCount} registered residents
                   </p>
                 </div>
               </div>
               <span className="text-[10px] font-bold bg-[#ECFDF5] text-[#047857] border border-[#A7F3D0] px-2.5 py-0.5 rounded-full flex items-center gap-1">
-                <Heart size={11} className="fill-[#047857]" /> Menutup Defisit Gizi
+                <Heart size={11} className="fill-[#047857]" /> Addressing Nutritional Deficit
               </span>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
               <div className="p-3 bg-white rounded-xl border border-[#E2E8F0] text-center space-y-0.5">
-                <span className="text-[10px] text-[#64748B] block font-medium">Protein Disuplai</span>
+                <span className="text-[10px] text-[#64748B] block font-medium">Protein Supplied</span>
                 <span className="text-sm sm:text-base font-black text-[#047857] block font-heading">
                   {totalProteinGrams} g
                 </span>
                 <span className="text-[9px] text-[#059669] block font-semibold">
-                  +{proteinFulfillmentPct}% Target Panti
+                  +{proteinFulfillmentPct}% Shelter Target
                 </span>
               </div>
 
               <div className="p-3 bg-white rounded-xl border border-[#E2E8F0] text-center space-y-0.5">
-                <span className="text-[10px] text-[#64748B] block font-medium">Kalori Disuplai</span>
+                <span className="text-[10px] text-[#64748B] block font-medium">Calories Supplied</span>
                 <span className="text-sm sm:text-base font-black text-[#D97706] block font-heading">
-                  {totalCalories.toLocaleString("id-ID")} kkal
+                  {totalCalories.toLocaleString("en-US")} kcal
                 </span>
                 <span className="text-[9px] text-[#B45309] block font-semibold">
-                  +{calorieFulfillmentPct}% Target Panti
+                  +{calorieFulfillmentPct}% Shelter Target
                 </span>
               </div>
 
               <div className="p-3 bg-white rounded-xl border border-[#E2E8F0] text-center space-y-0.5">
-                <span className="text-[10px] text-[#64748B] block font-medium">Porsi Siap Santap</span>
+                <span className="text-[10px] text-[#64748B] block font-medium">Ready Portions</span>
                 <span className="text-sm sm:text-base font-black text-[#2563EB] block font-heading">
-                  {portions} Porsi
+                  {portions} Portions
                 </span>
                 <span className="text-[9px] text-[#1E40AF] block">
-                  Langsung Konsumsi
+                  Direct Consumption
                 </span>
               </div>
 
               <div className="p-3 bg-white rounded-xl border border-[#E2E8F0] text-center space-y-0.5">
-                <span className="text-[10px] text-[#64748B] block font-medium">Kategori Gizi</span>
+                <span className="text-[10px] text-[#64748B] block font-medium">Nutrition Category</span>
                 <span className="text-sm sm:text-base font-black text-[#7C3AED] block font-heading">
-                  {donation.food_type === "makanan_berat" ? "Lengkap" : donation.food_type === "lauk_protein" ? "Protein" : "Gizi Nabati"}
+                  {donation.food_type === "makanan_berat" ? "Complete" : donation.food_type === "lauk_protein" ? "Protein" : "Plant Nutrition"}
                 </span>
                 <span className="text-[9px] text-[#6D28D9] block">
-                  Standar Kemenkes
+                  Validated
                 </span>
               </div>
             </div>
@@ -226,7 +226,7 @@ export function TOPSISModal({
             {/* Radar Chart */}
             <div className="bg-stone-50 p-3 rounded-2xl border border-stone-200/80 h-52 flex flex-col justify-between">
               <span className="text-[10px] font-bold text-stone-500 uppercase tracking-wider text-center">
-                Visualisasi 5 Dimensi Kecocokan
+                5-Dimension Compatibility Radar
               </span>
               <div className="h-44 w-full">
                 <Radar
@@ -255,7 +255,7 @@ export function TOPSISModal({
             {/* Criteria Weights List */}
             <div className="space-y-2">
               <h4 className="font-bold text-stone-900 text-xs flex items-center gap-1.5">
-                <Scale size={14} className="text-emerald-700" /> Bobot Kriteria Entropy Shannon
+                <Scale size={14} className="text-emerald-700" /> Shannon Entropy Criteria Weights
               </h4>
               <div className="space-y-1.5">
                 {criteriaList.map((c) => (
@@ -276,19 +276,19 @@ export function TOPSISModal({
           {/* Formula Transparency Note */}
           <div className="p-3.5 bg-stone-50 rounded-xl border border-stone-200 text-[11px] text-stone-600 space-y-1">
             <span className="font-bold text-stone-800 flex items-center gap-1">
-              <Info size={13} className="text-blue-600" /> Tahapan Komputasi Matematis:
+              <Info size={13} className="text-blue-600" /> Mathematical Computation Process:
             </span>
-            <p>1. Normalisasi Matriks Keputusan: <code>r_ij = x_ij / √(Σ x_ij²)</code></p>
-            <p>2. Perhitungan Entropi Informasi: <code>E_j = -k Σ (p_ij · ln(p_ij))</code></p>
-            <p>3. Solusi Ideal Positif (A+) & Negatif (A-)</p>
-            <p>4. Jarak Euclidean & Nilai Preferensi: <code>C_i = D_i- / (D_i+ + D_i-)</code></p>
+            <p>1. Decision Matrix Normalization: <code>r_ij = x_ij / √(Σ x_ij²)</code></p>
+            <p>2. Information Entropy: <code>E_j = -k Σ (p_ij · ln(p_ij))</code></p>
+            <p>3. Positive Ideal Solution (A+) & Negative (A-)</p>
+            <p>4. Euclidean Distance & Preference Value: <code>C_i = D_i- / (D_i+ + D_i-)</code></p>
           </div>
         </div>
 
         {/* Action Footer */}
         <div className="p-4 bg-stone-50 border-t border-stone-200 flex items-center justify-between gap-3 shrink-0">
           <div className="text-[11px] text-stone-500">
-            {isTopRank ? "Panti Anda berhak mengklaim donasi ini sebagai prioritas #1." : "Hasil transparan sesuai audit sistem."}
+            {isTopRank ? "Your shelter is eligible to claim this donation as priority #1." : "Transparent results computed by system audit."}
           </div>
 
           {onClaim && (
@@ -300,7 +300,7 @@ export function TOPSISModal({
               }}
               className="px-5 py-2.5 rounded-xl bg-[#2D7A4F] hover:bg-emerald-800 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all cursor-pointer active:scale-95"
             >
-              <ShieldCheck size={15} /> Klaim Donasi Sekarang
+              <ShieldCheck size={15} /> Claim Donation Now
             </button>
           )}
         </div>

@@ -32,7 +32,7 @@ export default function ResetPassword() {
       return;
     }
     if (!token) {
-      toast.error("Token reset tidak ditemukan");
+      toast.error("Password reset token is missing");
       return;
     }
     setError(undefined);
@@ -44,10 +44,10 @@ export default function ResetPassword() {
         body: JSON.stringify({ token, password }),
       });
       setDone(true);
-      toast.success("Kata sandi berhasil diperbarui!");
+      toast.success("Password updated successfully!");
       setTimeout(() => nav("/login"), 2000);
     } catch (err: any) {
-      toast.error(err.message || "Gagal mengatur ulang kata sandi");
+      toast.error(err.message || "Failed to reset password");
     } finally {
       setLoading(false);
     }
@@ -57,8 +57,8 @@ export default function ResetPassword() {
     <div className="min-h-[100dvh] bg-[#f4fbf7] bg-emerald-grid text-emerald-950 font-sans flex flex-col justify-between">
       <Navbar />
       <SEO
-        title="Atur Ulang Kata Sandi | NutriShare"
-        description="Buat kata sandi baru untuk akun NutriShare Anda"
+        title="Reset Password | NutriShare"
+        description="Create a new password for your NutriShare account"
       />
       <div className="max-w-md mx-auto w-full px-6 pt-36 pb-20">
         <motion.div
@@ -72,10 +72,10 @@ export default function ResetPassword() {
                 <CheckCircle2 size={32} />
               </div>
               <h1 className="text-2xl font-extrabold text-emerald-950 font-heading">
-                Kata Sandi Diperbarui!
+                Password Updated!
               </h1>
               <p className="text-xs text-slate-500 leading-relaxed">
-                Kata sandi baru Anda telah aktif. Mengalihkan ke halaman login...
+                Your new password is now active. Redirecting to the sign in page...
               </p>
             </div>
           ) : (
@@ -84,36 +84,36 @@ export default function ResetPassword() {
                 to="/login"
                 className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 hover:text-emerald-950 mb-6 transition-colors"
               >
-                <ArrowLeft size={14} /> <span>Kembali ke Masuk</span>
+                <ArrowLeft size={14} /> <span>Back to Sign In</span>
               </Link>
               <div className="w-12 h-12 bg-emerald-100 text-emerald-800 rounded-2xl flex items-center justify-center mb-4 font-bold shadow-xs">
                 <Lock size={22} />
               </div>
               <h1 className="text-2xl font-extrabold text-emerald-950 font-heading tracking-tight mb-1">
-                Atur Kata Sandi Baru
+                Set New Password
               </h1>
               <p className="text-xs text-slate-500 mb-6 leading-relaxed">
-                Masukkan token verifikasi dan kata sandi baru Anda.
+                Enter your reset token and new account password.
               </p>
 
               <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                 <div>
                   <label className="text-xs font-bold text-emerald-950 mb-1.5 block">
-                    Token Verifikasi
+                    Verification Token
                   </label>
                   <input
                     type="text"
                     value={token}
                     onChange={(e) => setToken(e.target.value)}
                     className="w-full rounded-xl px-4 py-3 bg-emerald-50/40 border border-emerald-200 text-xs font-mono text-slate-900 focus:bg-white focus:ring-2 focus:ring-emerald-600/30 focus:border-emerald-600 outline-none transition-all"
-                    placeholder="Masukkan token reset"
+                    placeholder="Enter reset token"
                     required
                   />
                 </div>
 
                 <div>
                   <label className="text-xs font-bold text-emerald-950 mb-1.5 block">
-                    Kata Sandi Baru
+                    New Password
                   </label>
                   <div className="relative">
                     <input
@@ -124,7 +124,7 @@ export default function ResetPassword() {
                         setError(undefined);
                       }}
                       className={`w-full rounded-xl pl-4 pr-12 py-3 bg-emerald-50/40 border border-emerald-200 text-xs font-medium text-slate-900 focus:bg-white focus:ring-2 focus:ring-emerald-600/30 focus:border-emerald-600 outline-none transition-all ${getErrorClass(error)}`}
-                      placeholder="Minimal 6 karakter"
+                      placeholder="Minimum 6 characters"
                       required
                     />
                     <button
@@ -145,10 +145,10 @@ export default function ResetPassword() {
                 >
                   {loading ? (
                     <>
-                      <LoadingSpinner size={16} inline /> Memproses...
+                      <LoadingSpinner size={16} inline /> Processing...
                     </>
                   ) : (
-                    "Simpan Kata Sandi Baru"
+                    "Save New Password"
                   )}
                 </button>
               </form>

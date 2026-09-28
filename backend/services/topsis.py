@@ -49,33 +49,33 @@ def generate_match_reasons(raw_c1: float, raw_c2: float, raw_c3: float, raw_c4: 
     reasons = []
 
     if raw_c5 < 0.2:
-        reasons.append("Pemerataan: Baru saja menerima donasi hari ini")
+        reasons.append("Fairness: Received a donation earlier today")
     elif raw_c5 >= 14:
-        reasons.append(f"Pemerataan: Belum menerima donasi {int(raw_c5)} hari")
+        reasons.append(f"Fairness: No donation received for {int(raw_c5)} days")
     elif raw_c5 >= 7:
-        reasons.append(f"Pemerataan: {int(raw_c5)} hari sejak donasi terakhir")
+        reasons.append(f"Fairness: {int(raw_c5)} days since last donation")
 
     if raw_c2 >= 1000:
-        reasons.append("Prioritas Darurat Aktif (Emergency Boost)")
+        reasons.append("Emergency Priority Active (Emergency Boost)")
     elif raw_c2 >= 6:
-        reasons.append("Tingkat urgensi kebutuhan tinggi")
+        reasons.append("High urgency nutrition requirement")
     elif raw_c2 < 2:
-        reasons.append("Kebutuhan gizi hari ini sebagian besar telah terpenuhi")
+        reasons.append("Today's nutritional needs are largely fulfilled")
 
     if raw_c4 <= 3.0:
-        reasons.append(f"Sangat dekat ({raw_c4:.1f} km) - distribusi kilat")
+        reasons.append(f"Very close ({raw_c4:.1f} km) - express delivery")
     elif raw_c4 <= 7.0:
-        reasons.append(f"Jarak terjangkau ({raw_c4:.1f} km)")
+        reasons.append(f"Accessible distance ({raw_c4:.1f} km)")
 
     if raw_c1 >= 70:
-        reasons.append(f"Memenuhi {raw_c1:.0f}% kebutuhan protein harian")
+        reasons.append(f"Fulfills {raw_c1:.0f}% of daily protein need")
     elif raw_c1 >= 30:
-        reasons.append(f"Menyuplai {raw_c1:.0f}% sisa defisit protein")
+        reasons.append(f"Supplies {raw_c1:.0f}% of remaining protein deficit")
     elif raw_c1 > 0:
-        reasons.append(f"Menyuplai tambahan gizi {raw_c1:.0f}%")
+        reasons.append(f"Supplies {raw_c1:.0f}% additional nutrition")
 
     if not reasons:
-        reasons.append("Skor kesesuaian logistik & nutrisi optimal")
+        reasons.append("Optimal logistical & nutritional match score")
 
     return reasons
 
@@ -406,7 +406,7 @@ def get_donation_escalation_stage(created_at_str: str, valid_until_str: str, now
         return {
             "is_expired": True,
             "current_stage": 5,
-            "stage_name": "Kadaluarsa",
+            "stage_name": "Expired",
             "max_allowed_rank": 0,
             "fraction_elapsed": 1.0,
             "seconds_until_next_stage": 0.0,
@@ -421,25 +421,25 @@ def get_donation_escalation_stage(created_at_str: str, valid_until_str: str, now
     if fraction < 0.25:
         stage = 1
         max_rank = 1
-        stage_name = "Prioritas Utama (Peringkat #1)"
+        stage_name = "Top Priority (Rank #1)"
         sec_to_next = max(0.0, quarter_sec - elapsed_sec)
         next_rank = 2
     elif fraction < 0.50:
         stage = 2
         max_rank = 2
-        stage_name = "Eskalasi Kuarter 2 (Peringkat ≤ #2)"
+        stage_name = "Quarter 2 Escalation (Rank ≤ #2)"
         sec_to_next = max(0.0, (2.0 * quarter_sec) - elapsed_sec)
         next_rank = 3
     elif fraction < 0.75:
         stage = 3
         max_rank = 3
-        stage_name = "Eskalasi Kuarter 3 (Peringkat ≤ #3)"
+        stage_name = "Quarter 3 Escalation (Rank ≤ #3)"
         sec_to_next = max(0.0, (3.0 * quarter_sec) - elapsed_sec)
         next_rank = 999
     else:
         stage = 4
         max_rank = 999
-        stage_name = "Kuarter Terakhir (Terbuka Semua Peringkat)"
+        stage_name = "Final Quarter (Open to All Ranks)"
         sec_to_next = max(0.0, remaining_sec)
         next_rank = 0
 

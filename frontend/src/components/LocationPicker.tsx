@@ -32,7 +32,7 @@ export function LocationPicker({
   const numLat = Number(lat) || -7.7956;
   const numLng = Number(lng) || 110.3695;
 
-  // Reverse geocode lat/lng to clean Indonesian address
+  // Reverse geocode lat/lng to clean address
   const reverseGeocode = useCallback(async (targetLat: number, targetLng: number) => {
     if (!onAddressSelectRef.current) return;
     setGeocoding(true);
@@ -41,7 +41,7 @@ export function LocationPicker({
         `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${targetLat}&lon=${targetLng}&addressdetails=1`,
         {
           headers: {
-            "Accept-Language": "id,en",
+            "Accept-Language": "en,id",
           },
         },
       );
@@ -68,7 +68,7 @@ export function LocationPicker({
         }
       }
     } catch (err) {
-      console.warn("Reverse geocoding gagal:", err);
+      console.warn("Reverse geocoding failed:", err);
     } finally {
       setGeocoding(false);
     }
@@ -98,7 +98,7 @@ export function LocationPicker({
         map.on("load", () => {
           mapRef.current = map;
 
-          const el = createCustomMarkerElement("donation", "Titik Lokasi");
+          const el = createCustomMarkerElement("donation", "Selected Location");
           const marker = new maplibregl.Marker({ element: el, draggable: true })
             .setLngLat([numLng, numLat])
             .addTo(map);
@@ -121,7 +121,7 @@ export function LocationPicker({
         });
       })
       .catch((err) => {
-        console.error("Gagal inisialisasi LocationPicker:", err);
+        console.error("LocationPicker initialization error:", err);
       });
 
     return () => {
@@ -181,21 +181,21 @@ export function LocationPicker({
           ) : (
             <MapPin size={14} className="text-[#2D7A4F]" />
           )}
-          <span>{locating ? "Mencari Koordinat..." : "Gunakan Lokasi Saya"}</span>
+          <span>{locating ? "Locating Coordinates..." : "Use My Current Location"}</span>
         </button>
       </div>
 
       {geocoding && (
         <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-xl animate-pulse">
           <Loader2 size={13} className="animate-spin text-emerald-600" />
-          <span>Mendeteksi alamat dari titik peta...</span>
+          <span>Detecting address from map pin...</span>
         </div>
       )}
 
       {detectedAddress && !geocoding && (
         <div className="flex items-center gap-1.5 text-[11px] font-medium text-stone-600 bg-stone-50 border border-stone-200 px-3 py-1.5 rounded-xl">
           <Compass size={13} className="text-[#2D7A4F] shrink-0" />
-          <span className="truncate">Terdeteksi: <strong>{detectedAddress}</strong></span>
+          <span className="truncate">Detected: <strong>{detectedAddress}</strong></span>
         </div>
       )}
     </div>

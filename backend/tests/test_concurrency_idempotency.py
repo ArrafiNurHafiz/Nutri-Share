@@ -66,7 +66,8 @@ class TestConcurrencyAndIdempotency:
         # Second immediate claim (double click) -> REJECTED 400
         r2 = await client.post(f"/api/donations/{donation.id}/claim")
         assert r2.status_code == 400
-        assert "already submitted" in r2.json()["message"].lower() or "sudah" in r2.json()["message"].lower()
+        msg2 = r2.json()["message"].lower()
+        assert "already" in msg2 or "no longer available" in msg2 or "sudah" in msg2
 
     async def test_claim_non_active_donation_fails(self, client: AsyncClient, db_session):
         """Completed or inactive donation cannot be claimed."""

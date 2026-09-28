@@ -170,10 +170,10 @@ class TestShannonEntropyAndTopsis:
 
         # Emergency boost & close distance
         reasons = generate_match_reasons(raw_c1=80.0, raw_c2=1000.0, raw_c3=24.0, raw_c4=2.5, raw_c5=15.0, rank=1)
-        assert any("Darurat" in r for r in reasons)
-        assert any("Sangat dekat" in r for r in reasons)
-        assert any("protein" in r for r in reasons)
-        assert any("Pemerataan" in r for r in reasons)
+        assert any("Emergency" in r or "Darurat" in r for r in reasons)
+        assert any("close" in r.lower() or "dekat" in r.lower() for r in reasons)
+        assert any("protein" in r.lower() for r in reasons)
+        assert any("Fairness" in r or "Pemerataan" in r for r in reasons)
 
         # Standard normal fallback
         reasons_empty = generate_match_reasons(raw_c1=10.0, raw_c2=2.0, raw_c3=1.0, raw_c4=25.0, raw_c5=2.0, rank=3)

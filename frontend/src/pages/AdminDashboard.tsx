@@ -60,7 +60,7 @@ ChartJS.register(
   Filler,
 );
 
-type TabId = "overview" | "verifikasi" | "data" | "aktivitas";
+type TabId = "overview" | "verification" | "data" | "activity";
 type SortKey = "name" | "type" | "total" | "status" | "urgency" | "emergency";
 type SortDir = "asc" | "desc";
 
@@ -156,15 +156,15 @@ export function AdminDashboard() {
     (event: RealtimeEvent) => {
       loadData();
       if (event.event_type === "CLAIM_CREATED") {
-        toast("Klaim donasi baru masuk!");
+        toast("New donation claim submitted!");
       } else if (event.event_type === "CLAIM_APPROVED") {
-        toast("Klaim donasi disetujui!");
+        toast("Donation claim confirmed!");
       } else if (event.event_type === "DONATION_CREATED") {
-        toast("Donasi baru telah dibuat!");
+        toast("New donation created!");
       } else if (event.event_type === "DELIVERY_ARRIVED") {
-        toast.success("Kurir telah tiba di lokasi!");
+        toast.success("Recipient has arrived at pickup location!");
       } else if (event.event_type === "HANDOVER_COMPLETED") {
-        toast.success("Serah terima donasi selesai!");
+        toast.success("Donation handover completed!");
       }
     },
     loadData,
@@ -178,10 +178,10 @@ export function AdminDashboard() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ urgency_score: urgencyScore }),
       });
-      toast.success("Mitra berhasil diverifikasi!");
+      toast.success("Partner verified successfully!");
       loadData();
     } catch (err: any) {
-      toast.error(err.message || "Gagal memverifikasi user.");
+      toast.error(err.message || "Failed to verify user.");
     }
   };
 
@@ -191,13 +191,13 @@ export function AdminDashboard() {
         method: "POST",
       });
       toast.success(
-        res.emergency === "approved"
-          ? "Status darurat disetujui! Diprioritaskan di TOPSIS."
-          : "Status darurat dinonaktifkan.",
+        res.emergency === "approved" || res.emergency === "pending"
+          ? "Emergency status approved! Prioritized in TOPSIS."
+          : "Emergency status deactivated.",
       );
       loadData();
     } catch (err: any) {
-      toast.error(err.message || "Gagal mengubah status darurat.");
+      toast.error(err.message || "Failed to update emergency status.");
     }
   };
 
@@ -206,10 +206,10 @@ export function AdminDashboard() {
       await api.fetchJSON(`/api/admin/claims/${claimId}/approve`, {
         method: "POST",
       });
-      toast.success("Klaim donasi berhasil disetujui!");
+      toast.success("Donation claim approved successfully!");
       loadData();
     } catch (err: any) {
-      toast.error(err.message || "Gagal menyetujui klaim.");
+      toast.error(err.message || "Failed to approve claim.");
     }
   };
 
@@ -219,11 +219,11 @@ export function AdminDashboard() {
       await api.fetchJSON(`/api/admin/users/${deleteTarget.id}`, {
         method: "DELETE",
       });
-      toast.success(`Akun ${deleteTarget.name} berhasil dihapus.`);
+      toast.success(`Account "${deleteTarget.name}" deleted successfully.`);
       setDeleteTarget(null);
       loadData();
     } catch (err: any) {
-      toast.error(err.message || "Gagal menghapus user.");
+      toast.error(err.message || "Failed to delete user.");
     }
   };
 
@@ -265,9 +265,9 @@ export function AdminDashboard() {
 
   const tabs = [
     { id: "overview" as TabId, label: "Overview & Metrics", icon: Layers },
-    { id: "verifikasi" as TabId, label: "Verification & Claims", icon: Shield, count: totalPending },
+    { id: "verification" as TabId, label: "Verification & Claims", icon: Shield, count: totalPending },
     { id: "data" as TabId, label: "Partners & Shelters Data", icon: Database },
-    { id: "aktivitas" as TabId, label: "Activity Logs", icon: Activity },
+    { id: "activity" as TabId, label: "Activity Logs", icon: Activity },
   ];
 
   const statCards = [
@@ -399,11 +399,11 @@ export function AdminDashboard() {
 
   if (authLoading || !currentUser) return null;
   if (loading)
-    return <LoadingSpinner size={36} label="Memuat Control Center Admin..." />;
+    return <LoadingSpinner size={36} label="Loading Admin Control Center..." />;
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A] font-sans antialiased flex flex-col">
-      <SEO title="Control Center Admin | NutriShare" description="Pusat kendali ekosistem donasi pangan dan pemantauan real-time." />
+      <SEO title="Admin Control Center | NutriShare" description="Surplus food donation ecosystem command center and real-time monitoring." />
 
       {/* ===== COMMAND CENTER TOP HEADER ===== */}
       <header className="relative bg-gradient-to-r from-emerald-950 via-emerald-900 to-teal-950 text-white overflow-hidden border-b border-emerald-800">
@@ -437,7 +437,7 @@ export function AdminDashboard() {
                 </span>
               </div>
               <p className="text-xs text-emerald-200/80 max-w-xl">
-                Platform pusat orkestrasi surplus pangan, penentuan prioritas gizi Hybrid TOPSIS, dan verifikasi mitra.
+                Central platform for surplus food orchestration, Hybrid TOPSIS nutritional prioritization, and partner verification.
               </p>
             </div>
 
@@ -455,14 +455,14 @@ export function AdminDashboard() {
                 className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-[#e1fcad] hover:text-emerald-950 text-white text-xs font-bold flex items-center gap-1.5 transition-all border border-white/10"
               >
                 <Compass size={14} />
-                <span>Peta Sebaran</span>
+                <span>Distribution Map</span>
               </Link>
 
               <button
                 type="button"
                 onClick={() => {
                   loadData();
-                  toast.success("Data berhasil diperbarui!");
+                  toast.success("Data refreshed successfully!");
                 }}
                 className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-colors border border-white/10 cursor-pointer"
                 title="Refresh Data"
@@ -486,7 +486,7 @@ export function AdminDashboard() {
                   nav("/");
                 }}
                 className="p-2 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-300 transition-colors border border-red-500/30 cursor-pointer"
-                title="Keluar"
+                title="Logout"
               >
                 <LogOut size={14} />
               </button>
@@ -528,7 +528,7 @@ export function AdminDashboard() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Cari data mitra donatur, panti asuhan penerima, donasi, atau klaim..."
+            placeholder="Search donor partners, beneficiary shelters, donations, or claims..."
             className="w-full pl-11 pr-10 py-3 bg-white border border-[#E2E8F0] rounded-2xl text-xs text-[#0F172A] shadow-xs focus:outline-none focus:border-[#2D7A4F] focus:ring-2 focus:ring-[#2D7A4F]/10 transition-all"
           />
           {search && (
@@ -546,12 +546,12 @@ export function AdminDashboard() {
         {searchResults && (
           <div className="bg-white rounded-2xl border border-[#CBD5E1] p-5 shadow-lg space-y-4">
             <h3 className="font-bold text-xs uppercase tracking-wider text-[#64748B]">
-              Hasil Pencarian ({search})
+              Search Results ({search})
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
               {searchResults.donors?.length > 0 && (
                 <div className="space-y-2">
-                  <span className="font-bold text-[#2D7A4F]">Mitra Donatur ({searchResults.donors.length})</span>
+                  <span className="font-bold text-[#2D7A4F]">Donor Partners ({searchResults.donors.length})</span>
                   {searchResults.donors.map((d: any) => (
                     <div key={d.id} className="p-2.5 bg-[#F8FAFC] rounded-lg border border-[#E2E8F0] flex justify-between items-center">
                       <div>
@@ -565,12 +565,12 @@ export function AdminDashboard() {
               )}
               {searchResults.recipients?.length > 0 && (
                 <div className="space-y-2">
-                  <span className="font-bold text-[#2563EB]">Lembaga Penerima ({searchResults.recipients.length})</span>
+                  <span className="font-bold text-[#2563EB]">Beneficiary Shelters ({searchResults.recipients.length})</span>
                   {searchResults.recipients.map((r: any) => (
                     <div key={r.id} className="p-2.5 bg-[#F8FAFC] rounded-lg border border-[#E2E8F0] flex justify-between items-center">
                       <div>
                         <p className="font-bold">{r.institution_name || r.name}</p>
-                        <p className="text-[11px] text-[#64748B]">{r.email} • Urgensi: {r.urgency_score || 1}</p>
+                        <p className="text-[11px] text-[#64748B]">{r.email} • Urgency: {r.urgency_score || 1}</p>
                       </div>
                       <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#E2E8F0]">{r.status}</span>
                     </div>
@@ -621,9 +621,9 @@ export function AdminDashboard() {
                   <div className="flex items-center justify-between border-b border-[#F1F5F9] pb-3">
                     <h3 className="font-bold text-sm text-[#0F172A] flex items-center gap-2">
                       <TrendingUp size={16} className="text-[#2D7A4F]" />
-                      Tren Distribusi Pangan Mingguan
+                      Weekly Food Distribution Trend
                     </h3>
-                    <span className="text-[11px] text-[#64748B]">Data 7 hari terakhir</span>
+                    <span className="text-[11px] text-[#64748B]">Last 7 days data</span>
                   </div>
                   {trends && trends.weekly.some((d) => d.count > 0) ? (
                     <div className="h-64">
@@ -631,14 +631,14 @@ export function AdminDashboard() {
                         data={{
                           labels: trends.weekly.map((d) => {
                             const dt = new Date(d.date);
-                            return dt.toLocaleDateString("id-ID", {
+                            return dt.toLocaleDateString("en-US", {
                               weekday: "short",
                               day: "numeric",
                             });
                           }),
                           datasets: [
                             {
-                              label: "Donasi Tersalurkan",
+                              label: "Distributed Donations",
                               data: trends.weekly.map((d) => d.count),
                               fill: true,
                               borderColor: "#2D7A4F",
@@ -660,7 +660,7 @@ export function AdminDashboard() {
                     </div>
                   ) : (
                     <div className="h-64 flex items-center justify-center text-xs text-[#94A3B8]">
-                      Menunggu akumulasi data donasi minggu ini...
+                      Awaiting accumulated donation data for this week...
                     </div>
                   )}
                 </div>
@@ -670,7 +670,7 @@ export function AdminDashboard() {
                   <div className="border-b border-[#F1F5F9] pb-3">
                     <h3 className="font-bold text-sm text-[#0F172A] flex items-center gap-2">
                       <Users size={16} className="text-[#2563EB]" />
-                      Proporsi Lembaga Penerima
+                      Beneficiary Institution Breakdown
                     </h3>
                   </div>
                   <div className="h-64 flex items-center justify-center">
@@ -689,7 +689,7 @@ export function AdminDashboard() {
                         }}
                       />
                     ) : (
-                      <span className="text-xs text-[#94A3B8]">Belum ada data lembaga</span>
+                      <span className="text-xs text-[#94A3B8]">No institution data yet</span>
                     )}
                   </div>
                 </div>
@@ -698,11 +698,11 @@ export function AdminDashboard() {
           </AnimatePresence>
         )}
 
-        {/* ===== TAB 2: VERIFIKASI & KLAIM ===== */}
-        {activeTab === "verifikasi" && (
+        {/* ===== TAB 2: VERIFICATION & CLAIMS ===== */}
+        {activeTab === "verification" && (
           <AnimatePresence mode="wait">
             <motion.div
-              key="verifikasi"
+              key="verification"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
@@ -714,17 +714,17 @@ export function AdminDashboard() {
                   <div>
                     <h3 className="font-bold text-sm text-[#0F172A] flex items-center gap-2">
                       <Package size={16} className="text-[#D97706]" />
-                      Persetujuan Klaim Donasi ({pendingClaims.length})
+                      Donation Claim Approvals ({pendingClaims.length})
                     </h3>
                     <p className="text-xs text-[#64748B] mt-0.5">
-                      Klaim dari panti asuhan/lembaga yang menunggu verifikasi admin sebelum proses penjemputan.
+                      Claims from shelters/institutions awaiting admin verification before pickup.
                     </p>
                   </div>
                 </div>
 
                 {pendingClaims.length === 0 ? (
                   <div className="py-8 text-center text-xs text-[#94A3B8]">
-                    Tidak ada antrean klaim yang tertunda. Semua klaim telah diproses.
+                    No pending claim queue. All claims processed.
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
@@ -736,14 +736,14 @@ export function AdminDashboard() {
                         <div className="space-y-1">
                           <div className="flex items-start justify-between">
                             <h4 className="font-bold text-sm text-[#78350F]">
-                              {c.food_name || `Donasi #${c.donation_id}`}
+                              {c.food_name || `Donation #${c.donation_id}`}
                             </h4>
                             <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-[#FEF3C7] text-[#92400E] border border-[#FCD34D]">
                               Rank TOPSIS: #{c.topsis_rank_at_claim || 1}
                             </span>
                           </div>
                           <p className="text-xs text-[#92400E]">
-                            Pemohon: <strong>{c.institution_name || `Recipient #${c.recipient_id}`}</strong>
+                            Applicant: <strong>{c.institution_name || `Recipient #${c.recipient_id}`}</strong>
                           </p>
                         </div>
                         <button
@@ -751,7 +751,7 @@ export function AdminDashboard() {
                           onClick={() => handleApproveClaim(c.id)}
                           className="w-full py-2 bg-[#2D7A4F] hover:bg-[#235F3D] text-white rounded-lg text-xs font-bold transition-colors cursor-pointer"
                         >
-                          Setujui Penjemputan Makanan
+                          Approve Food Pickup
                         </button>
                       </div>
                     ))}
@@ -779,7 +779,7 @@ export function AdminDashboard() {
                         <div className="space-y-1">
                           <span className="text-[10px] font-bold text-[#2D7A4F] uppercase">HoReKa Donor Partner</span>
                           <h4 className="font-bold text-sm text-[#0F172A]">{d.business_name || d.name}</h4>
-                          <p className="text-xs text-[#64748B]">{d.email} • {d.business_type} • Telp: {d.phone || "-"}</p>
+                          <p className="text-xs text-[#64748B]">{d.email} • {d.business_type} • Phone: {d.phone || "-"}</p>
                           <p className="text-[11px] text-[#94A3B8] truncate">{d.address || "Yogyakarta"}</p>
                         </div>
                         <button
@@ -942,10 +942,10 @@ export function AdminDashboard() {
         )}
 
         {/* ===== TAB 4: ACTIVITY LOGS ===== */}
-        {activeTab === "aktivitas" && (
+        {activeTab === "activity" && (
           <AnimatePresence mode="wait">
             <motion.div
-              key="aktivitas"
+              key="activity"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
@@ -954,13 +954,13 @@ export function AdminDashboard() {
               <div className="flex items-center justify-between border-b border-[#F1F5F9] pb-3">
                 <h3 className="font-bold text-sm text-[#0F172A] flex items-center gap-2">
                   <Activity size={16} className="text-[#2D7A4F]" />
-                  Audit Trail & Log Aktivitas Sistem
+                  Audit Trail &amp; System Activity Logs
                 </h3>
               </div>
 
               {activityLogs.length === 0 ? (
                 <div className="py-8 text-center text-xs text-[#94A3B8]">
-                  Belum ada rekaman aktivitas sistem.
+                  No system activity logs yet.
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -972,12 +972,12 @@ export function AdminDashboard() {
                       <div className="flex items-center gap-3">
                         <span className="w-2 h-2 rounded-full bg-[#2D7A4F]" />
                         <div>
-                          <p className="font-bold text-[#0F172A]">{log.action || "Aksi Sistem"}</p>
+                          <p className="font-bold text-[#0F172A]">{log.action || "System Action"}</p>
                           <p className="text-[11px] text-[#64748B]">{log.details || "-"}</p>
                         </div>
                       </div>
                       <span className="text-[10px] text-[#94A3B8] font-mono">
-                        {log.created_at ? new Date(log.created_at).toLocaleString("id-ID") : "-"}
+                        {log.created_at ? new Date(log.created_at).toLocaleString("en-US") : "-"}
                       </span>
                     </div>
                   ))}
@@ -992,9 +992,9 @@ export function AdminDashboard() {
       {deleteTarget && (
         <ConfirmDialog
           open={Boolean(deleteTarget)}
-          title="Hapus Akun Pengguna"
-          message={`Apakah Anda yakin ingin menghapus akun "${deleteTarget.name}" secara permanen? Seluruh profil terkait akan dihapus.`}
-          confirmLabel="Hapus Permanen"
+          title="Delete User Account"
+          message={`Are you sure you want to permanently delete the account "${deleteTarget.name}"? All associated profile data will be removed.`}
+          confirmLabel="Delete Permanently"
           variant="danger"
           onConfirm={handleDelete}
           onCancel={() => setDeleteTarget(null)}

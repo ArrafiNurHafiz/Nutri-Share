@@ -15,7 +15,7 @@ export function ReviewModal({ donation, onClose, onReviewed }: any) {
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     if (rating === 0) {
-      toast.error("Mohon pilih rating bintang (1 - 5) terlebih dahulu.");
+      toast.error("Please select a star rating (1 - 5) first.");
       return;
     }
 
@@ -32,11 +32,11 @@ export function ReviewModal({ donation, onClose, onReviewed }: any) {
           comment,
         }),
       });
-      toast.success("Terima kasih atas ulasan dan apresiasi Anda!");
+      toast.success("Thank you for your rating and feedback!");
       onReviewed?.();
       onClose?.();
     } catch (err: any) {
-      toast.error(err?.message || "Gagal mengirim ulasan");
+      toast.error(err?.message || "Failed to submit review");
     } finally {
       setLoading(false);
     }
@@ -59,7 +59,7 @@ export function ReviewModal({ donation, onClose, onReviewed }: any) {
           <button
             onClick={onClose}
             className="absolute top-4 right-4 text-stone-400 hover:text-stone-700 p-1.5 rounded-full hover:bg-stone-100 transition-colors cursor-pointer"
-            aria-label="Tutup"
+            aria-label="Close"
           >
             <X size={20} />
           </button>
@@ -67,11 +67,11 @@ export function ReviewModal({ donation, onClose, onReviewed }: any) {
             <Heart size={24} className="fill-amber-500 text-amber-500" />
           </div>
           <h2 className="text-xl font-bold text-center text-stone-900 font-heading">
-            Beri Penilaian & Ulasan
+            Rate & Review Donor
           </h2>
           <p className="text-xs sm:text-sm text-stone-600 mb-6 text-center leading-relaxed">
-            Bagaimana kualitas dan kondisi makanan <b>{donation.food_name}</b> dari{" "}
-            <b>{donation.donor_name || "Donatur"}</b>?
+            How was the quality and freshness of <b>{donation.food_name}</b> from{" "}
+            <b>{donation.donor_name || "Donor"}</b>?
           </p>
 
           <form
@@ -87,7 +87,7 @@ export function ReviewModal({ donation, onClose, onReviewed }: any) {
                   onClick={() => setRating(star)}
                   onMouseEnter={() => setHover(star)}
                   onMouseLeave={() => setHover(rating)}
-                  aria-label={`${star} bintang`}
+                  aria-label={`${star} stars`}
                 >
                   <Star
                     size={36}
@@ -102,7 +102,7 @@ export function ReviewModal({ donation, onClose, onReviewed }: any) {
             </div>
 
             <textarea
-              placeholder="Ceritakan kondisi makanan, rasa, ketepatan porsi, atau ucapan terima kasih kepada pahlawan pangan..."
+              placeholder="Share details about food freshness, taste, portions, or a thank you note..."
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               className="w-full border border-stone-200 p-3.5 rounded-xl text-xs focus:ring-2 focus:ring-[#2D7A4F]/30 outline-none resize-none transition-shadow bg-stone-50 focus:bg-white"
@@ -114,7 +114,7 @@ export function ReviewModal({ donation, onClose, onReviewed }: any) {
               type="submit"
               className="w-full bg-[#2D7A4F] hover:bg-emerald-800 text-white font-bold py-3 rounded-xl transition-all shadow-sm active:scale-98 disabled:opacity-50 cursor-pointer text-xs flex items-center justify-center gap-2"
             >
-              {loading ? "Mengirimkan Ulasan..." : "Kirim Penilaian Donatur"}
+              {loading ? "Submitting Review..." : "Submit Donor Review"}
             </button>
           </form>
         </motion.div>

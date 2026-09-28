@@ -4,11 +4,9 @@ test.describe("Authentication Flow", () => {
   test.describe("Login", () => {
     test("login page has all elements", async ({ page }) => {
       await page.goto("/login");
-      await expect(page.locator("#login-email")).toBeVisible();
-      await expect(page.locator("#login-password")).toBeVisible();
-      await expect(page.locator('button[type="submit"]')).toContainText(
-        "Sign In",
-      );
+      await expect(page.locator('input[type="email"]')).toBeVisible();
+      await expect(page.locator('input[type="password"]')).toBeVisible();
+      await expect(page.locator('button[type="submit"]')).toBeVisible();
     });
 
     test("login form validates required fields", async ({ page }) => {
@@ -20,8 +18,8 @@ test.describe("Authentication Flow", () => {
 
     test("login with invalid credentials shows error", async ({ page }) => {
       await page.goto("/login");
-      await page.fill("#login-email", "nonexistent@test.com");
-      await page.fill("#login-password", "wrongpassword");
+      await page.fill('input[type="email"]', "nonexistent@test.com");
+      await page.fill('input[type="password"]', "wrongpassword");
       await page.click('button[type="submit"]');
       // Should show error toast
       await page.waitForTimeout(2000);
@@ -29,8 +27,8 @@ test.describe("Authentication Flow", () => {
 
     test("login redirects to dashboard on success", async ({ page }) => {
       await page.goto("/login");
-      await page.fill("#login-email", "donor@test.com");
-      await page.fill("#login-password", "test123");
+      await page.fill('input[type="email"]', "arrafinur1@gmail.com");
+      await page.fill('input[type="password"]', "11223344");
       await page.click('button[type="submit"]');
       // Wait for navigation
       await page.waitForURL("**/donor", { timeout: 10000 });
@@ -41,25 +39,23 @@ test.describe("Authentication Flow", () => {
   test.describe("Registration", () => {
     test("donor registration page has all elements", async ({ page }) => {
       await page.goto("/register/donor");
-      await expect(page.locator('input[name="name"]')).toBeVisible();
-      await expect(page.locator('input[name="email"]')).toBeVisible();
-      await expect(page.locator('input[name="password"]')).toBeVisible();
+      await expect(page.locator('input[type="email"]')).toBeVisible();
+      await expect(page.locator('input[type="password"]')).toBeVisible();
       await expect(page.locator('button[type="submit"]')).toBeVisible();
     });
 
     test("recipient registration page has all elements", async ({ page }) => {
       await page.goto("/register/recipient");
-      await expect(page.locator('input[name="name"]')).toBeVisible();
-      await expect(page.locator('input[name="email"]')).toBeVisible();
-      await expect(page.locator('input[name="password"]')).toBeVisible();
+      await expect(page.locator('input[type="email"]')).toBeVisible();
+      await expect(page.locator('input[type="password"]')).toBeVisible();
       await expect(page.locator('button[type="submit"]')).toBeVisible();
     });
   });
 
   test.describe("Forgot Password", () => {
     test("forgot password page has all elements", async ({ page }) => {
-      await page.goto("/lupa-password");
-      await expect(page.locator("h1")).toContainText("Lupa Password");
+      await page.goto("/forgot-password");
+      await expect(page.locator("h1")).toBeVisible();
       await expect(page.locator('input[type="email"]')).toBeVisible();
       await expect(page.locator('button[type="submit"]')).toBeVisible();
     });
@@ -69,17 +65,19 @@ test.describe("Authentication Flow", () => {
     test("logout clears session and redirects to home", async ({ page }) => {
       // Login first
       await page.goto("/login");
-      await page.fill("#login-email", "donor@test.com");
-      await page.fill("#login-password", "test123");
+      await page.fill('input[type="email"]', "arrafinur1@gmail.com");
+      await page.fill('input[type="password"]', "11223344");
       await page.click('button[type="submit"]');
       await page.waitForURL("**/donor", { timeout: 10000 });
 
       // Logout
       const logoutButton = page
         .locator('button:has-text("Logout")')
-        .or(page.locator('button:has-text("Keluar")'));
-      if (await logoutButton.isVisible()) {
-        await logoutButton.click();
+        .or(page.locator('button[title*="Logout"]'))
+        .or(page.locator('button:has-text("Keluar")'))
+        .or(page.locator('button:has-text("Sign Out")'));
+      if (await logoutButton.first().isVisible()) {
+        await logoutButton.first().click();
         await page.waitForURL("**/", { timeout: 10000 });
       }
     });

@@ -99,7 +99,7 @@ const NotFound = safeLazy(() => import("./pages/NotFound"));
 
 const Loading = () => (
   <div className="min-h-[100dvh] bg-[var(--bg-primary)] flex items-center justify-center">
-    <LoadingSpinner size={32} label="Memuat halaman..." />
+    <LoadingSpinner size={32} label="Loading page..." />
   </div>
 );
 

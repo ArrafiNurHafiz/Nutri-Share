@@ -41,9 +41,9 @@ export function DonationForm(props: Props) {
 
   const QUICK_PRESETS = [
     {
-      label: "Nasi Box Ayam / Daging",
+      label: "Chicken / Meat Rice Box",
       sub: "28g protein · 580 kcal",
-      name: "Nasi Box Ayam & Lauk Komplit",
+      name: "Chicken & Mixed Sides Rice Box",
       type: "makanan_berat",
       protein: "28",
       calorie: "580",
@@ -52,9 +52,9 @@ export function DonationForm(props: Props) {
       hours: "6",
     },
     {
-      label: "Nasi Box Telur / Tempe",
+      label: "Egg / Tempeh Rice Box",
       sub: "18g protein · 420 kcal",
-      name: "Nasi Box Telur & Tahu Tempe",
+      name: "Egg & Tofu Tempeh Rice Box",
       type: "makanan_berat",
       protein: "18",
       calorie: "420",
@@ -63,9 +63,9 @@ export function DonationForm(props: Props) {
       hours: "8",
     },
     {
-      label: "Roti & Pastry Bakery",
+      label: "Bakery Bread & Pastry",
       sub: "8g protein · 260 kcal",
-      name: "Paket Roti & Aneka Pastry",
+      name: "Assorted Breads & Pastries Box",
       type: "snack",
       protein: "8",
       calorie: "260",
@@ -74,9 +74,9 @@ export function DonationForm(props: Props) {
       hours: "24",
     },
     {
-      label: "Sayur & Sup Matang",
+      label: "Cooked Veggie & Soup",
       sub: "6g protein · 110 kcal",
-      name: "Sup Sehat & Sayuran Matang",
+      name: "Healthy Vegetable Soup",
       type: "sayur",
       protein: "6",
       calorie: "110",
@@ -85,9 +85,9 @@ export function DonationForm(props: Props) {
       hours: "5",
     },
     {
-      label: "Potongan Buah Segar",
+      label: "Fresh Cut Fruits",
       sub: "2g protein · 90 kcal",
-      name: "Potongan Buah Segar",
+      name: "Fresh Cut Tropical Fruits",
       type: "sayur",
       protein: "2",
       calorie: "90",
@@ -96,9 +96,9 @@ export function DonationForm(props: Props) {
       hours: "12",
     },
     {
-      label: "Lauk Protein Olahan",
+      label: "Cooked Protein Dish",
       sub: "26g protein · 320 kcal",
-      name: "Paket Lauk Ayam & Ikan Olahan",
+      name: "Cooked Chicken & Fish Dish",
       type: "lauk_protein",
       protein: "26",
       calorie: "320",
@@ -111,7 +111,7 @@ export function DonationForm(props: Props) {
   // Trigger AI Estimation based on food name & description
   const handleRunAIEstimate = () => {
     if (!form.food_name || form.food_name.trim().length === 0) {
-      toast.error("Tuliskan nama makanan terlebih dahulu");
+      toast.error("Please enter the food name first");
       return;
     }
 
@@ -128,7 +128,7 @@ export function DonationForm(props: Props) {
     setAiConfidence(estimate.confidence_score);
     setKeyNutrients(estimate.key_nutrients);
     toast.success(
-      `Estimasi Nutrisi AI: ${estimate.protein_per_portion}g protein, ${estimate.calorie_per_portion} kkal per porsi!`,
+      `AI Nutrition Estimate: ${estimate.protein_per_portion}g protein, ${estimate.calorie_per_portion} kcal per portion!`,
     );
   };
 
@@ -143,12 +143,12 @@ export function DonationForm(props: Props) {
           <div>
             <h4 className="font-bold text-stone-900 text-sm">
               {formStep === 1
-                ? "Informasi Makanan"
+                ? "Food Information"
                 : formStep === 2
-                ? "Kandungan Nutrisi (AI Estimator)"
-                : "Konfirmasi & Publikasi"}
+                ? "Nutrition Details (AI Estimator)"
+                : "Review & Publish"}
             </h4>
-            <p className="text-[11px] text-stone-500">Langkah {formStep} dari 3</p>
+            <p className="text-[11px] text-stone-500">Step {formStep} of 3</p>
           </div>
         </div>
 
@@ -171,10 +171,10 @@ export function DonationForm(props: Props) {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="text-xs font-bold text-stone-700 mb-1 block">
-                  Nama Makanan Surplus <span className="text-red-500">*</span>
+                  Surplus Food Name <span className="text-red-500">*</span>
                 </label>
                 <input
-                  placeholder="Contoh: 40 Paket Nasi Ayam Bakar & Tempe"
+                  placeholder="e.g. 40 Boxes Roast Chicken & Rice"
                   value={form.food_name}
                   onChange={(e) => onSetForm({ ...form, food_name: e.target.value })}
                   className="w-full border border-stone-200 p-2.5 rounded-xl bg-stone-50 focus:bg-white focus:ring-2 focus:ring-[#2D7A4F]/30 outline-none text-sm font-semibold transition-all"
@@ -184,19 +184,19 @@ export function DonationForm(props: Props) {
 
               <div>
                 <label className="text-xs font-bold text-stone-700 mb-1 block">
-                  Kategori Makanan <span className="text-red-500">*</span>
+                  Food Category <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={form.food_type || "makanan_berat"}
                   onChange={(e) => onSetForm({ ...form, food_type: e.target.value })}
                   className="w-full border border-stone-200 p-2.5 rounded-xl bg-stone-50 focus:bg-white focus:ring-2 focus:ring-[#2D7A4F]/30 outline-none text-sm font-semibold transition-all cursor-pointer"
                 >
-                  <option value="makanan_berat">Makanan Berat (Nasi / Mie / Bento)</option>
-                  <option value="lauk_protein">Lauk Protein (Ayam / Daging / Ikan / Telur)</option>
-                  <option value="sayur">Sayur & Buah Segar</option>
-                  <option value="snack">Snack & Roti / Pastry</option>
-                  <option value="minuman">Minuman Sehat / Susu / Jus</option>
-                  <option value="lainnya">Lainnya</option>
+                  <option value="makanan_berat">Main Meal (Rice / Noodles / Bento)</option>
+                  <option value="lauk_protein">Protein Dish (Chicken / Meat / Fish / Egg)</option>
+                  <option value="sayur">Vegetables & Fresh Fruit</option>
+                  <option value="snack">Snacks & Bakery / Pastry</option>
+                  <option value="minuman">Healthy Beverages / Milk / Juice</option>
+                  <option value="lainnya">Other</option>
                 </select>
               </div>
             </div>
@@ -204,12 +204,12 @@ export function DonationForm(props: Props) {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="text-xs font-bold text-stone-700 mb-1 block">
-                  Jumlah Porsi <span className="text-red-500">*</span>
+                  Portion Count <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
                   min="1"
-                  placeholder="Jumlah porsi"
+                  placeholder="Number of portions"
                   value={form.portion_count}
                   onChange={(e) => onSetForm({ ...form, portion_count: e.target.value })}
                   className="w-full border border-stone-200 p-2.5 rounded-xl bg-stone-50 focus:bg-white focus:ring-2 focus:ring-[#2D7A4F]/30 outline-none text-sm transition-all font-semibold"
@@ -219,13 +219,13 @@ export function DonationForm(props: Props) {
 
               <div>
                 <label className="text-xs font-bold text-stone-700 mb-1 block">
-                  Masa Simpan Aman (Jam)
+                  Safe Shelf-Life (Hours)
                 </label>
                 <input
                   type="number"
                   min="1"
                   max="48"
-                  placeholder="Maks 6 jam"
+                  placeholder="Max 6 hours"
                   value={form.hours_valid}
                   onChange={(e) => onSetForm({ ...form, hours_valid: e.target.value })}
                   className="w-full border border-stone-200 p-2.5 rounded-xl bg-stone-50 focus:bg-white focus:ring-2 focus:ring-[#2D7A4F]/30 outline-none text-sm transition-all"
@@ -236,7 +236,7 @@ export function DonationForm(props: Props) {
 
             {/* Quick Presets Carousel */}
             <div className="space-y-1.5 pt-1">
-              <span className="text-[11px] font-bold text-stone-500">Atau Pilih Preset Cepat:</span>
+              <span className="text-[11px] font-bold text-stone-500">Or Select a Quick Preset:</span>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {QUICK_PRESETS.map((preset, idx) => (
                   <button
@@ -253,7 +253,7 @@ export function DonationForm(props: Props) {
                         vitamin_c_mg: preset.vitC,
                         hours_valid: preset.hours,
                       });
-                      toast.success(`Preset dipilih: ${preset.label}`);
+                      toast.success(`Preset selected: ${preset.label}`);
                       onSetStep(2);
                     }}
                     className="p-2 text-left bg-stone-50 hover:bg-emerald-50 border border-stone-200 rounded-xl transition-all text-xs group cursor-pointer"
@@ -279,7 +279,7 @@ export function DonationForm(props: Props) {
                 disabled={!form.food_name || !form.portion_count}
                 className="w-full py-3 rounded-xl bg-[#2D7A4F] hover:bg-emerald-800 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-sm cursor-pointer disabled:opacity-50"
               >
-                <span>Lanjut: Hitung Nutrisi Otomatis (AI)</span> <ArrowRight size={15} />
+                <span>Continue: Calculate Nutrition (AI)</span> <ArrowRight size={15} />
               </button>
             </div>
           </motion.div>
@@ -293,25 +293,25 @@ export function DonationForm(props: Props) {
               <div className="flex items-center justify-between">
                 <span className="font-bold text-emerald-900 text-xs flex items-center gap-1.5">
                   <Brain size={15} className="text-emerald-700" />
-                  <span>AI Nutrition Estimator (Standar Kemenkes RI)</span>
+                  <span>AI Nutrition Estimator</span>
                 </span>
                 <button
                   type="button"
                   onClick={handleRunAIEstimate}
                   className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] flex items-center gap-1 transition-colors cursor-pointer"
                 >
-                  <Sparkles size={12} /> Hitung Ulang AI
+                  <Sparkles size={12} /> Re-estimate with AI
                 </button>
               </div>
 
               <p className="text-[11px] text-stone-600 leading-relaxed">
-                Estimasi kandungan nutrisi dihitung otomatis berdasarkan nama makanan: <strong>"{form.food_name}"</strong>. Anda juga dapat menyesuaikan angkanya secara manual.
+                Nutrient values estimated automatically based on: <strong>"{form.food_name}"</strong>. You can fine-tune any values manually.
               </p>
 
               {aiConfidence && (
                 <div className="flex items-center gap-2 pt-1">
                   <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
-                    Tingkat Keyakinan AI: {aiConfidence}%
+                    AI Confidence: {aiConfidence}%
                   </span>
                   {keyNutrients.map((n, i) => (
                     <span key={i} className="hidden sm:inline-block px-2 py-0.5 rounded-full bg-white text-stone-600 text-[10px] font-semibold border border-emerald-200">
@@ -326,11 +326,11 @@ export function DonationForm(props: Props) {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="text-xs font-bold text-stone-700 mb-1 block">
-                  Kandungan Protein (Gram/Porsi) <span className="text-red-500">*</span>
+                  Protein Content (Grams/Portion) <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
-                  placeholder="Contoh: 24"
+                  placeholder="e.g. 24"
                   value={form.protein_per_portion}
                   onChange={(e) => onSetForm({ ...form, protein_per_portion: e.target.value })}
                   className="w-full border border-stone-200 p-2.5 rounded-xl bg-stone-50 focus:bg-white focus:ring-2 focus:ring-[#2D7A4F]/30 outline-none text-sm font-bold text-blue-800 transition-all"
@@ -340,11 +340,11 @@ export function DonationForm(props: Props) {
 
               <div>
                 <label className="text-xs font-bold text-stone-700 mb-1 block">
-                  Kalori Energi (Kkal/Porsi) <span className="text-red-500">*</span>
+                  Energy Calories (kcal/Portion) <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
-                  placeholder="Contoh: 500"
+                  placeholder="e.g. 500"
                   value={form.calorie_per_portion}
                   onChange={(e) => onSetForm({ ...form, calorie_per_portion: e.target.value })}
                   className="w-full border border-stone-200 p-2.5 rounded-xl bg-stone-50 focus:bg-white focus:ring-2 focus:ring-[#2D7A4F]/30 outline-none text-sm font-bold text-amber-800 transition-all"
@@ -356,12 +356,12 @@ export function DonationForm(props: Props) {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="text-xs font-bold text-stone-700 mb-1 block">
-                  Zat Besi / Iron (mg)
+                  Iron (mg)
                 </label>
                 <input
                   type="number"
                   step="0.1"
-                  placeholder="Contoh: 2.5"
+                  placeholder="e.g. 2.5"
                   value={form.iron_mg}
                   onChange={(e) => onSetForm({ ...form, iron_mg: e.target.value })}
                   className="w-full border border-stone-200 p-2.5 rounded-xl bg-stone-50 focus:bg-white focus:ring-2 focus:ring-[#2D7A4F]/30 outline-none text-sm transition-all"
@@ -374,7 +374,7 @@ export function DonationForm(props: Props) {
                 </label>
                 <input
                   type="number"
-                  placeholder="Contoh: 15"
+                  placeholder="e.g. 15"
                   value={form.vitamin_c_mg}
                   onChange={(e) => onSetForm({ ...form, vitamin_c_mg: e.target.value })}
                   className="w-full border border-stone-200 p-2.5 rounded-xl bg-stone-50 focus:bg-white focus:ring-2 focus:ring-[#2D7A4F]/30 outline-none text-sm transition-all"
@@ -388,7 +388,7 @@ export function DonationForm(props: Props) {
                 onClick={() => onSetStep(1)}
                 className="flex-1 py-2.5 rounded-xl border border-stone-200 text-stone-700 font-bold text-xs hover:bg-stone-50 transition-colors flex items-center justify-center gap-1 cursor-pointer"
               >
-                <ArrowLeft size={14} /> Kembali
+                <ArrowLeft size={14} /> Back
               </button>
 
               <button
@@ -396,7 +396,7 @@ export function DonationForm(props: Props) {
                 onClick={() => onSetStep(3)}
                 className="flex-1 py-2.5 rounded-xl bg-[#2D7A4F] hover:bg-emerald-800 text-white font-bold text-xs transition-colors flex items-center justify-center gap-1 shadow-sm cursor-pointer"
               >
-                <span>Tinjau Donasi</span> <ArrowRight size={14} />
+                <span>Review Donation</span> <ArrowRight size={14} />
               </button>
             </div>
           </motion.div>
@@ -407,22 +407,22 @@ export function DonationForm(props: Props) {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3.5">
             <div className="p-4 bg-stone-50 rounded-2xl border border-stone-200 space-y-2.5 text-xs">
               <div className="flex justify-between items-center pb-2 border-b border-stone-200">
-                <span className="text-stone-500">Nama Makanan:</span>
+                <span className="text-stone-500">Food Name:</span>
                 <span className="font-bold text-stone-900">{form.food_name}</span>
               </div>
               <div className="flex justify-between items-center pb-2 border-b border-stone-200">
-                <span className="text-stone-500">Jumlah Porsi:</span>
-                <span className="font-bold text-emerald-700">{form.portion_count} Porsi</span>
+                <span className="text-stone-500">Portions:</span>
+                <span className="font-bold text-emerald-700">{form.portion_count} Portions</span>
               </div>
               <div className="flex justify-between items-center pb-2 border-b border-stone-200">
-                <span className="text-stone-500">Nilai Gizi:</span>
+                <span className="text-stone-500">Nutritional Value:</span>
                 <span className="font-semibold text-stone-800">
-                  {form.protein_per_portion || 0}g Protein • {form.calorie_per_portion || 0} kkal
+                  {form.protein_per_portion || 0}g Protein • {form.calorie_per_portion || 0} kcal
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-stone-500">Masa Simpan:</span>
-                <span className="font-semibold text-stone-800">{form.hours_valid || 6} Jam</span>
+                <span className="text-stone-500">Safe Window:</span>
+                <span className="font-semibold text-stone-800">{form.hours_valid || 6} Hours</span>
               </div>
             </div>
 
@@ -432,14 +432,14 @@ export function DonationForm(props: Props) {
                 onClick={() => onSetStep(2)}
                 className="flex-1 py-3 rounded-xl border border-stone-200 text-stone-700 font-bold text-xs hover:bg-stone-50 transition-colors flex items-center justify-center gap-1 cursor-pointer"
               >
-                <ArrowLeft size={14} /> Edit Nutrisi
+                <ArrowLeft size={14} /> Edit Nutrition
               </button>
 
               <button
                 type="submit"
                 className="flex-1 py-3 rounded-xl bg-[#2D7A4F] hover:bg-emerald-800 text-white font-bold text-xs transition-colors flex items-center justify-center gap-1.5 shadow-md cursor-pointer active:scale-95"
               >
-                <ShieldCheck size={16} /> Publikasikan Donasi
+                <ShieldCheck size={16} /> Publish Donation
               </button>
             </div>
           </motion.div>
