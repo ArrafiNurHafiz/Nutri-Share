@@ -9,9 +9,12 @@ export interface RealtimeEvent {
 }
 
 const BASE_URL =
-  (typeof import.meta !== "undefined" &&
-    (import.meta as any).env?.VITE_API_URL) ||
-  "";
+  import.meta.env.VITE_API_URL ||
+  (typeof window !== "undefined" &&
+  window.location.hostname !== "localhost" &&
+  window.location.hostname !== "127.0.0.1"
+    ? "https://nutrishare-api.vercel.app"
+    : "");
 
 // Multi-tab synchronization channel
 export const MULTITAB_CHANNEL_NAME = "nutrishare_realtime_channel";

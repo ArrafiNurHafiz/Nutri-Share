@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { Star, MessageSquareQuote } from "lucide-react";
+import { api } from "../../lib/api";
 
 interface Review {
   id: number;
@@ -175,8 +176,8 @@ export function Testimonials() {
   const [reviews, setReviews] = useState<Review[]>(defaultTestimonials);
 
   useEffect(() => {
-    fetch("/api/public/reviews")
-      .then((res) => (res.ok ? res.json() : []))
+    api
+      .fetchJSON("/api/public/reviews")
       .then((data: any[]) => {
         if (Array.isArray(data) && data.length > 0) {
           const mapped: Review[] = data.map((r, idx) => ({

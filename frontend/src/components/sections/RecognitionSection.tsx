@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, BarChart3, TrendingUp, CheckCircle2 } from "lucide-react";
+import { api } from "../../lib/api";
 
 export function RecognitionSection({
   topDonors = [],
@@ -18,8 +19,8 @@ export function RecognitionSection({
   const co2Saved = stats?.co2_saved_tons ?? 2.4;
 
   useEffect(() => {
-    fetch("/api/public/topsis-priority")
-      .then((res) => (res.ok ? res.json() : null))
+    api
+      .fetchJSON("/api/public/topsis-priority")
       .then((data) => {
         if (data && data.rankings) {
           setTopsisData(data);
