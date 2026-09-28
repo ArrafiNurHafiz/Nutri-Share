@@ -25,7 +25,7 @@ class Settings(BaseSettings):
     supabase_service_key: str = ""
 
     # CORS / Frontend
-    allowed_origins: str = "http://localhost:3000,http://localhost:5173"
+    allowed_origins: str = "http://localhost:3000,http://localhost:5173,https://nutrishare.web.id,https://nutrishare-web.vercel.app,https://nutrishare.vercel.app"
     frontend_url: str = ""  # for convenience when a single frontend origin is used
 
     model_config = {"env_prefix": "", "case_sensitive": False, "env_file": ".env"}

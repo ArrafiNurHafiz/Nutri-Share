@@ -67,17 +67,16 @@ def decode_token(token: str) -> dict[str, Any]:
 def set_auth_cookie(res: Response, token: str) -> None:
     """Set the httpOnly auth cookie on the response.
 
-    In production (Vercel HTTPS): always secure=True.
-    Cross-origin deployments should set COOKIE_DOMAIN and use SameSite=None.
-    Same-origin deployments use SameSite=Lax.
+    In production (HTTPS): secure=True, samesite=none (to support both reverse proxy and cross-origin).
+    In development (HTTP): secure=False, samesite=lax.
     """
-    cross_origin = bool(settings.cookie_domain)
+    is_prod = settings.is_production
     res.set_cookie(
         key=settings.cookie_name,
         value=token,
         httponly=True,
-        secure=settings.is_production,
-        samesite="none" if cross_origin else "lax",
+        secure=is_prod,
+        samesite="none" if is_prod else "lax",
         domain=settings.cookie_domain or None,
         max_age=7 * 24 * 60 * 60,
         path="/",
