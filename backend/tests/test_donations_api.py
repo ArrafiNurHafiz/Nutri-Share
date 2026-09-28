@@ -170,3 +170,51 @@ class TestDonationsHistory:
         client.cookies.set("nutrishare_token", donor_token)
         response = await client.get("/api/donations/history")
         assert response.status_code == 403
+
+
+@pytest.mark.asyncio
+class TestDonationsLifecycle:
+    """Tests for donation arrival and completion lifecycle."""
+
+    async def test_recipient_confirm_arrived_and_complete(
+        self, client: AsyncClient, recipient_token: str, donor_token: str, test_donation: dict, db_session
+    ):
+        """Test recipient confirms arrival and completes delivery."""
+        from backend.auth import decode_token
+        from backend.models import TopsisResult, Claim
+        from datetime import datetime, timezone
+
+        donation_id = test_donation["id"]
+        recip_id = decode_token(recipient_token)["id"]
+
+        # Add TOPSIS result and claim
+        tr = TopsisResult(
+            donation_id=donation_id,
+            recipient_id=recip_id,
+            rank_position=1,
+            ci_score=0.95,
+            calculated_at=datetime.now(timezone.utc).isoformat(),
+        )
+        db_session.add(tr)
+        await db_session.commit()
+
+        # Claim donation as recipient
+        client.cookies.set("nutrishare_token", recipient_token)
+        claim_res = await client.post(f"/api/donations/{donation_id}/claim")
+        assert claim_res.status_code == 200
+
+        # Donor trying to complete fails with 403
+        client.cookies.set("nutrishare_token", donor_token)
+        donor_complete_res = await client.post(f"/api/donations/{donation_id}/complete")
+        assert donor_complete_res.status_code == 403
+
+        # Recipient confirms arrival at donor
+        client.cookies.set("nutrishare_token", recipient_token)
+        arrived_res = await client.post(f"/api/donations/{donation_id}/arrived")
+        assert arrived_res.status_code == 200
+
+        # Recipient confirms delivery completion
+        complete_res = await client.post(f"/api/donations/{donation_id}/complete")
+        assert complete_res.status_code == 200
+        assert "completed" in complete_res.json().get("message", "").lower() or complete_res.status_code == 200
+

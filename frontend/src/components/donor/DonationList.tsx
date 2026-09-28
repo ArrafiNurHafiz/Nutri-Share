@@ -177,16 +177,7 @@ export function DonationList({
                         onClick={() => onTrack(d)}
                         className="text-xs border border-[var(--border-primary)] text-slate-700 bg-white hover:bg-slate-50 px-3 py-1.5 rounded-lg font-bold transition-all flex items-center gap-1"
                       >
-                        <Navigation size={12} /> Track
-                      </button>
-                    )}
-
-                    {d.status === "claimed" && (d as any).arrived_at && (
-                      <button
-                        onClick={() => onComplete(d.id)}
-                        className="text-xs bg-primary-orange hover:bg-primary-orange-dark text-white px-3 py-1.5 rounded-lg font-bold transition-all shadow-sm active:scale-95"
-                      >
-                        Complete Handover
+                        <Navigation size={12} /> Pantau Kurir
                       </button>
                     )}
                   </div>

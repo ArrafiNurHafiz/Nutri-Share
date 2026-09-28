@@ -122,15 +122,15 @@ if claims:
     confirmed = any(c.get("status") in ("approved", "claimed") for c in claims)
     check("Claim instant confirmation", confirmed)
 
-# === FLOW 8: DONOR CONFIRM ARRIVED + COMPLETE ===
-print("\n8️⃣  DONOR COMPLETE DONATION")
-s, transits, _ = req("GET", "/api/donations/transit", cookies=donor_cookie)
+# === FLOW 8: RECIPIENT CONFIRM ARRIVED + COMPLETE ===
+print("\n8️⃣  RECIPIENT COMPLETE DONATION")
+s, transits, _ = req("GET", "/api/donations/transit", cookies=recipient_cookie)
 check("List transit donations", s == 200)
 if transits and len(transits) > 0:
     tid = transits[0]["id"]
-    s2, _, _ = req("POST", f"/api/donations/{tid}/arrived", cookies=donor_cookie)
+    s2, _, _ = req("POST", f"/api/donations/{tid}/arrived", cookies=recipient_cookie)
     check(f"Confirm arrived #{tid}", s2 == 200)
-    s3, _, _ = req("POST", f"/api/donations/{tid}/complete", cookies=donor_cookie)
+    s3, _, _ = req("POST", f"/api/donations/{tid}/complete", cookies=recipient_cookie)
     check(f"Complete donation #{tid}", s3 == 200)
 
 # === FLOW 9: REVIEW ===
