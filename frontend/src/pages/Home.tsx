@@ -43,7 +43,7 @@ export default function Home() {
   return (
     <div className="min-h-[100dvh] bg-[#f8fafc] text-slate-900 font-sans overflow-x-hidden antialiased selection:bg-emerald-100 selection:text-emerald-900">
       <Navbar onLoginClick={handleLoginClick} />
-      <SEO title="NutriShare — Platform Distribusi Pangan Berbasis Gizi" />
+      <SEO title="NutriShare — Nutrition-Based Food Redistribution Platform" />
 
       <main className="w-full max-w-full overflow-x-hidden">
         {/* Hero Section: 21st Rivr Emerald */}

@@ -108,7 +108,7 @@ async def create_tables():
     async with _engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.create_all)
 
-    # Migration: add columns if missing (safe for PostgreSQL)
+    # Migration: add columns and ensure cascade foreign keys (safe for PostgreSQL)
     async with _engine.begin() as conn:
         from sqlalchemy import text
 
@@ -119,7 +119,26 @@ async def create_tables():
             try:
                 await conn.execute(text(stmt))
             except Exception:
-                pass  # column already exists or not supported
+                pass
+
+        # Ensure ON DELETE CASCADE on PostgreSQL constraints
+        for cascade_stmt in (
+            "ALTER TABLE donor_profiles DROP CONSTRAINT IF EXISTS donor_profiles_user_id_fkey, ADD CONSTRAINT donor_profiles_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE",
+            "ALTER TABLE recipient_profiles DROP CONSTRAINT IF EXISTS recipient_profiles_user_id_fkey, ADD CONSTRAINT recipient_profiles_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE",
+            "ALTER TABLE donations DROP CONSTRAINT IF EXISTS donations_donor_id_fkey, ADD CONSTRAINT donations_donor_id_fkey FOREIGN KEY (donor_id) REFERENCES users(id) ON DELETE CASCADE",
+            "ALTER TABLE topsis_results DROP CONSTRAINT IF EXISTS topsis_results_donation_id_fkey, ADD CONSTRAINT topsis_results_donation_id_fkey FOREIGN KEY (donation_id) REFERENCES donations(id) ON DELETE CASCADE",
+            "ALTER TABLE topsis_results DROP CONSTRAINT IF EXISTS topsis_results_recipient_id_fkey, ADD CONSTRAINT topsis_results_recipient_id_fkey FOREIGN KEY (recipient_id) REFERENCES users(id) ON DELETE CASCADE",
+            "ALTER TABLE claims DROP CONSTRAINT IF EXISTS claims_donation_id_fkey, ADD CONSTRAINT claims_donation_id_fkey FOREIGN KEY (donation_id) REFERENCES donations(id) ON DELETE CASCADE",
+            "ALTER TABLE claims DROP CONSTRAINT IF EXISTS claims_recipient_id_fkey, ADD CONSTRAINT claims_recipient_id_fkey FOREIGN KEY (recipient_id) REFERENCES users(id) ON DELETE CASCADE",
+            "ALTER TABLE reviews DROP CONSTRAINT IF EXISTS reviews_donation_id_fkey, ADD CONSTRAINT reviews_donation_id_fkey FOREIGN KEY (donation_id) REFERENCES donations(id) ON DELETE CASCADE",
+            "ALTER TABLE reviews DROP CONSTRAINT IF EXISTS reviews_donor_id_fkey, ADD CONSTRAINT reviews_donor_id_fkey FOREIGN KEY (donor_id) REFERENCES users(id) ON DELETE CASCADE",
+            "ALTER TABLE reviews DROP CONSTRAINT IF EXISTS reviews_recipient_id_fkey, ADD CONSTRAINT reviews_recipient_id_fkey FOREIGN KEY (recipient_id) REFERENCES users(id) ON DELETE CASCADE",
+            "ALTER TABLE notifications DROP CONSTRAINT IF EXISTS notifications_user_id_fkey, ADD CONSTRAINT notifications_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE",
+        ):
+            try:
+                await conn.execute(text(cascade_stmt))
+            except Exception:
+                pass
 
     # Add indexes for frequently queried columns (safe to run multiple times)
     async with _engine.begin() as conn:
